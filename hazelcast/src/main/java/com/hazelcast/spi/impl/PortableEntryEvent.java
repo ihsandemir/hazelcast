@@ -32,6 +32,7 @@ public class PortableEntryEvent implements Portable {
     private Data value;
     private Data oldValue;
     private Data mergingValue;
+    long time;
     private EntryEventType eventType;
     private String uuid;
     private int numberOfAffectedEntries = 1;
@@ -107,6 +108,9 @@ public class PortableEntryEvent implements Portable {
         out.writeData(value);
         out.writeData(oldValue);
         out.writeData(mergingValue);
+        time = System.nanoTime();
+        out.writeLong(time);
+
     }
 
     @Override
@@ -120,5 +124,6 @@ public class PortableEntryEvent implements Portable {
         value = in.readData();
         oldValue = in.readData();
         mergingValue = in.readData();
+        time = in.readLong();
     }
 }

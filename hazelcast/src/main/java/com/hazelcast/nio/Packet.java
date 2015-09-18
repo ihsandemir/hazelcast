@@ -21,6 +21,7 @@ import com.hazelcast.internal.serialization.impl.HeapData;
 import java.nio.ByteBuffer;
 
 import static com.hazelcast.nio.Bits.INT_SIZE_IN_BYTES;
+import static com.hazelcast.nio.Bits.LONG_SIZE_IN_BYTES;
 
 /**
  * A Packet is a piece of data send over the line. The Packet is used for member to member communication and old-client to
@@ -46,13 +47,15 @@ public final class Packet extends HeapData implements OutboundFrame {
     private static final short PERSIST_VERSION = 1;
     private static final short PERSIST_HEADER = 2;
     private static final short PERSIST_PARTITION = 3;
-    private static final short PERSIST_SIZE = 4;
-    private static final short PERSIST_VALUE = 5;
+    private static final short PERSIST_TIMESTAMP = 4;
+    private static final short PERSIST_SIZE = 5;
+    private static final short PERSIST_VALUE = 6;
 
     private static final short PERSIST_COMPLETED = Short.MAX_VALUE;
 
     private short header;
     private int partitionId;
+    private long serverPacketTimestamp;
     private transient Connection conn;
 
     // These 2 fields are only used during read/write. Otherwise they have no meaning.
@@ -71,6 +74,10 @@ public final class Packet extends HeapData implements OutboundFrame {
     public Packet(byte[] payload, int partitionId) {
         super(payload);
         this.partitionId = partitionId;
+    }
+
+    public void setServerPacketTimestamp(long serverPacketTimestamp) {
+        this.serverPacketTimestamp = serverPacketTimestamp;
     }
 
     /**
@@ -139,6 +146,10 @@ public final class Packet extends HeapData implements OutboundFrame {
             return false;
         }
 
+        if (!writeTimestamp(dst)) {
+            return false;
+        }
+
         if (!writeSize(dst)) {
             return false;
         }
@@ -161,6 +172,10 @@ public final class Packet extends HeapData implements OutboundFrame {
         }
 
         if (!readPartition(src)) {
+            return false;
+        }
+
+        if (!readTimestamp(src)) {
             return false;
         }
 
@@ -274,6 +289,30 @@ public final class Packet extends HeapData implements OutboundFrame {
             size = totalSize();
             dst.putInt(size);
             setPersistStatus(PERSIST_SIZE);
+        }
+        return true;
+    }
+
+    // ========================= timestamp =================================================
+
+    private boolean readTimestamp(ByteBuffer src) {
+        if (!isPersistStatusSet(PERSIST_TIMESTAMP)) {
+            if (src.remaining() < LONG_SIZE_IN_BYTES) {
+                return false;
+            }
+            serverPacketTimestamp = src.getLong();
+            setPersistStatus(PERSIST_TIMESTAMP);
+        }
+        return true;
+    }
+
+    private boolean writeTimestamp(ByteBuffer dst) {
+        if (!isPersistStatusSet(PERSIST_TIMESTAMP)) {
+            if (dst.remaining() < INT_SIZE_IN_BYTES) {
+                return false;
+            }
+            dst.putLong(serverPacketTimestamp);
+            setPersistStatus(PERSIST_TIMESTAMP);
         }
         return true;
     }

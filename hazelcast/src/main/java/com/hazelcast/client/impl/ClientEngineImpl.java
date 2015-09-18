@@ -221,6 +221,7 @@ public class ClientEngineImpl implements ClientEngine, CoreService, PostJoinAwar
         if (isEvent) {
             packet.setHeader(Packet.HEADER_EVENT);
         }
+        packet.setServerPacketTimestamp(System.nanoTime());
         Connection conn = endpoint.getConnection();
         conn.write(packet);
     }
