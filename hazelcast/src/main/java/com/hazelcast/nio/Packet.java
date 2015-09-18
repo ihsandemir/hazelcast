@@ -308,10 +308,10 @@ public final class Packet extends HeapData implements OutboundFrame {
 
     private boolean writeTimestamp(ByteBuffer dst) {
         if (!isPersistStatusSet(PERSIST_TIMESTAMP)) {
-            if (dst.remaining() < INT_SIZE_IN_BYTES) {
+            if (dst.remaining() < LONG_SIZE_IN_BYTES) {
                 return false;
             }
-            dst.putLong(serverPacketTimestamp);
+            dst.putLong(System.nanoTime());
             setPersistStatus(PERSIST_TIMESTAMP);
         }
         return true;
