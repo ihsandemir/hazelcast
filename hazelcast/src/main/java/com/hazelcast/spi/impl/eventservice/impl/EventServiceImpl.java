@@ -367,7 +367,6 @@ public class EventServiceImpl implements InternalEventService {
     private void sendEventPacket(Address subscriber, EventPacket eventPacket, int orderKey) {
         final String serviceName = eventPacket.getServiceName();
         final EventServiceSegment segment = getSegment(serviceName, true);
-/*
         boolean sync = segment.incrementPublish() % EVENT_SYNC_FREQUENCY == 0;
 
         if (sync) {
@@ -381,7 +380,6 @@ public class EventServiceImpl implements InternalEventService {
                 ignore(ignored);
             }
         } else {
-*/
             Packet packet = new Packet(serializationService.toBytes(eventPacket), orderKey);
             packet.setHeader(Packet.HEADER_EVENT);
 
@@ -390,9 +388,7 @@ public class EventServiceImpl implements InternalEventService {
                     logFailure("IO Queue overloaded! Failed to send event packet to: %s", subscriber);
                 }
             }
-/*
         }
-*/
     }
 
     public EventServiceSegment getSegment(String service, boolean forceCreate) {
