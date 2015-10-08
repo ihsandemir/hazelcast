@@ -171,6 +171,7 @@ public class ClientEngineImpl implements ClientEngine, CoreService, PostJoinAwar
     }
 
     public void handlePacket(Packet packet) {
+        packet.setClientEngineHandlePacketEntryTime(System.nanoTime());
         int partitionId = packet.getPartitionId();
         if (partitionId < 0) {
             executor.execute(new ClientPacketProcessor(packet));
@@ -407,7 +408,10 @@ public class ClientEngineImpl implements ClientEngine, CoreService, PostJoinAwar
         }
 
         private ClientRequest loadRequest() {
-            return serializationService.toObject(packet);
+            ClientRequest request = (ClientRequest)serializationService.toObject(packet);
+            request.setTimeStamp(packet.getTimeStamp());
+            request.setClientEngineHandlePacketEntryTime(packet.getClientEngineHandlePacketEntryTime());
+            return request;
         }
 
         private void handleEndpointNotCreatedConnectionNotAlive() {

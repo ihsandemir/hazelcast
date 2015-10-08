@@ -1259,7 +1259,9 @@ public class ClientMapProxy<K, V> extends ClientProxy implements IMap<K, V> {
             }
             K key = toObject(event.getKey());
             return new EntryEvent<K, V>(name, member,
-                    event.getEventType().getType(), key, oldValue, value, mergingValue);
+                    event.getEventType().getType(), key, oldValue, value, mergingValue, event.getProducerClientTimeStamp(),
+                    event.getClientEnginehandlePacketEntryTime(), event.getPutOperationRunTime(),
+                    event.getPutOperationAfterRunTime(), event.getServerEventCreateTime());
         }
 
         @Override

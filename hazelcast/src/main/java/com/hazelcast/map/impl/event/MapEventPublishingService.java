@@ -116,6 +116,7 @@ public class MapEventPublishingService implements EventPublishingService<EventDa
     private DataAwareEntryEvent createDataAwareEntryEvent(EntryEventData entryEventData, Member member) {
         return new DataAwareEntryEvent(member, entryEventData.getEventType(), entryEventData.getMapName(),
                 entryEventData.getDataKey(), entryEventData.getDataNewValue(), entryEventData.getDataOldValue(),
-                entryEventData.getDataMergingValue(), nodeEngine.getSerializationService());
+                entryEventData.getDataMergingValue(), nodeEngine.getSerializationService(), entryEventData.clientTimeStamp,
+                entryEventData.clientEnginehandlePacketEntryTime, entryEventData.putOperationRunTime, entryEventData.putOperationAfterRunTime);
     }
 }

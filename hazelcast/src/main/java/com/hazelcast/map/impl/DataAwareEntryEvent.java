@@ -38,18 +38,25 @@ public class DataAwareEntryEvent extends EntryEvent {
     private final transient Data dataMergingValue;
 
     private final transient SerializationService serializationService;
+    private final long putOperationRunTime;
+    private final long putOperationAfterRunTime;
+    private long clientEnginehandlePacketEntryTime;
 
-    public DataAwareEntryEvent(Member from, int eventType,
-                               String source, Data dataKey,
-                               Data dataNewValue, Data dataOldValue,
-                               Data dataMergingValue,
-                               SerializationService serializationService) {
+    private long clientTimeStamp;
+
+    public DataAwareEntryEvent(Member from, int eventType, String source, Data dataKey, Data dataNewValue, Data dataOldValue,
+                               Data dataMergingValue, SerializationService serializationService, long clientTimeStamp,
+                               long clientEnginehandlePacketEntryTime, long putOperationRunTime, long putOperationAfterRunTime) {
         super(source, from, eventType, null, null);
         this.dataKey = dataKey;
         this.dataNewValue = dataNewValue;
         this.dataOldValue = dataOldValue;
         this.dataMergingValue = dataMergingValue;
         this.serializationService = serializationService;
+        this.clientTimeStamp = clientTimeStamp;
+        this.clientEnginehandlePacketEntryTime = clientEnginehandlePacketEntryTime;
+        this.putOperationRunTime = putOperationRunTime;
+        this.putOperationAfterRunTime = putOperationAfterRunTime;
     }
 
     public Data getKeyData() {
@@ -98,6 +105,22 @@ public class DataAwareEntryEvent extends EntryEvent {
             mergingValue = serializationService.toObject(dataMergingValue);
         }
         return mergingValue;
+    }
+
+    public long getClientTimeStamp() {
+        return clientTimeStamp;
+    }
+
+    public long getClientEnginehandlePacketEntryTime() {
+        return clientEnginehandlePacketEntryTime;
+    }
+
+    public long getPutOperationRunTime() {
+        return putOperationRunTime;
+    }
+
+    public long getPutOperationAfterRunTime() {
+        return putOperationAfterRunTime;
     }
 
     private void writeObject(ObjectOutputStream out) throws IOException {

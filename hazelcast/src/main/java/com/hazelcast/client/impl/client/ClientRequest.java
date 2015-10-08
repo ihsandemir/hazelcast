@@ -35,6 +35,8 @@ public abstract class ClientRequest implements SecureRequest, VersionedPortable 
     protected transient SerializationService serializationService;
     protected transient Object service;
     protected transient ClientEndpoint endpoint;
+    protected long timeStamp;
+    protected long clientEngineHandlePacketEntryTime;
 
     public void setOperationService(OperationService operationService) {
         this.operationService = operationService;
@@ -130,5 +132,13 @@ public abstract class ClientRequest implements SecureRequest, VersionedPortable 
     @Override
     public Object[] getParameters() {
         return null;
+    }
+
+    public void setTimeStamp(long timeStamp) {
+        this.timeStamp = timeStamp;
+    }
+
+    public void setClientEngineHandlePacketEntryTime(long clientEngineHandlePacketEntryTime) {
+        this.clientEngineHandlePacketEntryTime = clientEngineHandlePacketEntryTime;
     }
 }

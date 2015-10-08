@@ -55,7 +55,7 @@ public final class Packet extends HeapData implements OutboundFrame {
 
     private short header;
     private int partitionId;
-    private long serverPacketTimestamp;
+    private long timeStamp;
     private transient Connection conn;
 
     // These 2 fields are only used during read/write. Otherwise they have no meaning.
@@ -63,6 +63,7 @@ public final class Packet extends HeapData implements OutboundFrame {
     private int size;
     // Stores the current 'phase' of read/write. This is needed so that repeated calls can be made to read/write.
     private short persistStatus;
+    private long clientEngineHandlePacketEntryTime;
 
     public Packet() {
     }
@@ -76,8 +77,8 @@ public final class Packet extends HeapData implements OutboundFrame {
         this.partitionId = partitionId;
     }
 
-    public void setServerPacketTimestamp(long serverPacketTimestamp) {
-        this.serverPacketTimestamp = serverPacketTimestamp;
+    public void setTimeStamp(long timeStamp) {
+        this.timeStamp = timeStamp;
     }
 
     /**
@@ -126,6 +127,10 @@ public final class Packet extends HeapData implements OutboundFrame {
      */
     public int getPartitionId() {
         return partitionId;
+    }
+
+    public long getTimeStamp() {
+        return timeStamp;
     }
 
     @Override
@@ -300,7 +305,7 @@ public final class Packet extends HeapData implements OutboundFrame {
             if (src.remaining() < LONG_SIZE_IN_BYTES) {
                 return false;
             }
-            serverPacketTimestamp = src.getLong();
+            timeStamp = src.getLong();
             setPersistStatus(PERSIST_TIMESTAMP);
         }
         return true;
@@ -455,5 +460,13 @@ public final class Packet extends HeapData implements OutboundFrame {
         sb.append(", conn=").append(conn);
         sb.append('}');
         return sb.toString();
+    }
+
+    public void setClientEngineHandlePacketEntryTime(long clientEnginehandlePacketEntryTime) {
+        this.clientEngineHandlePacketEntryTime = clientEnginehandlePacketEntryTime;
+    }
+
+    public long getClientEngineHandlePacketEntryTime() {
+        return clientEngineHandlePacketEntryTime;
     }
 }

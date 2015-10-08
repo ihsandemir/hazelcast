@@ -260,7 +260,8 @@ public class EntryOperation extends LockAwareOperation implements BackupAwareOpe
             final MapEventPublisher mapEventPublisher = getMapEventPublisher();
             dataValue = toData(dataValue);
             mapEventPublisher.
-                    publishEvent(getCallerAddress(), name, eventType, dataKey, toData(oldValue), (Data) dataValue);
+                    publishEvent(getCallerAddress(), name, eventType, dataKey, toData(oldValue), (Data) dataValue,
+                            -1, -1, -1, -1);
         }
     }
 

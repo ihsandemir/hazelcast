@@ -45,6 +45,7 @@ public class EvictOperation extends LockAwareOperation implements MutatingOperat
         MapServiceContext mapServiceContext = mapService.getMapServiceContext();
         dataValue = mapServiceContext.toData(recordStore.evict(dataKey, false));
         evicted = dataValue != null;
+
     }
 
     @Override
@@ -94,7 +95,8 @@ public class EvictOperation extends LockAwareOperation implements MutatingOperat
         mapServiceContext.interceptAfterRemove(name, dataValue);
         EntryEventType eventType = EntryEventType.EVICTED;
         mapServiceContext.getMapEventPublisher()
-                .publishEvent(getCallerAddress(), name, eventType, dataKey, dataValue, null);
+                .publishEvent(getCallerAddress(), name, eventType, dataKey, dataValue, null, -1,
+                        -1, -1, -1);
         invalidateNearCaches();
     }
 

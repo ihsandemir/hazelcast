@@ -99,7 +99,8 @@ class MultiMapEventsDispatcher {
         return new DataAwareEntryEvent(member, entryEventData.getEventType(), entryEventData.getMapName(),
                 entryEventData.getDataKey(), entryEventData.getDataNewValue(),
                 entryEventData.getDataOldValue(), entryEventData.getDataMergingValue(),
-                multiMapService.getSerializationService());
+                multiMapService.getSerializationService(), entryEventData.getClientTimeStamp(),
+                -1, entryEventData.getPutOperationRunTime(), entryEventData.getPutOperationAfterRunTime());
     }
 
     private void dispatch0(IMapEvent event, EntryListener listener) {

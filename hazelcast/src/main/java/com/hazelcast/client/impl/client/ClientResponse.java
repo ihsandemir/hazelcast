@@ -29,6 +29,7 @@ public class ClientResponse implements IdentifiedDataSerializable {
     private Data response;
     private int callId;
     private boolean isError;
+    private long packetTimestamp; // timestamp associated with the received packet
 
     public ClientResponse() {
     }
@@ -59,6 +60,14 @@ public class ClientResponse implements IdentifiedDataSerializable {
     @Override
     public int getId() {
         return ClientDataSerializerHook.CLIENT_RESPONSE;
+    }
+
+    public void setPacketTimestamp(long packetTimestamp) {
+        this.packetTimestamp = packetTimestamp;
+    }
+
+    public long getPacketTimestamp() {
+        return packetTimestamp;
     }
 
     @Override

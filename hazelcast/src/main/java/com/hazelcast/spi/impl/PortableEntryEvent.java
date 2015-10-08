@@ -28,25 +28,35 @@ import java.io.IOException;
 
 public class PortableEntryEvent implements Portable {
 
+    private long putOperationRunTime = -1;
+    private long putOperationAfterRunTime = -1;
+    private long clientEnginehandlePacketEntryTime;
     private Data key;
     private Data value;
     private Data oldValue;
     private Data mergingValue;
-    long time;
+    long serverEventCreateTime;
     private EntryEventType eventType;
     private String uuid;
     private int numberOfAffectedEntries = 1;
+    private long producerClientTimeStamp;
 
     public PortableEntryEvent() {
     }
 
-    public PortableEntryEvent(Data key, Data value, Data oldValue, Data mergingValue, EntryEventType eventType, String uuid) {
+    public PortableEntryEvent(Data key, Data value, Data oldValue, Data mergingValue, EntryEventType eventType, String uuid,
+                              long producerClientTimeStamp, long clientEnginehandlePacketEntryTime, long putOperationRunTime,
+                              long putOperationAfterRunTime) {
         this.key = key;
         this.value = value;
         this.oldValue = oldValue;
         this.mergingValue = mergingValue;
         this.eventType = eventType;
         this.uuid = uuid;
+        this.producerClientTimeStamp = producerClientTimeStamp;
+        this.clientEnginehandlePacketEntryTime = clientEnginehandlePacketEntryTime;
+        this.putOperationRunTime = putOperationRunTime;
+        this.putOperationAfterRunTime = putOperationAfterRunTime;
     }
 
     public PortableEntryEvent(EntryEventType eventType, String uuid, int numberOfAffectedEntries) {
@@ -94,6 +104,26 @@ public class PortableEntryEvent implements Portable {
         return SpiPortableHook.ENTRY_EVENT;
     }
 
+    public long getProducerClientTimeStamp() {
+        return producerClientTimeStamp;
+    }
+
+    public long getClientEnginehandlePacketEntryTime() {
+        return clientEnginehandlePacketEntryTime;
+    }
+
+    public long getPutOperationRunTime() {
+        return putOperationRunTime;
+    }
+
+    public long getPutOperationAfterRunTime() {
+        return putOperationAfterRunTime;
+    }
+
+    public long getServerEventCreateTime() {
+        return serverEventCreateTime;
+    }
+
     @Override
     public void writePortable(PortableWriter writer) throws IOException {
         // Map Event and Entry Event is merged to one event, because when cpp client get response
@@ -108,9 +138,12 @@ public class PortableEntryEvent implements Portable {
         out.writeData(value);
         out.writeData(oldValue);
         out.writeData(mergingValue);
-        time = System.nanoTime();
-        out.writeLong(time);
-
+        serverEventCreateTime = System.nanoTime();
+        out.writeLong(serverEventCreateTime);
+        out.writeLong(producerClientTimeStamp);
+        out.writeLong(clientEnginehandlePacketEntryTime);
+        out.writeLong(putOperationRunTime);
+        out.writeLong(putOperationAfterRunTime);
     }
 
     @Override
@@ -124,6 +157,10 @@ public class PortableEntryEvent implements Portable {
         value = in.readData();
         oldValue = in.readData();
         mergingValue = in.readData();
-        time = in.readLong();
+        serverEventCreateTime = in.readLong();
+        producerClientTimeStamp = in.readLong();
+        clientEnginehandlePacketEntryTime = in.readLong();
+        putOperationRunTime = in.readLong();
+        putOperationAfterRunTime = in.readLong();
     }
 }

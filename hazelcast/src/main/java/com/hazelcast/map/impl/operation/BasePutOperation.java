@@ -36,6 +36,11 @@ public abstract class BasePutOperation extends LockAwareOperation implements Bac
     protected transient Data dataOldValue;
     protected transient EntryEventType eventType;
     protected transient boolean putTransient;
+    private long clientTimeStamp = -1;
+    private long clientEngineHandlePacketEntryTime = -1;
+    protected long putOperationAfterRunTime = -1;
+    protected long putOperationRunTime = -1;
+
 
     public BasePutOperation(String name, Data dataKey, Data value) {
         super(name, dataKey, value, -1);
@@ -54,7 +59,9 @@ public abstract class BasePutOperation extends LockAwareOperation implements Bac
         final MapEventPublisher mapEventPublisher = mapServiceContext.getMapEventPublisher();
         mapServiceContext.interceptAfterPut(name, dataValue);
         eventType = getEventType();
-        mapEventPublisher.publishEvent(getCallerAddress(), name, eventType, dataKey, dataOldValue, dataValue);
+        putOperationAfterRunTime = System.nanoTime();
+        mapEventPublisher.publishEvent(getCallerAddress(), name, eventType, dataKey, dataOldValue, dataValue, clientTimeStamp,
+                clientEngineHandlePacketEntryTime, putOperationRunTime, putOperationAfterRunTime);
         invalidateNearCaches();
         publishWANReplicationEvent(mapServiceContext, mapEventPublisher);
         evict(false);
@@ -117,5 +124,13 @@ public abstract class BasePutOperation extends LockAwareOperation implements Bac
     @Override
     public String toString() {
         return "BasePutOperation{" + name + "}";
+    }
+
+    public void setClientTimeStamp(long clientTimeStamp) {
+        this.clientTimeStamp = clientTimeStamp;
+    }
+
+    public void setClientEngineHandlePacketEntryTime(long clientEnginehandlePacketEntryTime) {
+        this.clientEngineHandlePacketEntryTime = clientEnginehandlePacketEntryTime;
     }
 }

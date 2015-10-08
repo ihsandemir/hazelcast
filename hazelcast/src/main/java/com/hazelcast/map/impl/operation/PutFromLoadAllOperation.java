@@ -85,7 +85,8 @@ public class PutFromLoadAllOperation extends AbstractMapOperation implements Par
         final EntryEventType eventType = previousValue == null ? EntryEventType.ADDED : EntryEventType.UPDATED;
         final MapServiceContext mapServiceContext = mapService.getMapServiceContext();
         final MapEventPublisher mapEventPublisher = mapServiceContext.getMapEventPublisher();
-        mapEventPublisher.publishEvent(getCallerAddress(), name, eventType, key, previousValue, newValue);
+        mapEventPublisher.publishEvent(getCallerAddress(), name, eventType, key, previousValue, newValue, -1,
+                -1, -1, -1);
     }
 
     private void publishWanReplicationEvent(Data key, Data value, Record record) {

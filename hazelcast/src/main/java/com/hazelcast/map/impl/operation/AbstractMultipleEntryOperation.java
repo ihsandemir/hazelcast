@@ -223,7 +223,8 @@ abstract class AbstractMultipleEntryOperation extends AbstractMapOperation imple
             final MapEventPublisher mapEventPublisher = getMapEventPublisher();
             value = toData(value);
             mapEventPublisher.
-                    publishEvent(getCallerAddress(), name, eventType, key, toData(oldValue), (Data) value);
+                    publishEvent(getCallerAddress(), name, eventType, key, toData(oldValue), (Data) value, -1, -1,
+                            -1, -1);
         }
         return value;
     }

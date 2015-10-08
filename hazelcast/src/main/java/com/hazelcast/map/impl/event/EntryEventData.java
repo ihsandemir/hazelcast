@@ -27,10 +27,14 @@ import java.io.IOException;
  */
 public class EntryEventData extends AbstractEventData {
 
+    protected long clientEnginehandlePacketEntryTime = -1;
     protected Data dataKey;
     protected Data dataNewValue;
     protected Data dataOldValue;
     protected Data dataMergingValue;
+    protected long clientTimeStamp = -1;
+    protected long putOperationRunTime;
+    protected long putOperationAfterRunTime;
 
     public EntryEventData() {
     }
@@ -52,6 +56,18 @@ public class EntryEventData extends AbstractEventData {
         this.dataMergingValue = dataMergingValue;
     }
 
+    public EntryEventData(String source, String mapName, Address caller, Data dataKey, Data dataNewValue, Data dataOldValue, Data dataMergingValue, int eventType, long clientTimeStamp,
+                          long clientEnginehandlePacketEntryTime, long putOperationRunTime, long putOperationAfterRunTime) {
+        super(source, mapName, caller, eventType);
+        this.clientTimeStamp = clientTimeStamp;
+        this.dataKey = dataKey;
+        this.dataNewValue = dataNewValue;
+        this.dataOldValue = dataOldValue;
+        this.clientEnginehandlePacketEntryTime = clientEnginehandlePacketEntryTime;
+        this.putOperationRunTime = putOperationRunTime;
+        this.putOperationAfterRunTime = putOperationAfterRunTime;
+    }
+
     public Data getDataKey() {
         return dataKey;
     }
@@ -68,6 +84,14 @@ public class EntryEventData extends AbstractEventData {
         return dataMergingValue;
     }
 
+    public long getPutOperationRunTime() {
+        return putOperationRunTime;
+    }
+
+    public long getPutOperationAfterRunTime() {
+        return putOperationAfterRunTime;
+    }
+
     @Override
     public void writeData(ObjectDataOutput out) throws IOException {
         super.writeData(out);
@@ -75,6 +99,10 @@ public class EntryEventData extends AbstractEventData {
         out.writeData(dataNewValue);
         out.writeData(dataOldValue);
         out.writeData(dataMergingValue);
+        out.writeLong(clientTimeStamp);
+        out.writeLong(clientEnginehandlePacketEntryTime);
+        out.writeLong(putOperationRunTime);
+        out.writeLong(putOperationAfterRunTime);
     }
 
     @Override
@@ -84,10 +112,19 @@ public class EntryEventData extends AbstractEventData {
         dataNewValue = in.readData();
         dataOldValue = in.readData();
         dataMergingValue = in.readData();
+        clientTimeStamp = in.readLong();
+        clientEnginehandlePacketEntryTime = in.readLong();
+        putOperationRunTime = in.readLong();
+        putOperationAfterRunTime = in.readLong();
+    }
+
+    public long getClientTimeStamp() {
+        return clientTimeStamp;
     }
 
     public Object cloneWithoutValues() {
-        return new EntryEventData(getSource(), getMapName(), getCaller(), dataKey, null, null, null, getEventType());
+        return new EntryEventData(getSource(), getMapName(), getCaller(), dataKey, null, null, null, getEventType(),
+                clientTimeStamp, clientEnginehandlePacketEntryTime, putOperationRunTime, putOperationAfterRunTime);
     }
 
     @Override

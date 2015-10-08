@@ -31,6 +31,11 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 public class EntryEvent<K, V> extends AbstractIMapEvent {
 
     private static final long serialVersionUID = -2296203982913729851L;
+    private long serverEventCreateTime;
+    private long putOperationAfterRunTime;
+    private long putOperationRunTime;
+    private long clientEnginehandlePacketEntryTime;
+    private long producerClientTimeStamp;
 
     protected K key;
 
@@ -73,6 +78,14 @@ public class EntryEvent<K, V> extends AbstractIMapEvent {
         this.value = value;
     }
 
+    public EntryEvent(Object source, Member member, int eventType, K key, V oldValue, V value, V mergingValue) {
+        super(source, member, eventType);
+        this.key = key;
+        this.oldValue = oldValue;
+        this.value = value;
+        this.mergingValue = mergingValue;
+    }
+
     /**
      * Constructs an entry event.
      *
@@ -83,14 +96,25 @@ public class EntryEvent<K, V> extends AbstractIMapEvent {
      * @param oldValue     The old value of the entry event.
      * @param value        The value of the entry event.
      * @param mergingValue The incoming merging value of the entry event.
-     * @throws IllegalArgumentException if source is null.
+     * @param producerClientTimeStamp
+     *@param clientEnginehandlePacketEntryTime
+     * @param putOperationRunTime
+     * @param putOperationAfterRunTime
+     * @param serverEventCreateTime @throws IllegalArgumentException if source is null.
      */
-    public EntryEvent(Object source, Member member, int eventType, K key, V oldValue, V value, V mergingValue) {
+    public EntryEvent(Object source, Member member, int eventType, K key, V oldValue, V value, V mergingValue,
+                      long producerClientTimeStamp, long clientEnginehandlePacketEntryTime, long putOperationRunTime,
+                      long putOperationAfterRunTime, long serverEventCreateTime) {
         super(source, member, eventType);
         this.key = key;
         this.oldValue = oldValue;
         this.value = value;
         this.mergingValue = mergingValue;
+        this.producerClientTimeStamp = producerClientTimeStamp;
+        this.clientEnginehandlePacketEntryTime = clientEnginehandlePacketEntryTime;
+        this.putOperationRunTime = putOperationRunTime;
+        this.putOperationAfterRunTime = putOperationAfterRunTime;
+        this.serverEventCreateTime = serverEventCreateTime;
     }
 
     /**
@@ -127,6 +151,26 @@ public class EntryEvent<K, V> extends AbstractIMapEvent {
      */
     public V getMergingValue() {
         return mergingValue;
+    }
+
+    public long getServerEventCreateTime() {
+        return serverEventCreateTime;
+    }
+
+    public long getPutOperationAfterRunTime() {
+        return putOperationAfterRunTime;
+    }
+
+    public long getPutOperationRunTime() {
+        return putOperationRunTime;
+    }
+
+    public long getClientEnginehandlePacketEntryTime() {
+        return clientEnginehandlePacketEntryTime;
+    }
+
+    public long getProducerClientTimeStamp() {
+        return producerClientTimeStamp;
     }
 
     @Override

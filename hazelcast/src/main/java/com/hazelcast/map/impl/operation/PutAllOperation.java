@@ -100,7 +100,8 @@ public class PutAllOperation extends AbstractMapOperation implements PartitionAw
         mapServiceContext.interceptAfterPut(name, dataValue);
         EntryEventType eventType = dataOldValue == null ? EntryEventType.ADDED : EntryEventType.UPDATED;
         final MapEventPublisher mapEventPublisher = mapServiceContext.getMapEventPublisher();
-        mapEventPublisher.publishEvent(getCallerAddress(), name, eventType, dataKey, dataOldValue, dataValue);
+        mapEventPublisher.publishEvent(getCallerAddress(), name, eventType, dataKey, dataOldValue, dataValue, -1,
+                -1, -1, -1);
         keysToInvalidate.add(dataKey);
 
         // check in case of an expiration.

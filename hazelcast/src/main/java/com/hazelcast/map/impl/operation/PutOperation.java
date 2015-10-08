@@ -21,7 +21,6 @@ import com.hazelcast.nio.serialization.Data;
 import com.hazelcast.nio.serialization.IdentifiedDataSerializable;
 
 public final class PutOperation extends BasePutOperation implements IdentifiedDataSerializable {
-
     public PutOperation() {
     }
 
@@ -32,6 +31,7 @@ public final class PutOperation extends BasePutOperation implements IdentifiedDa
     @Override
     public void run() {
         dataOldValue = mapService.getMapServiceContext().toData(recordStore.put(dataKey, dataValue, ttl));
+        putOperationRunTime = System.nanoTime();
     }
 
     @Override

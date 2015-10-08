@@ -161,7 +161,7 @@ public final class EvictionOperator {
         final Address thisAddress = nodeEngine.getThisAddress();
         final Data dataValue = mapServiceContext.toData(value);
         mapEventPublisher.publishEvent(thisAddress, mapName, EntryEventType.EVICTED, true,
-                key, dataValue, null);
+                key, dataValue, null, -1, -1, -1, -1);
     }
 
     private boolean hasListener(String mapName) {

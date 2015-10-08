@@ -34,14 +34,17 @@ public interface MapEventPublisher {
 
     void publishMapEvent(Address caller, String mapName, EntryEventType eventType, int numberOfEntriesAffected);
 
-    void publishEvent(Address caller, String mapName, EntryEventType eventType,
-                      Data dataKey, Data dataOldValue, Data dataValue);
+    void publishEvent(Address caller, String mapName, EntryEventType eventType, Data dataKey, Data dataOldValue, Data dataValue,
+                      long clientTimeStamp, long clientEnginehandlePacketEntryTime, long putOperationRunTime,
+                      long putOperationAfterRunTime);
 
-    void publishEvent(Address caller, String mapName, EntryEventType eventType, boolean synthetic,
-                      Data dataKey, Data dataOldValue, Data dataValue);
+    void publishEvent(Address caller, String mapName, EntryEventType eventType, boolean syntheticEvent, Data dataKey, Data dataOldValue, Data dataValue,
+                      long clientTimeStamp, long clientEnginehandlePacketEntryTime, long putOperationRunTime,
+                      long putOperationAfterRunTime);
 
-    void publishEvent(Address caller, String mapName, EntryEventType eventType, boolean synthetic,
-                      Data dataKey, Data dataOldValue, Data dataValue, Data dataMergingValue);
+    void publishEvent(Address caller, String mapName, EntryEventType eventType, boolean syntheticEvent, Data dataKey, Data dataOldValue, Data dataValue, Data dataMergingValue,
+                      long clientTimeStamp, long clientEnginehandlePacketEntryTime, long putOperationRunTime,
+                      long putOperationAfterRunTime);
 
     void publishMapPartitionLostEvent(Address caller, String mapName, int partitionId);
 

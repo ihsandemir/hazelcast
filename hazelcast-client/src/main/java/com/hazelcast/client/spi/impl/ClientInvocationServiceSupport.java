@@ -339,6 +339,7 @@ abstract class ClientInvocationServiceSupport implements ClientInvocationService
             final ClientConnection conn = (ClientConnection) packet.getConn();
             try {
                 final ClientResponse clientResponse = client.getSerializationService().toObject(packet);
+                clientResponse.setPacketTimestamp(packet.getTimeStamp());
                 final int callId = clientResponse.getCallId();
                 final Data response = clientResponse.getResponse();
                 handlePacket(response, clientResponse.isError(), callId);

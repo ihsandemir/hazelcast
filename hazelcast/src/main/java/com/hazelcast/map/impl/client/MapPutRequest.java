@@ -95,6 +95,8 @@ public class MapPutRequest extends KeyBasedClientRequest implements Portable, Se
     @Override
     protected Operation prepareOperation() {
         PutOperation op = new PutOperation(name, key, value, ttl);
+        op.setClientTimeStamp(timeStamp);
+        op.setClientEngineHandlePacketEntryTime(clientEngineHandlePacketEntryTime);
         op.setThreadId(threadId);
         return op;
     }
