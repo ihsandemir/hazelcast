@@ -21,9 +21,11 @@ import com.hazelcast.client.impl.HazelcastClientInstanceImpl;
 import com.hazelcast.client.impl.client.BaseClientRemoveListenerRequest;
 import com.hazelcast.client.impl.client.ClientRequest;
 import com.hazelcast.client.impl.client.ClientResponse;
+import com.hazelcast.client.spi.ClientClusterService;
 import com.hazelcast.client.spi.ClientInvocationService;
 import com.hazelcast.client.spi.ClientListenerService;
 import com.hazelcast.client.spi.EventHandler;
+import com.hazelcast.core.Member;
 import com.hazelcast.logging.ILogger;
 import com.hazelcast.logging.Logger;
 import com.hazelcast.nio.Packet;
@@ -34,6 +36,7 @@ import com.hazelcast.util.ExceptionUtil;
 import com.hazelcast.util.executor.StripedExecutor;
 import com.hazelcast.util.executor.StripedRunnable;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
@@ -70,19 +73,21 @@ public final class ClientListenerServiceImpl implements ClientListenerService {
 
     @Override
     public String startListening(ClientRequest request, Object key, EventHandler handler) {
-        final Future future;
         try {
             handler.beforeListenerRegister();
 
             if (key == null) {
-                future = new ClientInvocation(client, handler, request).invoke();
+                ClientClusterService  cs = client.getClientClusterService();
+                Collection<Member> memberList = cs.getMemberList();
+                for (Member member : memberList) {
+                    new ClientInvocation(client, handler, request, member.getAddress()).invoke();
+                }
             } else {
                 final int partitionId = client.getClientPartitionService().getPartitionId(key);
-                future = new ClientInvocation(client, handler, request, partitionId).invoke();
+                new ClientInvocation(client, handler, request, partitionId).invoke();
             }
-            String registrationId = serializationService.toObject(future.get());
-            registerListener(registrationId, request.getCallId());
-            return registrationId;
+
+            return "";
         } catch (Exception e) {
             throw ExceptionUtil.rethrow(e);
         }
