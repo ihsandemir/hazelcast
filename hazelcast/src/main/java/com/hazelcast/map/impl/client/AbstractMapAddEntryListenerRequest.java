@@ -33,6 +33,7 @@ import com.hazelcast.query.Predicate;
 import com.hazelcast.security.permission.ActionConstants;
 import com.hazelcast.security.permission.MapPermission;
 import com.hazelcast.spi.EventFilter;
+import com.hazelcast.spi.EventRegistration;
 import com.hazelcast.spi.impl.PortableEntryEvent;
 
 import java.security.Permission;
@@ -99,9 +100,11 @@ public abstract class AbstractMapAddEntryListenerRequest extends CallableClientR
         };
 
         final EventFilter eventFilter = getEventFilter();
-        final String registrationId = mapService.getMapServiceContext().addEventListener(listener, eventFilter, name);
-        endpoint.setListenerRegistration(MapService.SERVICE_NAME, name, registrationId);
-        return registrationId;
+        EventRegistration eventRegistration = clientEngine.getEventService()
+                                                          .registerLocalListener(getServiceName(), name, eventFilter, listener);
+        //final String registrationId = mapService.getMapServiceContext().addEventListener(listener, eventFilter, name);
+        endpoint.setListenerRegistration(MapService.SERVICE_NAME, name, eventRegistration.getId());
+        return eventRegistration.getId();
     }
 
 
