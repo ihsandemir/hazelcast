@@ -29,11 +29,11 @@ import static com.hazelcast.util.Preconditions.isNotNull;
  * Main purpose of this adapter is to avoid backward compatibility problems
  * when one doesn't use a {@link com.hazelcast.map.listener.MapListener MapListener}
  */
-class InternalEntryListenerAdapter implements ListenerAdapter {
+public class InternalEntryListenerAdapter implements ListenerAdapter {
 
     private final ListenerAdapter[] listenerAdapters;
 
-    InternalEntryListenerAdapter(EntryListener listener) {
+    public InternalEntryListenerAdapter(EntryListener listener) {
         isNotNull(listener, "listener");
 
         this.listenerAdapters = EntryListenerAdaptors.createListenerAdapters(listener);
