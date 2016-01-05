@@ -105,7 +105,6 @@ public class ClientMapPartitionLostListenerTest {
                     throws Exception {
 
                 final List<MapPartitionLostEvent> events = listener.getEvents();
-                System.out.println("[assertMapPartitionLostEventEventually] events.size:" + events.size());
                 assertFalse(events.isEmpty());
                 assertEquals(partitionId, events.get(0).getPartitionId());
 
