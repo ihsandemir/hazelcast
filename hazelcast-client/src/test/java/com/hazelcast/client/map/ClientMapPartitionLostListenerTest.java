@@ -16,6 +16,7 @@ import com.hazelcast.spi.impl.eventservice.InternalEventService;
 import com.hazelcast.test.AssertTask;
 import com.hazelcast.test.HazelcastParallelClassRunner;
 import com.hazelcast.test.annotation.QuickTest;
+import com.hazelcast.test.annotation.Repeat;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -48,6 +49,7 @@ public class ClientMapPartitionLostListenerTest {
     }
 
     @Test
+    @Repeat(value = 1000)
     public void test_mapPartitionLostListener_registered() {
         final HazelcastInstance instance = hazelcastFactory.newHazelcastInstance();
         final HazelcastInstance client = hazelcastFactory.newHazelcastClient();
@@ -60,6 +62,7 @@ public class ClientMapPartitionLostListenerTest {
     }
 
     @Test
+    @Repeat(value = 1000)
     public void test_mapPartitionLostListener_removed() {
         final HazelcastInstance instance = hazelcastFactory.newHazelcastInstance();
         final HazelcastInstance client = hazelcastFactory.newHazelcastClient();
@@ -74,6 +77,7 @@ public class ClientMapPartitionLostListenerTest {
     }
 
     @Test
+    @Repeat(value = 1000)
     public void test_mapPartitionLostListener_invoked() {
         final String mapName = randomMapName();
         final Config config = new Config();
@@ -101,6 +105,7 @@ public class ClientMapPartitionLostListenerTest {
                     throws Exception {
 
                 final List<MapPartitionLostEvent> events = listener.getEvents();
+                System.out.println("[assertMapPartitionLostEventEventually] events.size:" + events.size());
                 assertFalse(events.isEmpty());
                 assertEquals(partitionId, events.get(0).getPartitionId());
 
@@ -109,6 +114,7 @@ public class ClientMapPartitionLostListenerTest {
     }
 
     @Test
+    @Repeat(value = 1000)
     public void test_mapPartitionLostListener_invoked_fromOtherNode() {
         final String mapName = randomMapName();
         final Config config = new Config();
