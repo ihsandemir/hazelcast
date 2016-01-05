@@ -31,6 +31,7 @@ import com.hazelcast.spi.NodeEngine;
 import com.hazelcast.spi.impl.eventservice.impl.EmptyFilter;
 import com.hazelcast.wan.ReplicationEventObject;
 import com.hazelcast.wan.WanReplicationPublisher;
+import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -156,6 +157,8 @@ class MapEventPublisherImpl implements MapEventPublisher {
 
         final String thisNodesAddress = getThisNodesAddress();
         final MapPartitionEventData eventData = new MapPartitionEventData(thisNodesAddress, mapName, caller, partitionId);
+        Logger logger = Logger.getLogger("publishMapPartitionLostEvent");
+        logger.info("[publishMapPartitionLostEvent] publishEventInternal is performed. Registrations size:" + registrations.size() + ", regs:" + registrations);
         publishEventInternal(registrations, eventData, partitionId);
     }
 

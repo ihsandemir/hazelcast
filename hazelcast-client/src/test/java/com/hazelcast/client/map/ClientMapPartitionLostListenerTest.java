@@ -24,6 +24,7 @@ import org.junit.runner.RunWith;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.logging.Logger;
 
 import static com.hazelcast.client.impl.ClientTestUtil.getHazelcastClientInstanceImpl;
 import static com.hazelcast.map.impl.MapService.SERVICE_NAME;
@@ -126,10 +127,14 @@ public class ClientMapPartitionLostListenerTest {
         final HazelcastInstance client = hazelcastFactory.newHazelcastClient(clientConfig);
         warmUpPartitions(instance1, instance2, client);
 
+        Logger logger = Logger.getLogger("test_mapPartitionLostListener_invoked_fromOtherNode");
+
         final HazelcastClientInstanceImpl clientInstanceImpl = getHazelcastClientInstanceImpl(client);
         final Address clientOwnerAddress = clientInstanceImpl.getClientClusterService().getOwnerConnectionAddress();
 
         final HazelcastInstance other = getAddress(instance1).equals(clientOwnerAddress) ? instance2 : instance1;
+
+        logger.info("Non-master node is:" + other + " , clientOwnerAddress:" + clientOwnerAddress);
 
         final EventCollectingMapPartitionLostListener listener = new EventCollectingMapPartitionLostListener(0);
         client.getMap(mapName).addPartitionLostListener(listener);
@@ -139,7 +144,9 @@ public class ClientMapPartitionLostListenerTest {
 
         final MapService mapService = getNode(other).getNodeEngine().getService(SERVICE_NAME);
         final int partitionId = 5;
+        logger.info("Publishing InternalPartitionLostEvent");
         mapService.onPartitionLost(new InternalPartitionLostEvent(partitionId, 0, null));
+        logger.info("Published InternalPartitionLostEvent");
 
         assertMapPartitionLostEventEventually(listener, partitionId);
     }
