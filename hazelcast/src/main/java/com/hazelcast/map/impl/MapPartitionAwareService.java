@@ -16,12 +16,15 @@
 
 package com.hazelcast.map.impl;
 
+import com.hazelcast.logging.ILogger;
+import com.hazelcast.logging.Logger;
 import com.hazelcast.nio.Address;
 import com.hazelcast.partition.InternalPartitionLostEvent;
 import com.hazelcast.spi.NodeEngine;
 import com.hazelcast.spi.PartitionAwareService;
 
 import java.util.Map.Entry;
+import java.util.Set;
 
 /**
  * Defines partition-aware operations' behavior of map service.
@@ -29,7 +32,8 @@ import java.util.Map.Entry;
  *
  * @see com.hazelcast.partition.InternalPartitionLostEvent
  */
-class MapPartitionAwareService implements PartitionAwareService {
+class MapPartitionAwareService
+        implements PartitionAwareService {
 
     private final MapServiceContext mapServiceContext;
     private final NodeEngine nodeEngine;
@@ -44,12 +48,18 @@ class MapPartitionAwareService implements PartitionAwareService {
         final Address thisAddress = nodeEngine.getThisAddress();
         final int partitionId = partitionLostEvent.getPartitionId();
 
-        for (Entry<String, MapContainer> entry : mapServiceContext.getMapContainers().entrySet()) {
+        Set<Entry<String, MapContainer>> entries = mapServiceContext.getMapContainers().entrySet();
+        ILogger logger = Logger.getLogger("onPartitionLost");
+        logger.info("Number of entries:" + entries.size() + " , entries:" + entries);
+        for (Entry<String, MapContainer> entry : entries) {
             final String mapName = entry.getKey();
             final MapContainer mapContainer = entry.getValue();
 
             if (mapContainer.getBackupCount() <= partitionLostEvent.getLostReplicaIndex()) {
                 mapServiceContext.getMapEventPublisher().publishMapPartitionLostEvent(thisAddress, mapName, partitionId);
+            } else {
+                logger.info("Failed to publish lost event: mapContainer.getBackupCount():" + mapContainer.getBackupCount()
+                        + ", partitionLostEvent.getLostReplicaIndex():" + partitionLostEvent.getLostReplicaIndex());
             }
         }
     }
