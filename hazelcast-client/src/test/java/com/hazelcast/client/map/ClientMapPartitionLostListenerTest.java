@@ -49,6 +49,7 @@ public class ClientMapPartitionLostListenerTest {
         hazelcastFactory.terminateAll();
     }
 
+/*
     @Test
     @Repeat(value = 1000)
     public void test_mapPartitionLostListener_registered() {
@@ -98,6 +99,7 @@ public class ClientMapPartitionLostListenerTest {
         assertMapPartitionLostEventEventually(listener, partitionId);
     }
 
+*/
     private void assertMapPartitionLostEventEventually(final EventCollectingMapPartitionLostListener listener,
                                                        final int partitionId) {
         assertTrueEventually(new AssertTask() {
