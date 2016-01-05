@@ -144,20 +144,22 @@ class MapEventPublisherImpl implements MapEventPublisher {
 
     @Override
     public void publishMapPartitionLostEvent(Address caller, String mapName, int partitionId) {
+        Logger logger = Logger.getLogger("publishMapPartitionLostEvent");
         final Collection<EventRegistration> registrations = new LinkedList<EventRegistration>();
         for (EventRegistration registration : getRegistrations(mapName)) {
             if (registration.getFilter() instanceof MapPartitionLostEventFilter) {
+                logger.info("Registration:" + registration + " mapped the MapPartitionLostEventFilter. Adding into the list.");
                 registrations.add(registration);
             }
         }
 
         if (registrations.isEmpty()) {
+            logger.info("No registration mapped the partition lost filter. registrations.size:" + registrations.size() + ", regs:" + registrations);
             return;
         }
 
         final String thisNodesAddress = getThisNodesAddress();
         final MapPartitionEventData eventData = new MapPartitionEventData(thisNodesAddress, mapName, caller, partitionId);
-        Logger logger = Logger.getLogger("publishMapPartitionLostEvent");
         logger.info("[publishMapPartitionLostEvent] publishEventInternal is performed. Registrations size:" + registrations.size() + ", regs:" + registrations);
         publishEventInternal(registrations, eventData, partitionId);
     }
