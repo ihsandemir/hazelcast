@@ -361,6 +361,7 @@ public class EventServiceImpl implements InternalEventService {
             try {
                 f.get(SEND_EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS);
             } catch (Exception ignored) {
+                logFailure("Failed to send event packet to: %s , connection might not alive. Exception:%s", subscriber, ignored);
                 ignore(ignored);
             }
         } else {
@@ -449,12 +450,15 @@ public class EventServiceImpl implements InternalEventService {
     }
 
     private void logFailure(String message, Object... args) {
+        logger.info(String.format(message, args));
+/*
         Level level = totalFailures.getAndIncrement() % WARNING_LOG_FREQUENCY == 0
                 ? Level.WARNING : Level.FINEST;
 
         if (logger.isLoggable(level)) {
             logger.log(level, String.format(message, args));
         }
+*/
     }
 
 }
