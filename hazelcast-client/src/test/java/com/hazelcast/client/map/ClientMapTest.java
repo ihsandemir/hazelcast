@@ -18,6 +18,7 @@ package com.hazelcast.client.map;
 
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.map.helpers.GenericEvent;
+import com.hazelcast.client.map.impl.nearcache.ClientMapNearCacheTest;
 import com.hazelcast.client.test.TestHazelcastFactory;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.MapStoreConfig;
@@ -32,6 +33,9 @@ import com.hazelcast.core.MapStoreAdapter;
 import com.hazelcast.core.MultiMap;
 import com.hazelcast.core.PartitionAware;
 import com.hazelcast.map.AbstractEntryProcessor;
+import com.hazelcast.map.EntryBackupProcessor;
+import com.hazelcast.map.EntryProcessor;
+import com.hazelcast.map.EntryProcessorTest;
 import com.hazelcast.map.listener.EntryEvictedListener;
 import com.hazelcast.monitor.LocalMapStats;
 import com.hazelcast.nio.ObjectDataInput;
@@ -41,7 +45,9 @@ import com.hazelcast.nio.serialization.NamedPortable;
 import com.hazelcast.nio.serialization.Portable;
 import com.hazelcast.nio.serialization.PortableFactory;
 import com.hazelcast.nio.serialization.TestSerializationConstants;
+import com.hazelcast.query.PagingPredicate;
 import com.hazelcast.query.Predicate;
+import com.hazelcast.query.SampleObjects;
 import com.hazelcast.query.SqlPredicate;
 import com.hazelcast.test.AssertTask;
 import com.hazelcast.test.HazelcastParallelClassRunner;
@@ -150,6 +156,23 @@ public class ClientMapTest extends HazelcastTestSupport {
         map.removeEntryListener(id);
         map.put("key2", new GenericEvent("value2"));
         assertEquals(1, map.size());
+    }
+
+    @Test
+    public void testPagingPredicate() throws Exception {
+        IMap<Integer, Integer> map = client.getMap("paging map");
+
+        map.put(1, 1);
+        map.put(2, 2);
+        map.put(3, 3);
+        map.put(4, 4);
+        map.put(5, 5);
+        map.put(6, 6);
+
+        PagingPredicate predicate = new PagingPredicate(2);
+        Map<Integer, Object> result = map.executeOnEntries(new EntryProcessorTest.EntryInc(), predicate);
+
+        assertEquals(2, result.size());
     }
 
     @Test
