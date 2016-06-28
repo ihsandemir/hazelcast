@@ -115,6 +115,9 @@ public class ClientMessage
     private transient int writeOffset;
     private transient boolean isRetryable;
 
+    private long startTime;
+    private long finishTime;
+
     public ClientMessage() {
     }
 
@@ -424,6 +427,22 @@ public class ClientMessage
         return isRetryable;
     }
 
+    public long getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
+    }
+
+    public long getFinishTime() {
+        return finishTime;
+    }
+
+    public void setFinishTime(long finishTime) {
+        this.finishTime = finishTime;
+    }
+
     @Override
     public String toString() {
         int len = index();
@@ -431,12 +450,15 @@ public class ClientMessage
         sb.append("length=").append(len);
         if (len >= HEADER_SIZE) {
             sb.append(", correlationId=").append(getCorrelationId());
-            sb.append(", messageType=").append(Integer.toHexString(getMessageType()));
+            sb.append(", messageType=0x").append(Integer.toHexString(getMessageType()));
             sb.append(", partitionId=").append(getPartitionId());
             sb.append(", isComplete=").append(isComplete());
             sb.append(", isRetryable=").append(isRetryable());
             sb.append(", isEvent=").append(isFlagSet(LISTENER_EVENT_FLAG));
             sb.append(", writeOffset=").append(writeOffset);
+            sb.append(", index=").append(index());
+            sb.append(", startTime=").append(startTime);
+            sb.append(", finishTime=").append(finishTime);
         }
         sb.append('}');
         return sb.toString();

@@ -56,6 +56,10 @@ public class ClientWriteHandler extends AbstractClientSelectionHandler implement
 
         if (lastMessage == null) {
             lastMessage = poll();
+            if (null != lastMessage) {
+                lastMessage.setStartTime(Clock.currentTimeMillis());
+                logger.info("ClientWriteHandler::handle(): Message to be sent:" + lastMessage);
+            }
         }
 
         if (lastMessage == null && buffer.position() == 0) {
@@ -72,7 +76,18 @@ public class ClientWriteHandler extends AbstractClientSelectionHandler implement
         while (buffer.hasRemaining() && lastMessage != null) {
             boolean complete = lastMessage.writeTo(buffer);
             if (complete) {
+                if (null != lastMessage) {
+                    lastMessage.setFinishTime(Clock.currentTimeMillis());
+
+                    logger.info("ClientWriteHandler::handle(): Message with call id:" + Long.toString(lastMessage.getCorrelationId())
+                            + " took " + (lastMessage.getFinishTime() - lastMessage.getStartTime())
+                            + " msecs for buffering");
+                }
+
                 lastMessage = poll();
+                if (null != lastMessage) {
+                    lastMessage.setStartTime(Clock.currentTimeMillis());
+                }
             } else {
                 break;
             }
@@ -84,7 +99,14 @@ public class ClientWriteHandler extends AbstractClientSelectionHandler implement
         }
 
         buffer.flip();
+
+        long start = Clock.currentTimeMillis();
+        int startBytes = buffer.remaining();
         socketChannel.write(buffer);
+        long end = Clock.currentTimeMillis();
+        int endBytes = buffer.remaining();
+        logger.info("ClientWriteHandler: Took " + (end - start) + " msecs for writing " + (startBytes - endBytes) + " bytes into "
+                + "socket channel");
 
         if (buffer.hasRemaining()) {
             buffer.compact();

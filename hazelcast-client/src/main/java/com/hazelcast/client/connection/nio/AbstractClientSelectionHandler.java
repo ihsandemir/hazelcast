@@ -53,6 +53,7 @@ public abstract class AbstractClientSelectionHandler implements SelectionHandler
         connectionManager.destroyConnection(connection);
         logger.warning(Thread.currentThread().getName() + " Closing socket to endpoint "
                 + connection.getEndPoint() + ", Cause:" + e);
+        e.printStackTrace();;
     }
 
     final void registerOp(final int operation) {

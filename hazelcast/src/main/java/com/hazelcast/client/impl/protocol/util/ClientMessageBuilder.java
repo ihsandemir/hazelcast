@@ -17,6 +17,9 @@
 package com.hazelcast.client.impl.protocol.util;
 
 import com.hazelcast.client.impl.protocol.ClientMessage;
+import com.hazelcast.logging.ILogger;
+import com.hazelcast.logging.Logger;
+import com.hazelcast.util.Clock;
 import com.hazelcast.util.collection.Long2ObjectHashMap;
 
 import java.nio.ByteBuffer;
@@ -35,12 +38,18 @@ public class ClientMessageBuilder {
     private final MessageHandler delegate;
     private ClientMessage message = ClientMessage.create();
 
+    ILogger logger;
+
     public ClientMessageBuilder(MessageHandler delegate) {
         this.delegate = delegate;
+        this.logger = Logger.getLogger(ClientMessageBuilder.class);
     }
 
     public void onData(final ByteBuffer buffer) {
         while (buffer.hasRemaining()) {
+            if (message.index() == 0) {
+                message.setStartTime(Clock.currentTimeMillis());
+            }
             final boolean complete = message.readFrom(buffer);
             if (!complete) {
                 return;
@@ -49,6 +58,9 @@ public class ClientMessageBuilder {
             //MESSAGE IS COMPLETE HERE
             if (message.isFlagSet(BEGIN_AND_END_FLAGS)) {
                 //HANDLE-MESSAGE
+                message.setFinishTime(Clock.currentTimeMillis());
+                logger.info("ClientMessageBuilder::onData Took " + (message.getFinishTime() - message.getStartTime())
+                        + " msecs to read message:" + message);
                 handleMessage(message);
                 message = ClientMessage.create();
                 continue;
