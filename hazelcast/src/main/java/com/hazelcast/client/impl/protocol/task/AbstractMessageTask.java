@@ -65,6 +65,8 @@ public abstract class AbstractMessageTask<P>
         this.clientEngine = node.clientEngine;
         this.endpointManager = clientEngine.getEndpointManager();
         this.endpoint = getEndpoint();
+
+        logger.info("Server task is being created for message:" + clientMessage);
     }
 
     @SuppressWarnings("unchecked")
@@ -98,6 +100,7 @@ public abstract class AbstractMessageTask<P>
                 initializeAndProcessMessage();
             }
 
+            logger.info("Task run finishes for message: " + clientMessage);
         } catch (Throwable e) {
             logProcessingFailure(e);
             handleProcessingFailure(e);
