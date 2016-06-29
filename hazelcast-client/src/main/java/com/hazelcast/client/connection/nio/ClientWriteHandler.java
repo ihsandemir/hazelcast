@@ -57,7 +57,7 @@ public class ClientWriteHandler extends AbstractClientSelectionHandler implement
         if (lastMessage == null) {
             lastMessage = poll();
             if (null != lastMessage) {
-                lastMessage.setStartTime(Clock.currentTimeMillis());
+                lastMessage.setClientStartTime(Clock.currentTimeMillis());
                 logger.info("ClientWriteHandler::handle(): Message to be sent:" + lastMessage);
             }
         }
@@ -77,16 +77,16 @@ public class ClientWriteHandler extends AbstractClientSelectionHandler implement
             boolean complete = lastMessage.writeTo(buffer);
             if (complete) {
                 if (null != lastMessage) {
-                    lastMessage.setFinishTime(Clock.currentTimeMillis());
+                    lastMessage.setClientFinishTime(Clock.currentTimeMillis());
 
                     logger.info("ClientWriteHandler::handle(): Message with call id:" + Long.toString(lastMessage.getCorrelationId())
-                            + " took " + (lastMessage.getFinishTime() - lastMessage.getStartTime())
+                            + " took " + (lastMessage.getClientFinishTime() - lastMessage.getClientStartTime())
                             + " msecs for buffering");
                 }
 
                 lastMessage = poll();
                 if (null != lastMessage) {
-                    lastMessage.setStartTime(Clock.currentTimeMillis());
+                    lastMessage.setClientStartTime(Clock.currentTimeMillis());
                 }
             } else {
                 break;

@@ -48,7 +48,7 @@ public class ClientMessageBuilder {
     public void onData(final ByteBuffer buffer) {
         while (buffer.hasRemaining()) {
             if (message.index() == 0) {
-                message.setStartTime(Clock.currentTimeMillis());
+                message.setClientStartTime(Clock.currentTimeMillis());
             }
             final boolean complete = message.readFrom(buffer);
             if (!complete) {
@@ -58,8 +58,8 @@ public class ClientMessageBuilder {
             //MESSAGE IS COMPLETE HERE
             if (message.isFlagSet(BEGIN_AND_END_FLAGS)) {
                 //HANDLE-MESSAGE
-                message.setFinishTime(Clock.currentTimeMillis());
-                logger.info("ClientMessageBuilder::onData Took " + (message.getFinishTime() - message.getStartTime())
+                message.setClientFinishTime(Clock.currentTimeMillis());
+                logger.info("ClientMessageBuilder::onData Took " + (message.getClientFinishTime() - message.getClientStartTime())
                         + " msecs to read message:" + message);
                 handleMessage(message);
                 message = ClientMessage.create();

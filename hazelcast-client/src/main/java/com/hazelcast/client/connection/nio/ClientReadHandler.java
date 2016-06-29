@@ -63,7 +63,7 @@ public class ClientReadHandler
         long start = Clock.currentTimeMillis();
         int readBytes = socketChannel.read(buffer);
         long end = Clock.currentTimeMillis();
-        logger.info("Took " + (end - start) + " msecs to read " + readBytes + " from socket channel");
+        logger.info("Took " + (end - start) + " msecs to read " + readBytes + " bytes from socket channel");
         if (readBytes <= 0) {
             if (readBytes == -1) {
                 throw new EOFException("Remote socket closed!");

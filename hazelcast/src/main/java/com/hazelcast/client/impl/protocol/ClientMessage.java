@@ -115,8 +115,11 @@ public class ClientMessage
     private transient int writeOffset;
     private transient boolean isRetryable;
 
-    private long startTime;
-    private long finishTime;
+    private long clientStartTime;
+    private long clientFinishTime;
+
+    private long taskStartTime;
+    private long taskFinishTime;
 
     public ClientMessage() {
     }
@@ -427,20 +430,36 @@ public class ClientMessage
         return isRetryable;
     }
 
-    public long getStartTime() {
-        return startTime;
+    public long getClientStartTime() {
+        return clientStartTime;
     }
 
-    public void setStartTime(long startTime) {
-        this.startTime = startTime;
+    public void setClientStartTime(long clientStartTime) {
+        this.clientStartTime = clientStartTime;
     }
 
-    public long getFinishTime() {
-        return finishTime;
+    public long getClientFinishTime() {
+        return clientFinishTime;
     }
 
-    public void setFinishTime(long finishTime) {
-        this.finishTime = finishTime;
+    public void setClientFinishTime(long clientFinishTime) {
+        this.clientFinishTime = clientFinishTime;
+    }
+
+    public long getTaskStartTime() {
+        return taskStartTime;
+    }
+
+    public void setTaskStartTime(long taskStartTime) {
+        this.taskStartTime = taskStartTime;
+    }
+
+    public long getTaskFinishTime() {
+        return taskFinishTime;
+    }
+
+    public void setTaskFinishTime(long taskFinishTime) {
+        this.taskFinishTime = taskFinishTime;
     }
 
     @Override
@@ -457,8 +476,10 @@ public class ClientMessage
             sb.append(", isEvent=").append(isFlagSet(LISTENER_EVENT_FLAG));
             sb.append(", writeOffset=").append(writeOffset);
             sb.append(", index=").append(index());
-            sb.append(", startTime=").append(startTime);
-            sb.append(", finishTime=").append(finishTime);
+            sb.append(", clientStartTime=").append(clientStartTime);
+            sb.append(", clientFinishTime=").append(clientFinishTime);
+            sb.append(", taskStartTime=").append(taskStartTime);
+            sb.append(", taskFinishTime=").append(taskFinishTime);
         }
         sb.append('}');
         return sb.toString();

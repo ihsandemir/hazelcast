@@ -31,6 +31,7 @@ import com.hazelcast.nio.Connection;
 import com.hazelcast.security.Credentials;
 import com.hazelcast.security.SecurityContext;
 import com.hazelcast.spi.impl.NodeEngineImpl;
+import com.hazelcast.util.Clock;
 import com.hazelcast.util.ExceptionUtil;
 
 import java.security.Permission;
@@ -66,6 +67,7 @@ public abstract class AbstractMessageTask<P>
         this.endpointManager = clientEngine.getEndpointManager();
         this.endpoint = getEndpoint();
 
+        clientMessage.setTaskStartTime(Clock.currentTimeMillis());
         logger.info("Server task is being created for message:" + clientMessage);
     }
 
@@ -90,6 +92,7 @@ public abstract class AbstractMessageTask<P>
     @Override
     public void run() {
         try {
+            long start = Clock.currentTimeMillis();
             if (endpoint == null) {
                 handleMissingEndpoint();
             } else if (isAuthenticationMessage()) {
@@ -100,7 +103,13 @@ public abstract class AbstractMessageTask<P>
                 initializeAndProcessMessage();
             }
 
-            logger.info("Task run finishes for message: " + clientMessage);
+            long end = Clock.currentTimeMillis();
+            clientMessage.setTaskFinishTime(end);
+            logger.info("Task run finishes in " + (end - start) + "msecs for message: " + clientMessage
+                    + "  The time from construction of task until processing finish is:" + (end - clientMessage.getTaskStartTime()
+                    + " msecs. " +
+                    "The time from client start to task run finish is:" + (clientMessage.getTaskFinishTime()
+                    - clientMessage.getClientStartTime()) + " msecs"));
         } catch (Throwable e) {
             logProcessingFailure(e);
             handleProcessingFailure(e);
