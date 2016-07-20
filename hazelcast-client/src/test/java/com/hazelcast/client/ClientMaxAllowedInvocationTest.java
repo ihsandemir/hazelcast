@@ -104,7 +104,12 @@ public class ClientMaxAllowedInvocationTest extends HazelcastTestSupport {
         fillAllInvocations(MAX_ALLOWED, map, numberOfOutStandingCallbacks, waitLatch);
 
         // Do one more invocation to overflow
-        getAsynch(map, numberOfOutStandingCallbacks, waitLatch);
+        try {
+            getAsynch(map, numberOfOutStandingCallbacks, waitLatch);
+            fail("Should cause HazelcastOverloadException");
+        } catch (HazelcastOverloadException e) {
+            // do nothing
+        }
 
         try {
             assertTrueAllTheTime(new AssertTask() {
@@ -122,17 +127,15 @@ public class ClientMaxAllowedInvocationTest extends HazelcastTestSupport {
             throw error;
         }
 
-        try {
-            assertTrueEventually(new AssertTask() {
-                @Override
-                public void run()
-                        throws Exception {
-                    Assert.assertEquals(0, numberOfOutStandingCallbacks.get());
-                }
-            }, 5);
-        } finally {
-            waitLatch.countDown();
-        }
+        waitLatch.countDown();
+
+        assertTrueEventually(new AssertTask() {
+            @Override
+            public void run()
+                    throws Exception {
+                Assert.assertEquals(0, numberOfOutStandingCallbacks.get());
+            }
+        }, 5);
     }
 
     private void fillAllInvocations(final int MAX_ALLOWED, IMap map, final AtomicInteger numberOfOutStandingCallbacks,
@@ -171,6 +174,8 @@ public class ClientMaxAllowedInvocationTest extends HazelcastTestSupport {
                 } catch (InterruptedException e) {
                     fail("Could not wait on the latch");
                 }
+
+                numberOfOutStandingCallbacks.decrementAndGet();
             }
         });
     }
