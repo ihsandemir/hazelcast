@@ -148,6 +148,9 @@ abstract class ClientInvocationServiceSupport implements ClientInvocationService
             callId = callIdSequence.next();
         }
         clientInvocation.getRequest().setCallId(callId);
+        if (callIdSequence.isOverloadFeatureEnabled()) {
+            clientInvocation.setCallIdSequence(callIdSequence);
+        }
         callIdMap.put(callId, clientInvocation);
         EventHandler handler = clientInvocation.getEventHandler();
         if (handler != null) {
@@ -310,16 +313,23 @@ abstract class ClientInvocationServiceSupport implements ClientInvocationService
         }
 
         private void handlePacket(Object response, boolean isError, long callId) {
-            ClientInvocation future = deRegisterCallId(callId);
-            if (future == null) {
+            ClientInvocation clientInvocation = deRegisterCallId(callId);
+            if (clientInvocation == null) {
                 logger.warning("No call for callId: " + callId + ", response: " + response);
                 return;
             }
-            callIdSequence.complete();
-            if (isError) {
-                response = client.getSerializationService().toObject(response);
+
+            try {
+                if (isError) {
+                    response = client.getSerializationService().toObject(response);
+                }
+                clientInvocation.notify(response);
+            } finally {
+                // complete the invocation if no async callback are run
+                if (null == clientInvocation.getCallbackWaitLatch()) {
+                    callIdSequence.complete();
+                }
             }
-            future.notify(response);
         }
 
     }

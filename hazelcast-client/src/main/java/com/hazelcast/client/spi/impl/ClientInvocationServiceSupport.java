@@ -148,6 +148,7 @@ abstract class ClientInvocationServiceSupport implements ClientInvocationService
         } else {
             correlationId = callIdSequence.next();
         }
+        clientInvocation.setCallIdSequence(callIdSequence);
         clientInvocation.getClientMessage().setCorrelationId(correlationId).setVersion(protocolVersion);
         callIdMap.put(correlationId, clientInvocation);
         EventHandler handler = clientInvocation.getEventHandler();
@@ -303,17 +304,23 @@ abstract class ClientInvocationServiceSupport implements ClientInvocationService
         private void handleClientMessage(ClientMessage clientMessage) {
             long correlationId = clientMessage.getCorrelationId();
 
-            final ClientInvocation future = deRegisterCallId(correlationId);
-            if (future == null) {
+            final ClientInvocation clientInvocation = deRegisterCallId(correlationId);
+            if (clientInvocation == null) {
                 logger.warning("No call for callId: " + correlationId + ", response: " + clientMessage);
                 return;
             }
-            callIdSequence.complete();
-            if (ErrorCodec.TYPE == clientMessage.getMessageType()) {
-                Throwable exception = clientExceptionFactory.createException(clientMessage);
-                future.notifyException(exception);
-            } else {
-                future.notify(clientMessage);
+            try {
+                if (ErrorCodec.TYPE == clientMessage.getMessageType()) {
+                    Throwable exception = clientExceptionFactory.createException(clientMessage);
+                    clientInvocation.notifyException(exception);
+                } else {
+                    clientInvocation.notify(clientMessage);
+                }
+            } finally {
+                // complete the invocation if no async callback are run
+                if (null == clientInvocation.getCallbackWaitLatch()) {
+                    callIdSequence.complete();
+                }
             }
         }
 

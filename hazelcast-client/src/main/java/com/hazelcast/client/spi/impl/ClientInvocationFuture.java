@@ -28,6 +28,7 @@ import com.hazelcast.util.ExceptionUtil;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
@@ -116,10 +117,15 @@ public class ClientInvocationFuture implements ICompletableFuture<ClientMessage>
 
             this.response = response;
             this.notifyAll();
-            for (ExecutionCallbackNode node : callbackNodeList) {
-                runAsynchronous(node.callback, node.executor);
+            if (invocation.isOverloadFeatureEnabled() && !callbackNodeList.isEmpty()) {
+                // Create a latch so that the last task completed will decrement the call id sequence ()
+                CountDownLatch callbackWaitLatch = new CountDownLatch(callbackNodeList.size());
+
+                for (ExecutionCallbackNode node : callbackNodeList) {
+                    runAsynchronous(node.callback, node.executor, invocation.getCallIdSequence(), callbackWaitLatch);
+                }
+                callbackNodeList.clear();
             }
-            callbackNodeList.clear();
         }
     }
 
@@ -155,14 +161,15 @@ public class ClientInvocationFuture implements ICompletableFuture<ClientMessage>
     public void andThen(ExecutionCallback<ClientMessage> callback, Executor executor) {
         synchronized (this) {
             if (response != null) {
-                runAsynchronous(callback, executor);
+                runAsynchronous(callback, executor, invocation.getCallIdSequence(), null);
                 return;
             }
             callbackNodeList.add(new ExecutionCallbackNode(callback, executor));
         }
     }
 
-    private void runAsynchronous(final ExecutionCallback callback, Executor executor) {
+    private void runAsynchronous(final ExecutionCallback callback, Executor executor, final CallIdSequence callIdSequence,
+                                 final CountDownLatch callbackWaitLatch) {
         try {
             executor.execute(new Runnable() {
                 @Override
@@ -179,6 +186,15 @@ public class ClientInvocationFuture implements ICompletableFuture<ClientMessage>
                     } catch (Throwable t) {
                         LOGGER.severe("Failed to execute callback: " + callback
                                 + "! Request: " + clientMessage + ", response: " + response, t);
+                    } finally {
+                        if (null != callbackWaitLatch) {
+                            callbackWaitLatch.countDown();
+                            if (callbackWaitLatch.getCount() == 0) {
+                                callIdSequence.complete();
+                            }
+                        } else {
+                            callIdSequence.complete();
+                        }
                     }
                 }
             });

@@ -44,6 +44,8 @@ public abstract class CallIdSequence {
 
     public abstract void complete();
 
+    public abstract boolean isOverloadFeatureEnabled();
+
     /**
      * A {@link com.hazelcast.spi.impl.operationservice.impl.CallIdSequence} that provided backpressure by taking
      * the number in flight operations into account when a call-id needs to be determined.
@@ -61,16 +63,21 @@ public abstract class CallIdSequence {
         private final AtomicLongArray longs = new AtomicLongArray(3 * CACHE_LINE_LENGTH / LONG_SIZE_IN_BYTES);
 
         private final int maxConcurrentInvocations;
+        private final boolean isOverloadFeatureEnabled;
 
         public CallIdSequenceFailFast(int maxConcurrentInvocations) {
             this.maxConcurrentInvocations = maxConcurrentInvocations;
+            isOverloadFeatureEnabled = (maxConcurrentInvocations > -1);
         }
 
         @Override
         public long next() {
-            if (!hasSpace()) {
-                throw new HazelcastOverloadException("maxConcurrentInvocations : "
-                        + maxConcurrentInvocations + " is reached");
+            if (isOverloadFeatureEnabled) {
+                long invocationCount = getOutstandingInvocationCount();
+                if (invocationCount > maxConcurrentInvocations) {
+                    throw new HazelcastOverloadException("maxConcurrentInvocations : "
+                            + maxConcurrentInvocations + " is reached. Current outstanding invocation count:" + invocationCount);
+                }
             }
 
             return longs.incrementAndGet(INDEX_HEAD);
@@ -81,13 +88,18 @@ public abstract class CallIdSequence {
             return longs.incrementAndGet(INDEX_HEAD);
         }
 
-        private boolean hasSpace() {
-            return longs.get(INDEX_HEAD) - longs.get(INDEX_TAIL) < maxConcurrentInvocations;
+        private long getOutstandingInvocationCount() {
+            return longs.get(INDEX_HEAD) - longs.get(INDEX_TAIL);
         }
 
         @Override
         public void complete() {
             longs.incrementAndGet(INDEX_TAIL);
+        }
+
+        @Override
+        public boolean isOverloadFeatureEnabled() {
+            return isOverloadFeatureEnabled;
         }
     }
 }

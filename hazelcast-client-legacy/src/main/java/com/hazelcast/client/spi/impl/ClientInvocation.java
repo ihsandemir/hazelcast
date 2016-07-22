@@ -37,6 +37,7 @@ import com.hazelcast.nio.Connection;
 import com.hazelcast.spi.exception.RetryableHazelcastException;
 
 import java.io.IOException;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -63,6 +64,8 @@ public class ClientInvocation implements Runnable, ExecutionCallback {
     private boolean urgent;
     private long retryTimeoutPointInMillis;
     private volatile ClientConnection sendConnection;
+    private CallIdSequence callIdSequence;
+    private CountDownLatch callbackWaitLatch;
 
     private ClientInvocation(HazelcastClientInstanceImpl client, EventHandler handler,
                              ClientRequest request, int partitionId, Address address,
@@ -291,5 +294,24 @@ public class ClientInvocation implements Runnable, ExecutionCallback {
             LOGGER.finest("Failure during retry ", t);
         }
         clientInvocationFuture.setResponse(t);
+    }
+    public void setCallIdSequence(CallIdSequence callIdSequence) {
+        this.callIdSequence = callIdSequence;
+    }
+
+    public CallIdSequence getCallIdSequence() {
+        return callIdSequence;
+    }
+
+    public boolean isOverloadFeatureEnabled() {
+        return callIdSequence.isOverloadFeatureEnabled();
+    }
+
+    public void setCallbackWaitLatch(CountDownLatch callbackWaitLatch) {
+        this.callbackWaitLatch = callbackWaitLatch;
+    }
+
+    public CountDownLatch getCallbackWaitLatch() {
+        return callbackWaitLatch;
     }
 }

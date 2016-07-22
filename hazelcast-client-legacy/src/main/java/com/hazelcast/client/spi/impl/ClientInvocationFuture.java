@@ -32,6 +32,7 @@ import com.hazelcast.util.ExceptionUtil;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -137,10 +138,16 @@ public class ClientInvocationFuture<V> implements ICompletableFuture<V> {
             this.response = response;
 
             this.notifyAll();
-            for (ExecutionCallbackNode node : callbackNodeList) {
-                runAsynchronous(node.callback, node.executor, node.deserialized);
+            if (invocation.isOverloadFeatureEnabled() && !callbackNodeList.isEmpty()) {
+                // Create a latch so that the last task completed will decrement the call id sequence ()
+                CountDownLatch callbackWaitLatch = new CountDownLatch(callbackNodeList.size());
+
+                for (ExecutionCallbackNode node : callbackNodeList) {
+                    runAsynchronous(node.callback, node.executor, node.deserialized, invocation.getCallIdSequence(),
+                            callbackWaitLatch);
+                }
+                callbackNodeList.clear();
             }
-            callbackNodeList.clear();
         }
     }
 
@@ -201,7 +208,7 @@ public class ClientInvocationFuture<V> implements ICompletableFuture<V> {
     public void andThen(ExecutionCallback<V> callback, Executor executor) {
         synchronized (this) {
             if (response != null) {
-                runAsynchronous(callback, executor, true);
+                runAsynchronous(callback, executor, true, invocation.getCallIdSequence(), null);
                 return;
             }
             callbackNodeList.add(new ExecutionCallbackNode(callback, executor, true));
@@ -212,7 +219,7 @@ public class ClientInvocationFuture<V> implements ICompletableFuture<V> {
         ExecutorService executor = executionService.getAsyncExecutor();
         synchronized (this) {
             if (response != null) {
-                runAsynchronous(callback, executor, false);
+                runAsynchronous(callback, executor, false, invocation.getCallIdSequence(), null);
                 return;
             }
             callbackNodeList.add(new ExecutionCallbackNode(callback, executor, false));
@@ -223,7 +230,8 @@ public class ClientInvocationFuture<V> implements ICompletableFuture<V> {
         return request;
     }
 
-    private void runAsynchronous(final ExecutionCallback callback, Executor executor, final boolean deserialized) {
+    private void runAsynchronous(final ExecutionCallback callback, Executor executor, final boolean deserialized,
+                                 final CallIdSequence callIdSequence, final CountDownLatch callbackWaitLatch) {
         try {
             executor.execute(new Runnable() {
                 @Override
@@ -246,6 +254,13 @@ public class ClientInvocationFuture<V> implements ICompletableFuture<V> {
                     } catch (Throwable t) {
                         LOGGER.severe("Failed to execute callback: " + callback
                                 + "! Request: " + request + ", response: " + response, t);
+                    } finally {
+                        if (null != callbackWaitLatch) {
+                            callbackWaitLatch.countDown();
+                            if (callbackWaitLatch.getCount() <= 0) {
+                                callIdSequence.complete();
+                            }
+                        }
                     }
                 }
             });

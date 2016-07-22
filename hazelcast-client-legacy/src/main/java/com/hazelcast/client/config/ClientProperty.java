@@ -74,9 +74,9 @@ public enum ClientProperty implements HazelcastProperty {
      * If the maximum number of concurrent invocations has been exceeded and a new invocation comes in,
      * then hazelcast will throw HazelcastOverloadException
      * <p/>
-     * By default it is configured as Integer.MaxValue.
+     * By default it is configured as -1 which means that this feature is disabled.
      */
-    MAX_CONCURRENT_INVOCATIONS("hazelcast.client.max.concurrent.invocations", Integer.MAX_VALUE),
+    MAX_CONCURRENT_INVOCATIONS("hazelcast.client.max.concurrent.invocations", -1),
 
     /**
      * <p>Enables the Discovery SPI lookup over the old native implementations. This property is temporary and will
