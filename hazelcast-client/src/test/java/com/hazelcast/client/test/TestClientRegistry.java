@@ -361,6 +361,9 @@ public class TestClientRegistry {
         @Override
         public void close(String reason, Throwable cause) {
             super.close(reason, cause);
+            if (incomingBlocked) {
+                return;
+            }
             responseConnection.close(reason, new TargetDisconnectedException("Mocked Remote socket closed"));
         }
 

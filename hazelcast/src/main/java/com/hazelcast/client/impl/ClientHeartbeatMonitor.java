@@ -38,7 +38,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  */
 public class ClientHeartbeatMonitor implements Runnable {
 
-    private static final int HEART_BEAT_CHECK_INTERVAL_SECONDS = 10;
+    private static final int HEART_BEAT_CHECK_INTERVAL_SECONDS = 2;
     private static final int DEFAULT_CLIENT_HEARTBEAT_TIMEOUT_SECONDS = 60;
 
     private final ClientEndpointManagerImpl clientEndpointManager;
