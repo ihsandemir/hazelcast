@@ -398,7 +398,9 @@ public class ClientEngineImpl implements ClientEngine, CoreService, PostJoinAwar
                         nodeEngine.getExecutionService().schedule(new Runnable() {
                             @Override
                             public void run() {
+                                logger.info("ihsan !!! ClientEngine connection listener connectionRemoved started for " + endpoint);
                                 callDisconnectionOperation(endpoint);
+                                logger.info("ihsan !!! ClientEngine connection listener connectionRemoved ended for " + endpoint);
                             }
                         }, ENDPOINT_REMOVE_DELAY_SECONDS, TimeUnit.SECONDS);
                     } catch (RejectedExecutionException e) {
@@ -452,8 +454,10 @@ public class ClientEngineImpl implements ClientEngine, CoreService, PostJoinAwar
 
         @Override
         public void run() {
+            logger.info("ihsan !!! DestroyEndpointTask run started");
             endpointManager.removeEndpoints(deadMemberUuid);
             removeMappings();
+            logger.info("ihsan !!! DestroyEndpointTask run ended");
         }
 
         void removeMappings() {

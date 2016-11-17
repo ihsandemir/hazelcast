@@ -166,6 +166,15 @@ public class TestClientRegistry {
         }
 
         /**
+         * Blocks the traffic to and from the member at the provided address
+         * @param address The address of the member
+         */
+        public void blockAll(Address address) {
+            stateMap.put(address, State.TWO_WAY_BLOCKING);
+            LOGGER.info("Blocked messages to and from member " + address);
+        }
+
+        /**
          * Removes the filter that is put by either block or drop
          * Consumes from the temporary queue if there is anything then continues to normal behaviour
          */
@@ -184,7 +193,7 @@ public class TestClientRegistry {
     }
 
     enum State {
-        BLOCKING, DROPPING
+        BLOCKING, DROPPING, TWO_WAY_BLOCKING
     }
 
     public class MockedClientConnection extends ClientConnection {
@@ -196,6 +205,7 @@ public class TestClientRegistry {
         private final Connection serverSideConnection;
 
         private final Queue<ClientMessage> incomingMessages = new ConcurrentLinkedQueue<ClientMessage>();
+        private final Queue<ClientMessage> outgoingMessages = new ConcurrentLinkedQueue<ClientMessage>();
         private final Map<Address, State> stateMap;
 
         public MockedClientConnection(HazelcastClientInstanceImpl client, int connectionId, NodeEngineImpl serverNodeEngine,
@@ -215,11 +225,12 @@ public class TestClientRegistry {
         }
 
         void handleClientMessage(ClientMessage clientMessage) {
-            if (getState() == State.DROPPING) {
+            State state = getState();
+            if (state == State.DROPPING) {
                 return;
             }
 
-            if (getState() == State.BLOCKING) {
+            if (state == State.BLOCKING || state == State.TWO_WAY_BLOCKING) {
                 incomingMessages.add(clientMessage);
                 return;
             }
@@ -238,12 +249,31 @@ public class TestClientRegistry {
 
         @Override
         public boolean write(OutboundFrame frame) {
+            State state = getState();
+            ClientMessage clientMessage = (ClientMessage) frame;
+            if (state == State.TWO_WAY_BLOCKING) {
+                outgoingMessages.add(clientMessage);
+                lastWriteTime = System.currentTimeMillis();
+                return true;
+            }
+
+            ClientMessage message;
+            while ((message = outgoingMessages.poll()) != null) {
+                writeInternal(message, false);
+            }
+
+            return writeInternal(clientMessage, true);
+        }
+
+        private boolean writeInternal(ClientMessage clientMessage, boolean updateWriteTime) {
             Node node = serverNodeEngine.getNode();
             if (node.getState() == NodeState.SHUT_DOWN) {
                 return false;
             }
-            ClientMessage newPacket = readFromPacket((ClientMessage) frame);
-            lastWriteTime = System.currentTimeMillis();
+            ClientMessage newPacket = readFromPacket(clientMessage);
+            if (updateWriteTime) {
+                lastWriteTime = System.currentTimeMillis();
+            }
             node.clientEngine.handleClientMessage(newPacket, serverSideConnection);
             return true;
         }
@@ -299,6 +329,14 @@ public class TestClientRegistry {
 
         @Override
         protected void innerClose() throws IOException {
+            Address memberAddress = getEndPoint();
+            if (null != memberAddress) {
+                State state = stateMap.get(memberAddress);
+                if (null != state && State.TWO_WAY_BLOCKING.equals(state)) {
+                    return;
+                }
+            }
+
             serverSideConnection.close(null, null);
         }
     }
@@ -342,6 +380,11 @@ public class TestClientRegistry {
         }
 
         @Override
+        public long lastReadTimeMillis() {
+            return responseConnection.lastReadTimeMillis();
+        }
+
+        @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
@@ -357,9 +400,11 @@ public class TestClientRegistry {
         @Override
         public void close(String reason, Throwable cause) {
             super.close(reason, cause);
+/*
             ClientConnectionManager connectionManager = responseConnection.getConnectionManager();
             connectionManager.destroyConnection(responseConnection, reason,
                     new TargetDisconnectedException("Mocked Remote socket closed"));
+*/
         }
 
         @Override

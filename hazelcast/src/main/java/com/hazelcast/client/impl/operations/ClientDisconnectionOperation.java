@@ -41,6 +41,7 @@ public class ClientDisconnectionOperation extends AbstractOperation
 
     @Override
     public void run() throws Exception {
+        getLogger().info("ihsan !!! ClientDisconnectionOperation started for client " + clientUuid);
         ClientEngineImpl engine = getService();
         final ClientEndpointManagerImpl endpointManager = (ClientEndpointManagerImpl) engine.getEndpointManager();
         ClientEndpoint clientEndpoint = endpointManager.getEndpoint(clientUuid);
@@ -49,10 +50,12 @@ public class ClientDisconnectionOperation extends AbstractOperation
         if (null != clientEndpointConnection && clientEndpointConnection.isAlive()) {
             getLogger().finest("Will not do the cleanup for client " + clientUuid + " since there exists a live connection from "
                     + "this client");
+            getLogger().info("ihsan !!! Will not do the cleanup for client " + clientUuid);
             return;
         }
 
         engine.removeClient(clientUuid);
+        getLogger().info("ihsan !!! ClientDisconnectionOperation exited for client " + clientUuid);
     }
 
     @Override

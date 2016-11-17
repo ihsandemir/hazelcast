@@ -17,6 +17,7 @@
 
 package com.hazelcast.test.mocknetwork;
 
+import com.hazelcast.client.ClientEndpoint;
 import com.hazelcast.core.LifecycleEvent;
 import com.hazelcast.core.LifecycleListener;
 import com.hazelcast.core.Member;
@@ -173,6 +174,22 @@ public class MockConnectionManager implements ConnectionManager {
         return true;
     }
 
+    /**
+     * Deals with cleaning up a closed connection. This method should only be called once by the
+     * {@link MockConnection#close(String, Throwable)} method where it is protected against multiple closes.
+     */
+    public void onClose(Connection connection) {
+        Address endPoint = connection.getEndPoint();
+        if (endPoint != null) {
+            mapConnections.remove(endPoint, connection);
+            fireConnectionRemovedEvent(connection, endPoint);
+        }
+    }
+
+    public IOService getIoService() {
+        return ioService;
+    }
+
     @Override
     public void addConnectionListener(ConnectionListener connectionListener) {
         connectionListeners.add(connectionListener);
@@ -185,22 +202,26 @@ public class MockConnectionManager implements ConnectionManager {
 
             connection.close(null, null);
 
-            ioService.getEventService().executeEventCallback(new StripedRunnable() {
-                @Override
-                public void run() {
-                    for (ConnectionListener listener : connectionListeners) {
-                        listener.connectionRemoved(connection);
-                    }
-                }
-
-                @Override
-                public int getKey() {
-                    return endPoint.hashCode();
-                }
-            });
+            fireConnectionRemovedEvent(connection, endPoint);
         } else {
             connection.close(null, null);
         }
+    }
+
+    private void fireConnectionRemovedEvent(final Connection connection, final Address endPoint) {
+        ioService.getEventService().executeEventCallback(new StripedRunnable() {
+            @Override
+            public void run() {
+                for (ConnectionListener listener : connectionListeners) {
+                    listener.connectionRemoved(connection);
+                }
+            }
+
+            @Override
+            public int getKey() {
+                return endPoint.hashCode();
+            }
+        });
     }
 
     @Override

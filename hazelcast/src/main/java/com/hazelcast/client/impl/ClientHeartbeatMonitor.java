@@ -27,6 +27,7 @@ import com.hazelcast.spi.properties.GroupProperty;
 import com.hazelcast.spi.properties.HazelcastProperties;
 import com.hazelcast.util.Clock;
 
+import java.util.Collection;
 import java.util.logging.Level;
 
 import static com.hazelcast.util.StringUtil.timeToString;
@@ -74,8 +75,11 @@ public class ClientHeartbeatMonitor implements Runnable {
     @Override
     public void run() {
         final String memberUuid = clientEngine.getLocalMember().getUuid();
-        for (ClientEndpoint ce : clientEndpointManager.getEndpoints()) {
+        Collection<ClientEndpoint> endpoints = clientEndpointManager.getEndpoints();
+        logger.info("ihsan !!! Found " + endpoints.size() + " endpoints");
+        for (ClientEndpoint ce : endpoints) {
             ClientEndpointImpl clientEndpoint = (ClientEndpointImpl) ce;
+            logger.info("ihsan !!!! monitoring endpoint:" + clientEndpoint);
             monitor(memberUuid, clientEndpoint);
         }
     }

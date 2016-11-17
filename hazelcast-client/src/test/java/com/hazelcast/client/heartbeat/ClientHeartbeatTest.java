@@ -16,6 +16,7 @@
 
 package com.hazelcast.client.heartbeat;
 
+import com.hazelcast.client.ClientEndpoint;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.connection.ClientConnectionManager;
 import com.hazelcast.client.impl.HazelcastClientInstanceImpl;
@@ -23,16 +24,25 @@ import com.hazelcast.client.spi.impl.ConnectionHeartbeatListener;
 import com.hazelcast.client.spi.properties.ClientProperty;
 import com.hazelcast.client.test.ClientTestSupport;
 import com.hazelcast.client.test.TestHazelcastFactory;
+import com.hazelcast.config.Config;
+import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
+import com.hazelcast.core.LifecycleEvent;
+import com.hazelcast.core.LifecycleListener;
 import com.hazelcast.core.Member;
 import com.hazelcast.core.Partition;
+import com.hazelcast.instance.HazelcastInstanceImpl;
+import com.hazelcast.map.listener.EntryAddedListener;
 import com.hazelcast.nio.Connection;
 import com.hazelcast.spi.exception.TargetDisconnectedException;
+import com.hazelcast.spi.properties.GroupProperty;
 import com.hazelcast.test.AssertTask;
 import com.hazelcast.test.HazelcastParallelClassRunner;
 import com.hazelcast.test.annotation.ParallelTest;
 import com.hazelcast.test.annotation.QuickTest;
+import com.hazelcast.test.mocknetwork.MockConnection;
+import com.hazelcast.test.mocknetwork.MockConnectionManager;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
@@ -44,6 +54,7 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 
+import static com.hazelcast.instance.TestUtil.getHazelcastInstanceImpl;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -86,6 +97,40 @@ public class ClientHeartbeatTest extends ClientTestSupport {
 
         blockMessagesFromInstance(instance, client);
         assertOpenEventually(countDownLatch);
+    }
+
+    @Test
+    public void testHeartbeatIssue8777() throws InterruptedException {
+        Config config = new Config();
+        config.setProperty(GroupProperty.CLIENT_HEARTBEAT_TIMEOUT_SECONDS.getName(), "3");
+        HazelcastInstance member1 = hazelcastFactory.newHazelcastInstance(config);
+
+        ClientConfig clientConfig = new ClientConfig();
+        clientConfig.setProperty(ClientProperty.HEARTBEAT_TIMEOUT.getName(), "6000");
+        clientConfig.setProperty(ClientProperty.HEARTBEAT_INTERVAL.getName(), "1000");
+        HazelcastInstance client = hazelcastFactory.newHazelcastClient(clientConfig);
+        IMap<Object, Object> map = client.getMap(randomMapName());
+        map.addEntryListener(new EntryAddedListener<String, String>() {
+            @Override
+            public void entryAdded(EntryEvent<String, String> event) {
+                System.out.println("New entry added:" + event);
+            }
+        }, true);
+
+        HazelcastInstance member2 = hazelcastFactory.newHazelcastInstance(config);
+
+        // let listeners be registered to member2
+        sleepSeconds(2);
+
+        blockInstance(member1, client);
+
+        sleepSeconds(5);
+
+        member1.getLifecycleService().terminate();
+
+        //unblockMessagesFromInstance(member1, client);
+
+        sleepSeconds(50);
     }
 
     @Test

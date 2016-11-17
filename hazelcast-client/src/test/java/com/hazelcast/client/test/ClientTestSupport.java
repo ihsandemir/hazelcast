@@ -42,6 +42,18 @@ public class ClientTestSupport extends HazelcastTestSupport {
         ((TestClientRegistry.MockClientConnectionManager) connectionManager).unblock(address);
     }
 
+    /**
+     * Blocks the traffic both outgoing and incoming. The blocking is done at client connection side.
+     * @param instance The connected member
+     * @param client The client for which to block
+     */
+    protected void blockInstance(HazelcastInstance instance, HazelcastInstance client) {
+        HazelcastClientInstanceImpl clientImpl = getHazelcastClientInstanceImpl(client);
+        ClientConnectionManager connectionManager = clientImpl.getConnectionManager();
+        Address address = instance.getCluster().getLocalMember().getAddress();
+        ((TestClientRegistry.MockClientConnectionManager) connectionManager).blockAll(address);
+    }
+
     protected HazelcastClientInstanceImpl getHazelcastClientInstanceImpl(HazelcastInstance client) {
         HazelcastClientProxy clientProxy = (HazelcastClientProxy) client;
         return clientProxy.client;

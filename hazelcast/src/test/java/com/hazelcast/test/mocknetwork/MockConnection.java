@@ -19,9 +19,12 @@ package com.hazelcast.test.mocknetwork;
 
 import com.hazelcast.instance.Node;
 import com.hazelcast.instance.NodeState;
+import com.hazelcast.logging.ILogger;
+import com.hazelcast.logging.Logger;
 import com.hazelcast.nio.Address;
 import com.hazelcast.nio.Connection;
 import com.hazelcast.nio.ConnectionType;
+import com.hazelcast.nio.IOService;
 import com.hazelcast.nio.OutboundFrame;
 import com.hazelcast.nio.Packet;
 import com.hazelcast.spi.impl.NodeEngineImpl;
@@ -31,6 +34,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class MockConnection implements Connection {
 
@@ -43,10 +47,16 @@ public class MockConnection implements Connection {
 
     private volatile boolean live = true;
 
+    protected volatile long lastReadTime = System.currentTimeMillis();
+    protected volatile long lastWriteTime = System.currentTimeMillis();
+
+    ILogger logger;
+
     public MockConnection(Address localEndpoint, Address remoteEndpoint, NodeEngineImpl nodeEngine) {
         this.localEndpoint = localEndpoint;
         this.remoteEndpoint = remoteEndpoint;
         this.nodeEngine = nodeEngine;
+        logger = Logger.getLogger(getClass());
     }
 
     @Override
@@ -72,6 +82,8 @@ public class MockConnection implements Connection {
             return false;
         }
 
+        lastWriteTime = System.currentTimeMillis();
+
         Packet packet = (Packet) frame;
         Packet newPacket = readFromPacket(packet);
         nodeEngine.getPacketDispatcher().dispatch(newPacket);
@@ -79,6 +91,8 @@ public class MockConnection implements Connection {
     }
 
     private Packet readFromPacket(Packet packet) {
+        lastReadTime = System.currentTimeMillis();
+
         Packet newPacket = new Packet();
         ByteBuffer buffer = ByteBuffer.allocate(4096);
         boolean writeDone;
@@ -102,11 +116,11 @@ public class MockConnection implements Connection {
     }
 
     public long lastReadTimeMillis() {
-        return System.currentTimeMillis();
+        return lastReadTime;
     }
 
     public long lastWriteTimeMillis() {
-        return System.currentTimeMillis();
+        return lastWriteTime;
     }
 
     public void close(String msg, Throwable cause) {
@@ -123,10 +137,15 @@ public class MockConnection implements Connection {
             connectionManager.destroyConnection(this);
         } else {
             //this is a client-member connection. we need to notify NodeEngine about a client connection being closed.
+/*
             MockConnectionManager connectionManager = (MockConnectionManager) nodeEngine.getNode().connectionManager;
             connectionManager.destroyConnection(this);
+*/
+            MockConnectionManager connectionManager = (MockConnectionManager) nodeEngine.getNode().getConnectionManager();
+            connectionManager.onClose(this);
+            IOService ioService = connectionManager.getIoService();
+            ioService.onDisconnect(remoteEndpoint, cause);
         }
-
     }
 
     @Override
