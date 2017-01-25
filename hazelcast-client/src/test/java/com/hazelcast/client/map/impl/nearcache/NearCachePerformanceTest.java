@@ -216,7 +216,7 @@ public class NearCachePerformanceTest {
         private boolean useNearCache = false;
         private String outFileName = "NearCacheResult.txt";
         private String mapName = "NearCachePerformanceMap";
-        private final List<Long> values = new ArrayList<Long>();
+        private List<Long> values = new ArrayList<Long>();
 
         public ThreadParameters clone() {
             ThreadParameters copy = new ThreadParameters();
@@ -235,16 +235,16 @@ public class NearCachePerformanceTest {
         @Override
         public String toString() {
             return "ThreadParameters{" +
-                    "map=" + map +
-                    ", keySetSize=" + keySetSize +
-                    ", numberOfThreads=" + numberOfThreads +
-                    ", testDuration=" + testDuration +
-                    ", operationInterval=" + operationInterval +
-                    ", serverIp='" + serverIp + '\'' +
-                    ", useNearCache=" + useNearCache +
-                    ", outFileName='" + outFileName + '\'' +
-                    ", mapName='" + mapName + '\'' +
-                    ", values=" + values +
+                    "\n" + "\t\tmap=" + map +
+                    "\n" + "\t\tkeySetSize=" + keySetSize +
+                    "\n" + "\t\tnumberOfThreads=" + numberOfThreads +
+                    "\n" + "\t\ttestDuration=" + testDuration +
+                    "\n" + "\t\toperationInterval=" + operationInterval +
+                    "\n" + "\t\tserverIp='" + serverIp + '\'' +
+                    "\n" + "\t\tuseNearCache=" + useNearCache +
+                    "\n" + "\t\toutFileName='" + outFileName + '\'' +
+                    "\n" + "\t\tmapName='" + mapName + '\'' +
+                    "\n" + "\t\tvalues=" + values +
                     '}';
         }
     }
@@ -304,6 +304,10 @@ public class NearCachePerformanceTest {
                 params.operationInterval = val;
             }
         }
+
+        // pre-allocate the result array
+        int arraySize = (int) params.testDuration/params.operationInterval;
+        params.values = new ArrayList<Long>(arraySize);
 
         return params;
     }
