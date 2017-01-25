@@ -1,4 +1,4 @@
-package com.hazelcast.client.map.impl.nearcache;/*
+/*
  * Copyright (c) 2008-2017, Hazelcast, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +13,7 @@ package com.hazelcast.client.map.impl.nearcache;/*
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.hazelcast.client.map.impl.nearcache;
 
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
@@ -64,8 +65,8 @@ public class NearCachePerformanceTest {
             clientConfig.addNearCacheConfig(new NearCacheConfig(params.mapName));
         }
 
-        HazelcastInstance client = HazelcastClient.newHazelcastClient(clientConfig);
         clientConfig.getNetworkConfig().addAddress(params.serverIp + ":5701");
+        HazelcastInstance client = HazelcastClient.newHazelcastClient(clientConfig);
 
         IMap<Integer, Integer> map = client.getMap(params.mapName);
 
