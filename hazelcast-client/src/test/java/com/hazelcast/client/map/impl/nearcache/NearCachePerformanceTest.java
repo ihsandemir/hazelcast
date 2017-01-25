@@ -245,7 +245,7 @@ public class NearCachePerformanceTest {
                     "\n" + "\t\toutFileName='" + outFileName + '\'' +
                     "\n" + "\t\tmapName='" + mapName + '\'' +
                     "\n" + "\t\tvalues=" + values +
-                    '}';
+                    "\n}";
         }
     }
 
