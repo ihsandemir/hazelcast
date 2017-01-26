@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.LockSupport;
 
 /**
  * Created by ihsan on 24/01/17.
@@ -185,13 +186,10 @@ public class NearCachePerformanceTest {
     }
 
     private void sleepUntil(long expectedStartTime) {
-        do {
-            try {
-                TimeUnit.NANOSECONDS.sleep(expectedStartTime - System.nanoTime());
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        } while (System.nanoTime() < expectedStartTime);
+        long now;
+        while ((now = System.nanoTime()) < expectedStartTime) {
+            LockSupport.parkNanos(expectedStartTime - now);
+        }
     }
 
     private void fillMap(ThreadParameters params) {
