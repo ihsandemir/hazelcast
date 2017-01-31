@@ -297,36 +297,43 @@ public class NearCachePerformanceTest {
                 params.testDuration = val;
             }
 
-            val = getPozitifIntArgument(operationIntervalArg, argument, usage);
-            if (val > 0) {
+            val = getIntArgument(operationIntervalArg, argument, usage);
+            if (val >= 0) {
                 params.operationInterval = val;
             }
         }
 
         // pre-allocate the result array
-        int arraySize = (int) params.testDuration/params.operationInterval;
-        params.values = new ArrayList<Long>(arraySize);
+        if (params.operationInterval > 0) {
+            int arraySize = (int) params.testDuration/params.operationInterval;
+            params.values = new ArrayList<Long>(arraySize);
+        }
 
         return params;
     }
 
-    private int getPozitifIntArgument(String argumentName, String argumentValue, String usage) {
+    private int getIntArgument(String argumentName, String argumentValue, String usage) {
         String value = getValueString(argumentName, argumentValue);
         if (value == null) {
             return -1;
         }
 
         try {
-            int val = Integer.valueOf(value);
-            if (val < 0) {
-                System.out.println(argumentName + " can not be negative. Provided value is \'" + value + "\'. " + usage);
-                return -1;
-            }
-            return val;
+            return Integer.valueOf(value);
         } catch (NumberFormatException e) {
             System.out.println(argumentName + " is not an integer. Provided value is \'" + value + "\'. " + usage);
             return -1;
         }
+    }
+
+    private int getPozitifIntArgument(String argumentName, String argumentValue, String usage) {
+        int val = getIntArgument(argumentName, argumentValue, usage);
+
+        if (val < 0) {
+            System.out.println(argumentName + " can not be negative. Provided value is \'" + argumentValue + "\'. " + usage);
+            return -1;
+        }
+        return val;
     }
 
     private static String getValueString(String argumentName, String value) {
