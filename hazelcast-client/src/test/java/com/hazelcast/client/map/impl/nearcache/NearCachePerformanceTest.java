@@ -112,9 +112,25 @@ public class NearCachePerformanceTest {
             System.out.println("Near cache stats after the test is:" + map.getLocalMapStats().getNearCacheStats().toString());
         }
 
-        generateHistogram(allThreadsInfo);
+        boolean isLatencyTest = params.operationInterval > 0;
+
+        if (isLatencyTest) {
+            generateHistogram(allThreadsInfo);
+        } else {
+            printThroughput(allThreadsInfo);
+        }
 
         client.shutdown();
+    }
+
+    private void printThroughput(List<ThreadInfo> allThreadsInfo) {
+        System.out.println("Total operations performed for each thread are: ");
+        long total = 0;
+        for (ThreadInfo info : allThreadsInfo) {
+            System.out.println("[" + info.thread.getId() +"]: " + info.params.totalOperationsCount);
+            total += info.params.totalOperationsCount;
+        }
+        System.out.println("Total operations for the test is " + total + " in " + params.testDuration + " msecs. That is " + total * 1000 / params.testDuration + " ops/sec");
     }
 
     private void generateHistogram(List<ThreadInfo> allThreadsInfo) {
@@ -166,22 +182,29 @@ public class NearCachePerformanceTest {
         Random random = new Random();
 
         long expectedStartTime = System.nanoTime();
+        boolean isLatencyTest = params.operationInterval > 0;
         while (System.currentTimeMillis() < testEndTime) {
             int key = random.nextInt() % params.keySetSize;
 
-            sleepUntil(expectedStartTime);
+            if (isLatencyTest) {
+                sleepUntil(expectedStartTime);
+            }
 
             // perform the measured operation
             params.map.get(key);
 
-            long end = System.nanoTime();
+            if (isLatencyTest) {
+                long end = System.nanoTime();
 
-            long durationMicroseconds = (end - expectedStartTime) / 1000;
-            if (durationMicroseconds > 0) {
-                params.values.add(durationMicroseconds);
+                long durationMicroseconds = (end - expectedStartTime) / 1000;
+                if (durationMicroseconds > 0) {
+                    params.values.add(durationMicroseconds);
+                }
+
+                expectedStartTime += configuredLatency;
+            } else {
+                ++params.totalOperationsCount;
             }
-
-            expectedStartTime += configuredLatency;
         }
     }
 
@@ -215,6 +238,7 @@ public class NearCachePerformanceTest {
         private String outFileName = "NearCacheResult.txt";
         private String mapName = "NearCachePerformanceMap";
         private List<Long> values = new ArrayList<Long>();
+        private long totalOperationsCount = 0;
 
         public ThreadParameters clone() {
             ThreadParameters copy = new ThreadParameters();
@@ -297,9 +321,9 @@ public class NearCachePerformanceTest {
                 params.testDuration = val;
             }
 
-            val = getIntArgument(operationIntervalArg, argument, usage);
-            if (val >= 0) {
-                params.operationInterval = val;
+            Integer valueObj = getIntArgument(operationIntervalArg, argument, usage);
+            if (valueObj != null && valueObj.intValue() >= 0) {
+                params.operationInterval = valueObj.intValue();
             }
         }
 
@@ -312,28 +336,34 @@ public class NearCachePerformanceTest {
         return params;
     }
 
-    private int getIntArgument(String argumentName, String argumentValue, String usage) {
+    private Integer getIntArgument(String argumentName, String argumentValue, String usage) {
         String value = getValueString(argumentName, argumentValue);
         if (value == null) {
-            return -1;
+            return null;
         }
 
         try {
             return Integer.valueOf(value);
         } catch (NumberFormatException e) {
             System.out.println(argumentName + " is not an integer. Provided value is \'" + value + "\'. " + usage);
-            return -1;
+            return null;
         }
     }
 
     private int getPozitifIntArgument(String argumentName, String argumentValue, String usage) {
-        int val = getIntArgument(argumentName, argumentValue, usage);
+        Integer value = getIntArgument(argumentName, argumentValue, usage);
 
-        if (val < 0) {
+        if (value == null) {
+            return -1;
+        }
+
+        int intValue = value.intValue();
+        if (intValue < 0) {
             System.out.println(argumentName + " can not be negative. Provided value is \'" + argumentValue + "\'. " + usage);
             return -1;
         }
-        return val;
+
+        return intValue;
     }
 
     private static String getValueString(String argumentName, String value) {
