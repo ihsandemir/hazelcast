@@ -17,21 +17,33 @@
 package com.hazelcast.internal.nearcache.impl.store;
 
 import com.hazelcast.config.NearCacheConfig;
+import com.hazelcast.core.IMap;
+import com.hazelcast.core.PartitionService;
 import com.hazelcast.internal.nearcache.NearCacheRecord;
 import com.hazelcast.internal.nearcache.impl.record.NearCacheDataRecord;
 import com.hazelcast.nio.serialization.Data;
+import com.hazelcast.spi.ExecutionService;
 import com.hazelcast.spi.serialization.SerializationService;
 import com.hazelcast.util.Clock;
 
 import static com.hazelcast.internal.nearcache.NearCache.NULL_OBJECT;
 
-public class NearCacheDataRecordStore<K, V> extends BaseHeapNearCacheRecordStore<K, V, NearCacheDataRecord> {
+public class NearCacheDataRecordStore<K, V>
+        extends BaseHeapNearCacheRecordStore<K, V, NearCacheDataRecord> {
 
-    public NearCacheDataRecordStore(String name,
-                                    NearCacheConfig nearCacheConfig,
-                                    SerializationService serializationService,
+    public NearCacheDataRecordStore(String name, NearCacheConfig nearCacheConfig, SerializationService serializationService,
                                     ClassLoader classLoader) {
-        super(name, nearCacheConfig, serializationService, classLoader);
+        this(name, nearCacheConfig, serializationService, classLoader, null, null);
+    }
+
+    public NearCacheDataRecordStore(String name, NearCacheConfig nearCacheConfig, SerializationService serializationService,
+                                    ClassLoader classLoader, PartitionService partitionService, ExecutionService executionService) {
+        super(name, nearCacheConfig, serializationService, classLoader, partitionService, executionService);
+    }
+
+    @Override
+    public void setMap(final IMap<K, V> map) {
+        this.map = map;
     }
 
     @Override

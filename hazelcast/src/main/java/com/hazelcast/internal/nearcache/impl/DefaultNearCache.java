@@ -19,6 +19,8 @@ package com.hazelcast.internal.nearcache.impl;
 import com.hazelcast.config.InMemoryFormat;
 import com.hazelcast.config.NearCacheConfig;
 import com.hazelcast.config.NearCachePreloaderConfig;
+import com.hazelcast.core.IMap;
+import com.hazelcast.core.PartitionService;
 import com.hazelcast.internal.adapter.DataStructureAdapter;
 import com.hazelcast.internal.nearcache.NearCache;
 import com.hazelcast.internal.nearcache.NearCacheRecordStore;
@@ -41,8 +43,10 @@ public class DefaultNearCache<K, V> implements NearCache<K, V> {
     protected final String name;
     protected final NearCacheConfig nearCacheConfig;
     protected final SerializationService serializationService;
+    protected final PartitionService partitionService;
     protected final ExecutionService executionService;
     protected final ClassLoader classLoader;
+    protected final IMap<K, V> map;
 
     protected NearCacheRecordStore<K, V> nearCacheRecordStore;
     protected ScheduledFuture expirationTaskFuture;
@@ -51,19 +55,27 @@ public class DefaultNearCache<K, V> implements NearCache<K, V> {
 
     public DefaultNearCache(String name, NearCacheConfig nearCacheConfig,
                             SerializationService serializationService, ExecutionService executionService,
-                            ClassLoader classLoader) {
-        this(name, nearCacheConfig, null, serializationService, executionService, classLoader);
+                            ClassLoader classLoader, PartitionService partitionService) {
+        this(name, nearCacheConfig, null, serializationService, executionService, classLoader, partitionService, null);
     }
 
     public DefaultNearCache(String name, NearCacheConfig nearCacheConfig, NearCacheRecordStore<K, V> nearCacheRecordStore,
                             SerializationService serializationService, ExecutionService executionService,
                             ClassLoader classLoader) {
+        this(name, nearCacheConfig, nearCacheRecordStore, serializationService, executionService, classLoader, null, null);
+    }
+
+    public DefaultNearCache(String name, NearCacheConfig nearCacheConfig, NearCacheRecordStore<K, V> nearCacheRecordStore,
+                            SerializationService serializationService, ExecutionService executionService,
+                            ClassLoader classLoader, PartitionService partitionService, IMap<K, V> map) {
         this.name = name;
         this.nearCacheConfig = nearCacheConfig;
         this.serializationService = serializationService;
         this.classLoader = classLoader;
         this.executionService = executionService;
         this.nearCacheRecordStore = nearCacheRecordStore;
+        this.partitionService = partitionService;
+        this.map = map;
     }
 
     @Override
@@ -76,6 +88,13 @@ public class DefaultNearCache<K, V> implements NearCache<K, V> {
         expirationTaskFuture = createAndScheduleExpirationTask();
     }
 
+    @Override
+    public void setMapProxy(final IMap<K, V> map) {
+        if (nearCacheRecordStore != null) {
+            nearCacheRecordStore.setMap(map);
+        }
+    }
+
     protected NearCacheRecordStore<K, V> createNearCacheRecordStore(String name, NearCacheConfig nearCacheConfig) {
         InMemoryFormat inMemoryFormat = nearCacheConfig.getInMemoryFormat();
         if (inMemoryFormat == null) {
@@ -83,9 +102,9 @@ public class DefaultNearCache<K, V> implements NearCache<K, V> {
         }
         switch (inMemoryFormat) {
             case BINARY:
-                return new NearCacheDataRecordStore<K, V>(name, nearCacheConfig, serializationService, classLoader);
+                return new NearCacheDataRecordStore<K, V>(name, nearCacheConfig, serializationService, classLoader, partitionService, executionService);
             case OBJECT:
-                return new NearCacheObjectRecordStore<K, V>(name, nearCacheConfig, serializationService, classLoader);
+                return new NearCacheObjectRecordStore<K, V>(name, nearCacheConfig, serializationService, classLoader, partitionService, executionService);
             default:
                 throw new IllegalArgumentException("Invalid in memory format: " + inMemoryFormat);
         }

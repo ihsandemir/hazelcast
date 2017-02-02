@@ -17,9 +17,11 @@
 package com.hazelcast.monitor.impl;
 
 import com.eclipsesource.json.JsonObject;
+import com.hazelcast.core.PartitionService;
 import com.hazelcast.monitor.NearCacheStats;
 import com.hazelcast.util.Clock;
 
+import java.util.concurrent.atomic.AtomicLongArray;
 import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 
 import static com.hazelcast.util.JsonUtil.getLong;
@@ -47,6 +49,8 @@ public class NearCacheStatsImpl implements NearCacheStats {
     private static final AtomicLongFieldUpdater<NearCacheStatsImpl> PERSISTENCE_COUNT =
             newUpdater(NearCacheStatsImpl.class, "persistenceCount");
 
+    private final AtomicLongArray partitionHits;
+
     private volatile long creationTime;
     private volatile long ownedEntryCount;
     private volatile long ownedEntryMemoryCost;
@@ -62,8 +66,20 @@ public class NearCacheStatsImpl implements NearCacheStats {
     private volatile long lastPersistenceKeyCount;
     private volatile String lastPersistenceFailure = "";
 
+    private final PartitionService partitionService;
+
     public NearCacheStatsImpl() {
-        this.creationTime = Clock.currentTimeMillis();
+        this(null);
+    }
+
+    public NearCacheStatsImpl(PartitionService partitionService) {
+        this.partitionService = partitionService;
+       if (null != partitionService) {
+           this.partitionHits = new AtomicLongArray(partitionService.getPartitions().size());
+       } else {
+           this.partitionHits = null;
+       }
+       this.creationTime = Clock.currentTimeMillis();
     }
 
     @Override
@@ -115,7 +131,9 @@ public class NearCacheStatsImpl implements NearCacheStats {
         HITS.set(this, hits);
     }
 
-    public void incrementHits() {
+    public void incrementHits(Object key) {
+        int partitionId = partitionService.getPartition(key).getPartitionId();
+        partitionHits.incrementAndGet(partitionId);
         HITS.incrementAndGet(this);
     }
 
@@ -210,6 +228,10 @@ public class NearCacheStatsImpl implements NearCacheStats {
     @Override
     public String getLastPersistenceFailure() {
         return lastPersistenceFailure;
+    }
+
+    public AtomicLongArray getPartitionHits() {
+        return partitionHits;
     }
 
     @Override

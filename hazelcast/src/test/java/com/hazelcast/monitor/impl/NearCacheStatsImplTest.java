@@ -37,8 +37,8 @@ public class NearCacheStatsImplTest extends HazelcastTestSupport {
         nearCacheStats.decrementOwnedEntryMemoryCost(256);
 
         nearCacheStats.setHits(600);
-        nearCacheStats.incrementHits();
-        nearCacheStats.incrementHits();
+        nearCacheStats.incrementHits(600);
+        nearCacheStats.incrementHits(600);
 
         nearCacheStats.setMisses(304);
         nearCacheStats.incrementMisses();

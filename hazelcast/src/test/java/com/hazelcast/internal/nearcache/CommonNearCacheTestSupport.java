@@ -55,7 +55,7 @@ public abstract class CommonNearCacheTestSupport extends HazelcastTestSupport {
                 recordStore = new NearCacheDataRecordStore<K, V>(DEFAULT_NEAR_CACHE_NAME, nearCacheConfig, ss, null);
                 break;
             case OBJECT:
-                recordStore = new NearCacheObjectRecordStore<K, V>(DEFAULT_NEAR_CACHE_NAME, nearCacheConfig, ss, null);
+                recordStore = new NearCacheObjectRecordStore<K, V>(DEFAULT_NEAR_CACHE_NAME, nearCacheConfig, ss, null, null, null);
                 break;
             default:
                 throw new IllegalArgumentException("Unsupported in-memory format: " + inMemoryFormat);

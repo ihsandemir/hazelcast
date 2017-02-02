@@ -3,6 +3,7 @@ package com.hazelcast.internal.nearcache;
 import com.hazelcast.config.InMemoryFormat;
 import com.hazelcast.config.NearCacheConfig;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
 import com.hazelcast.internal.adapter.DataStructureAdapter;
 import com.hazelcast.internal.nearcache.impl.invalidation.StaleReadDetector;
 import com.hazelcast.monitor.NearCacheStats;
@@ -377,6 +378,11 @@ public abstract class NearCacheTestSupport extends CommonNearCacheTestSupport {
         @Override
         public StaleReadDetector getStaleReadDetector() {
             return staleReadDetector;
+        }
+
+        @Override
+        public void setMap(IMap<Integer, String> map) {
+
         }
     }
 }

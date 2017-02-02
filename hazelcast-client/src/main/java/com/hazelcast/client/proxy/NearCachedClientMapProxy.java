@@ -33,6 +33,7 @@ import com.hazelcast.client.util.ClientDelegatingFuture;
 import com.hazelcast.config.NearCacheConfig;
 import com.hazelcast.core.ExecutionCallback;
 import com.hazelcast.core.ICompletableFuture;
+import com.hazelcast.core.IMap;
 import com.hazelcast.internal.adapter.IMapDataStructureAdapter;
 import com.hazelcast.internal.nearcache.NearCache;
 import com.hazelcast.internal.nearcache.NearCacheManager;
@@ -112,6 +113,12 @@ public class NearCachedClientMapProxy<K, V> extends ClientMapProxy<K, V> {
 
             addNearCacheInvalidationListener(new ConnectedServerVersionAwareNearCacheEventHandler());
         }
+
+        initPrefetcher();
+    }
+
+    private void initPrefetcher() {
+        nearCache.setMapProxy((IMap<Object, Object>) this);
     }
 
     @Override

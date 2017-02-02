@@ -18,6 +18,7 @@ package com.hazelcast.internal.nearcache.impl;
 
 import com.hazelcast.config.NearCacheConfig;
 import com.hazelcast.config.NearCachePreloaderConfig;
+import com.hazelcast.core.PartitionService;
 import com.hazelcast.internal.adapter.DataStructureAdapter;
 import com.hazelcast.internal.nearcache.NearCache;
 import com.hazelcast.internal.nearcache.NearCacheManager;
@@ -36,9 +37,11 @@ import java.util.concurrent.ScheduledFuture;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-public class DefaultNearCacheManager implements NearCacheManager {
+public class DefaultNearCacheManager
+        implements NearCacheManager {
 
     protected final SerializationService serializationService;
+    protected final PartitionService partitionService;
     protected final ExecutionService executionService;
     protected final ClassLoader classLoader;
 
@@ -49,12 +52,18 @@ public class DefaultNearCacheManager implements NearCacheManager {
     private volatile ScheduledFuture storageTaskFuture;
 
     public DefaultNearCacheManager(SerializationService ss, ExecutionService es, ClassLoader classLoader) {
+        this(ss, es, classLoader, null);
+    }
+
+    public DefaultNearCacheManager(SerializationService ss, ExecutionService es, ClassLoader classLoader,
+                                   PartitionService partitionService) {
         assert ss != null;
         assert es != null;
 
         this.serializationService = ss;
         this.executionService = es;
         this.classLoader = classLoader;
+        this.partitionService = partitionService;
     }
 
     @Override
@@ -70,8 +79,7 @@ public class DefaultNearCacheManager implements NearCacheManager {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <K, V> NearCache<K, V> getOrCreateNearCache(String name,
-                                                       NearCacheConfig nearCacheConfig,
+    public <K, V> NearCache<K, V> getOrCreateNearCache(String name, NearCacheConfig nearCacheConfig,
                                                        DataStructureAdapter dataStructureAdapter) {
         NearCache<K, V> nearCache = nearCacheMap.get(name);
         if (nearCache == null) {
@@ -94,7 +102,8 @@ public class DefaultNearCacheManager implements NearCacheManager {
     }
 
     protected <K, V> NearCache<K, V> createNearCache(String name, NearCacheConfig nearCacheConfig) {
-        return new DefaultNearCache<K, V>(name, nearCacheConfig, serializationService, executionService, classLoader);
+        return new DefaultNearCache<K, V>(name, nearCacheConfig, serializationService, executionService, classLoader,
+                partitionService);
     }
 
     @Override
@@ -159,7 +168,8 @@ public class DefaultNearCacheManager implements NearCacheManager {
         }
     }
 
-    private class PreloadTask implements Runnable {
+    private class PreloadTask
+            implements Runnable {
 
         private final NearCache nearCache;
         private final DataStructureAdapter adapter;
@@ -182,7 +192,8 @@ public class DefaultNearCacheManager implements NearCacheManager {
         }
     }
 
-    private class StorageTask implements Runnable {
+    private class StorageTask
+            implements Runnable {
 
         private final long started = System.currentTimeMillis();
 

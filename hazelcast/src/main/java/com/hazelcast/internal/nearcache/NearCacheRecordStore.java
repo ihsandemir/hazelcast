@@ -16,6 +16,7 @@
 
 package com.hazelcast.internal.nearcache;
 
+import com.hazelcast.core.IMap;
 import com.hazelcast.internal.adapter.DataStructureAdapter;
 import com.hazelcast.internal.nearcache.impl.invalidation.StaleReadDetector;
 import com.hazelcast.monitor.NearCacheStats;
@@ -123,4 +124,6 @@ public interface NearCacheRecordStore<K, V> extends InitializingObject {
      * @see StaleReadDetector
      */
     StaleReadDetector getStaleReadDetector();
+
+    void setMap(final IMap<K, V> map);
 }

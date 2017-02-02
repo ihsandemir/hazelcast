@@ -18,6 +18,7 @@ package com.hazelcast.internal.nearcache;
 
 import com.hazelcast.config.InMemoryFormat;
 import com.hazelcast.config.NearCachePreloaderConfig;
+import com.hazelcast.core.IMap;
 import com.hazelcast.internal.adapter.DataStructureAdapter;
 import com.hazelcast.monitor.NearCacheStats;
 import com.hazelcast.nio.serialization.Data;
@@ -158,4 +159,6 @@ public interface NearCache<K, V> extends InitializingObject {
      * @throws IllegalArgumentException if no implementation found for the supplied clazz type.
      */
     <T> T unwrap(Class<T> clazz);
+
+    void setMapProxy(final IMap<K, V> map);
 }

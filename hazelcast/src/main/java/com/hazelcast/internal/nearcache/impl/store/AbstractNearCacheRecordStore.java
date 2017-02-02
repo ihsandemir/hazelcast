@@ -18,6 +18,9 @@ package com.hazelcast.internal.nearcache.impl.store;
 
 import com.hazelcast.config.EvictionConfig;
 import com.hazelcast.config.NearCacheConfig;
+import com.hazelcast.core.IMap;
+import com.hazelcast.core.Partition;
+import com.hazelcast.core.PartitionService;
 import com.hazelcast.internal.eviction.EvictionChecker;
 import com.hazelcast.internal.eviction.EvictionListener;
 import com.hazelcast.internal.eviction.EvictionPolicyEvaluator;
@@ -29,12 +32,24 @@ import com.hazelcast.internal.nearcache.NearCacheRecordStore;
 import com.hazelcast.internal.nearcache.impl.NearCacheRecordMap;
 import com.hazelcast.internal.nearcache.impl.invalidation.MetaDataContainer;
 import com.hazelcast.internal.nearcache.impl.invalidation.StaleReadDetector;
+import com.hazelcast.map.EntryBackupProcessor;
+import com.hazelcast.map.EntryProcessor;
+import com.hazelcast.map.impl.nearcache.PartitionRetriever;
 import com.hazelcast.monitor.NearCacheStats;
 import com.hazelcast.monitor.impl.NearCacheStatsImpl;
+import com.hazelcast.nio.ObjectDataInput;
+import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.Data;
+import com.hazelcast.nio.serialization.DataSerializable;
+import com.hazelcast.spi.ExecutionService;
 import com.hazelcast.spi.serialization.SerializationService;
 import com.hazelcast.util.Clock;
 import com.hazelcast.util.ExceptionUtil;
+
+import java.io.IOException;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLongArray;
 
 import static com.hazelcast.internal.eviction.EvictionPolicyEvaluatorProvider.getEvictionPolicyEvaluator;
 import static com.hazelcast.internal.eviction.EvictionStrategyProvider.getEvictionStrategy;
@@ -62,8 +77,11 @@ public abstract class AbstractNearCacheRecordStore<K, V, KS, R extends NearCache
     protected final long maxIdleMillis;
     protected final NearCacheConfig nearCacheConfig;
     protected final SerializationService serializationService;
+    protected final PartitionService partitionService;
+    protected final ExecutionService executionService;
     protected final ClassLoader classLoader;
     protected final NearCacheStatsImpl nearCacheStats;
+    protected IMap<K, V> map;
 
     protected MaxSizeChecker maxSizeChecker;
     protected EvictionPolicyEvaluator<KS, R> evictionPolicyEvaluator;
@@ -89,6 +107,23 @@ public abstract class AbstractNearCacheRecordStore<K, V, KS, R extends NearCache
         this.classLoader = classLoader;
         this.nearCacheStats = nearCacheStats;
         this.evictionPolicyType = nearCacheConfig.getEvictionConfig().getEvictionPolicyType();
+        this.executionService = null;
+        this.partitionService = null;
+        this.map = null;
+    }
+
+    protected AbstractNearCacheRecordStore(NearCacheConfig nearCacheConfig, SerializationService serializationService,
+                                           ClassLoader classLoader, PartitionService partitionService,
+                                           ExecutionService executionService) {
+        this.nearCacheConfig = nearCacheConfig;
+        this.timeToLiveMillis = nearCacheConfig.getTimeToLiveSeconds() * MILLI_SECONDS_IN_A_SECOND;
+        this.maxIdleMillis = nearCacheConfig.getMaxIdleSeconds() * MILLI_SECONDS_IN_A_SECOND;
+        this.serializationService = serializationService;
+        this.classLoader = classLoader;
+        this.partitionService = partitionService;
+        this.nearCacheStats = new NearCacheStatsImpl(partitionService);
+        this.evictionPolicyType = nearCacheConfig.getEvictionConfig().getEvictionPolicyType();
+        this.executionService = executionService;
     }
 
     @Override
@@ -100,6 +135,41 @@ public abstract class AbstractNearCacheRecordStore<K, V, KS, R extends NearCache
         this.evictionChecker = createEvictionChecker(nearCacheConfig);
         this.evictionStrategy = createEvictionStrategy(evictionConfig);
         this.evictionPolicyType = evictionConfig.getEvictionPolicyType();
+
+        this.executionService.schedule("Self Learning Near Cache Thread for " + nearCacheConfig.getName(), new Runnable() {
+            @Override
+            public void run() {
+                learnFromStats();
+            }
+        }, 1, TimeUnit.SECONDS);
+    }
+
+    protected void learnFromStats() {
+        AtomicLongArray partitionHits = nearCacheStats.getPartitionHits();
+        int maxPartitionId = findPartitionWithMaxHits(partitionHits);
+
+        // this will also update the near cache
+        retrieveSomeItemsFromPartition(maxPartitionId);
+    }
+
+    private void retrieveSomeItemsFromPartition(final int maxPartitionId) {
+        Map<K, Object> partitionEntries = this.map.executeOnEntries(new PartitionRetriever(maxPartitionId, partitionService));
+        for (Map.Entry<K, Object> entry : partitionEntries.entrySet()) {
+            put(entry.getKey(), (V) entry.getValue());
+        }
+    }
+
+    private int findPartitionWithMaxHits(AtomicLongArray partitionHits) {
+        int partitionId = -1;
+        long max = -1;
+        for (int i = 0; i < partitionHits.length(); i++) {
+            long hitCount = partitionHits.get(i);
+            if (hitCount > max) {
+                max = hitCount;
+                partitionId = i;
+            }
+        }
+        return partitionId;
     }
 
     @Override
@@ -250,10 +320,8 @@ public abstract class AbstractNearCacheRecordStore<K, V, KS, R extends NearCache
     }
 
     protected boolean isEvictionEnabled() {
-        return evictionStrategy != null
-                && evictionPolicyEvaluator != null
-                && evictionPolicyType != null
-                && !evictionPolicyType.equals(EvictionPolicyType.NONE);
+        return evictionStrategy != null && evictionPolicyEvaluator != null && evictionPolicyType != null && !evictionPolicyType
+                .equals(EvictionPolicyType.NONE);
     }
 
     @Override
@@ -287,7 +355,7 @@ public abstract class AbstractNearCacheRecordStore<K, V, KS, R extends NearCache
                     return null;
                 }
                 onRecordAccess(record);
-                nearCacheStats.incrementHits();
+                nearCacheStats.incrementHits(key);
                 value = recordToValue(record);
                 onGet(key, value, record);
                 return value;
@@ -397,6 +465,11 @@ public abstract class AbstractNearCacheRecordStore<K, V, KS, R extends NearCache
     }
 
     @Override
+    public void setMap(IMap<K, V> map) {
+        this.map = map;
+    }
+
+    @Override
     public void doEviction() {
         checkAvailable();
 
@@ -405,7 +478,8 @@ public abstract class AbstractNearCacheRecordStore<K, V, KS, R extends NearCache
         }
     }
 
-    private class MaxSizeEvictionChecker implements EvictionChecker {
+    private class MaxSizeEvictionChecker
+            implements EvictionChecker {
 
         @Override
         public boolean isEvictionRequired() {

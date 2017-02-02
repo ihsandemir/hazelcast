@@ -20,12 +20,15 @@ import com.hazelcast.config.EvictionConfig;
 import com.hazelcast.config.EvictionConfig.MaxSizePolicy;
 import com.hazelcast.config.NearCacheConfig;
 import com.hazelcast.config.NearCachePreloaderConfig;
+import com.hazelcast.core.IMap;
+import com.hazelcast.core.PartitionService;
 import com.hazelcast.internal.adapter.DataStructureAdapter;
 import com.hazelcast.internal.eviction.MaxSizeChecker;
 import com.hazelcast.internal.nearcache.NearCacheRecord;
 import com.hazelcast.internal.nearcache.impl.maxsize.EntryCountNearCacheMaxSizeChecker;
 import com.hazelcast.internal.nearcache.impl.preloader.NearCachePreloader;
 import com.hazelcast.nio.serialization.Data;
+import com.hazelcast.spi.ExecutionService;
 import com.hazelcast.spi.serialization.SerializationService;
 
 import java.util.Map;
@@ -39,7 +42,12 @@ public abstract class BaseHeapNearCacheRecordStore<K, V, R extends NearCacheReco
 
     public BaseHeapNearCacheRecordStore(String name, NearCacheConfig nearCacheConfig, SerializationService serializationService,
                                         ClassLoader classLoader) {
-            super(nearCacheConfig, serializationService, classLoader);
+        this(name, nearCacheConfig, serializationService, classLoader, null, null);
+    }
+
+    public BaseHeapNearCacheRecordStore(String name, NearCacheConfig nearCacheConfig, SerializationService serializationService,
+                                        ClassLoader classLoader, PartitionService partitionService, ExecutionService executionService) {
+        super(nearCacheConfig, serializationService, classLoader, partitionService, executionService);
 
         NearCachePreloaderConfig preloaderConfig = nearCacheConfig.getPreloaderConfig();
         this.nearCachePreloader = preloaderConfig.isEnabled()

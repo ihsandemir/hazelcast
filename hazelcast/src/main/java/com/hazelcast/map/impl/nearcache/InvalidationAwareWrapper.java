@@ -18,6 +18,7 @@ package com.hazelcast.map.impl.nearcache;
 
 import com.hazelcast.config.InMemoryFormat;
 import com.hazelcast.config.NearCachePreloaderConfig;
+import com.hazelcast.core.IMap;
 import com.hazelcast.internal.adapter.DataStructureAdapter;
 import com.hazelcast.internal.nearcache.NearCache;
 import com.hazelcast.monitor.NearCacheStats;
@@ -137,5 +138,10 @@ public final class InvalidationAwareWrapper<K, V> implements NearCache<K, V> {
 
     public KeyStateMarker getKeyStateMarker() {
         return keyStateMarker;
+    }
+
+    @Override
+    public void setMapProxy(IMap<K, V> map) {
+        nearCache.setMapProxy(map);
     }
 }

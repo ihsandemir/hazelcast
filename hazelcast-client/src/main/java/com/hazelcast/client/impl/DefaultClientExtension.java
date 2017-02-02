@@ -26,6 +26,7 @@ import com.hazelcast.client.spi.impl.ClientExecutionServiceImpl;
 import com.hazelcast.config.NearCacheConfig;
 import com.hazelcast.config.SerializationConfig;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.PartitionService;
 import com.hazelcast.core.PartitioningStrategy;
 import com.hazelcast.internal.nearcache.NearCacheManager;
 import com.hazelcast.internal.nearcache.impl.DefaultNearCacheManager;
@@ -138,7 +139,8 @@ public class DefaultClientExtension implements ClientExtension {
         SerializationService ss = client.getSerializationService();
         ClientExecutionServiceImpl es = client.getExecutionService();
         ClassLoader classLoader = client.getClientConfig().getClassLoader();
+        PartitionService partitionService = client.getPartitionService();
 
-        return new DefaultNearCacheManager(ss, es, classLoader);
+        return new DefaultNearCacheManager(ss, es, classLoader, partitionService);
     }
 }
