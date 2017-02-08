@@ -110,6 +110,13 @@ public abstract class HazelcastTestSupport {
             factory = null;
             testHazelcastInstanceFactory.terminateAll();
         }
+
+        synchronized (MessageFlyweight.classNameWriter) {
+            for (String className : MessageFlyweight.allClasses) {
+                MessageFlyweight.classNameWriter.println(className);
+            }
+            MessageFlyweight.classNameWriter.flush();
+        }
     }
 
     // ###################################

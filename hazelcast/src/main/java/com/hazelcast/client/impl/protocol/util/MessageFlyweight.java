@@ -20,7 +20,6 @@ import com.hazelcast.internal.serialization.impl.HeapData;
 import com.hazelcast.nio.Bits;
 import com.hazelcast.nio.serialization.Data;
 import com.hazelcast.spi.serialization.SerializationService;
-import com.hazelcast.util.ExceptionUtil;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -28,7 +27,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,14 +37,14 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class MessageFlyweight {
     private static SerializationService ss;
-    private static PrintWriter classNameWriter;
-    private static Set allClasses = Collections.newSetFromMap(new ConcurrentHashMap());
+    public static PrintWriter classNameWriter;
+    public static Set<String> allClasses = Collections.newSetFromMap(new ConcurrentHashMap());
 
     /**
      * Long mask
      */
     private static final long LONG_MASK = 0x00000000FFFFFFFFL;
-    /**
+    /**com.hazelcast.cache.impl.operation.CacheGetInvalidationMetaDataOperation$MetaDataResponse
      * Int mask
      */
     private static final int INT_MASK = 0x0000FFFF;
@@ -130,12 +128,9 @@ public class MessageFlyweight {
         if (classNameWriter != null && ss != null) {
             try {
                 Object object = ss.toObject(data);
-                if (object != null && !isPrimitiveType(object)) {
+                if (object != null && shouldWeLogClassName(object)) {
                     String className = object.getClass().getName();
-                    if (allClasses.add(className)) {
-                        classNameWriter.println(className);
-                        classNameWriter.flush();
-                    }
+                    allClasses.add(className);
                 }
             } catch (Exception e) {
                // suppress
@@ -144,10 +139,18 @@ public class MessageFlyweight {
         return this;
     }
 
-    private boolean isPrimitiveType(Object object) {
-        return object instanceof String || object instanceof Boolean || object instanceof Integer || object instanceof Long
+    private boolean shouldWeLogClassName(Object object) {
+        if (object instanceof String || object instanceof Boolean || object instanceof Integer || object instanceof Long
                 || object instanceof Float || object instanceof Double || object instanceof Short
-                || object instanceof Character;
+                || object instanceof Character) {
+            return false;
+        }
+
+        if (object.getClass().getName().indexOf("Test") >= 0) {
+            return false;
+        }
+
+        return true;
     }
 
     public MessageFlyweight set(final byte[] value) {
