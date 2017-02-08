@@ -19,16 +19,29 @@ package com.hazelcast.client.impl.protocol.util;
 import com.hazelcast.internal.serialization.impl.HeapData;
 import com.hazelcast.nio.Bits;
 import com.hazelcast.nio.serialization.Data;
+import com.hazelcast.spi.serialization.SerializationService;
+import com.hazelcast.util.ExceptionUtil;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Parameter Flyweight
  */
 public class MessageFlyweight {
+    private static SerializationService ss;
+    private static PrintWriter classNameWriter;
+    private static Set allClasses = Collections.newSetFromMap(new ConcurrentHashMap());
+
     /**
      * Long mask
      */
@@ -57,6 +70,15 @@ public class MessageFlyweight {
         this.offset = offset;
         this.index = 0;
         return this;
+    }
+
+    public static void setSerializationService(SerializationService serializationService) {
+        ss = serializationService;
+        try {
+            classNameWriter = new PrintWriter(new File("classNames.txt"));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     public int index() {
@@ -105,7 +127,27 @@ public class MessageFlyweight {
     public MessageFlyweight set(Data data) {
         final byte[] bytes = data.toByteArray();
         set(bytes);
+        if (classNameWriter != null && ss != null) {
+            try {
+                Object object = ss.toObject(data);
+                if (object != null && !isPrimitiveType(object)) {
+                    String className = object.getClass().getName();
+                    if (allClasses.add(className)) {
+                        classNameWriter.println(className);
+                        classNameWriter.flush();
+                    }
+                }
+            } catch (Exception e) {
+               // suppress
+            }
+        }
         return this;
+    }
+
+    private boolean isPrimitiveType(Object object) {
+        return object instanceof String || object instanceof Boolean || object instanceof Integer || object instanceof Long
+                || object instanceof Float || object instanceof Double || object instanceof Short
+                || object instanceof Character;
     }
 
     public MessageFlyweight set(final byte[] value) {

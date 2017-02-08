@@ -17,6 +17,7 @@
 package com.hazelcast.test;
 
 import com.hazelcast.client.impl.ClientEngineImpl;
+import com.hazelcast.client.impl.protocol.util.MessageFlyweight;
 import com.hazelcast.cluster.ClusterState;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.Cluster;
@@ -32,6 +33,7 @@ import com.hazelcast.internal.metrics.MetricsRegistry;
 import com.hazelcast.internal.partition.InternalPartitionService;
 import com.hazelcast.internal.partition.impl.PartitionServiceState;
 import com.hazelcast.internal.serialization.InternalSerializationService;
+import com.hazelcast.internal.serialization.impl.DefaultSerializationServiceBuilder;
 import com.hazelcast.nio.Address;
 import com.hazelcast.nio.ConnectionManager;
 import com.hazelcast.nio.Packet;
@@ -41,6 +43,7 @@ import com.hazelcast.spi.impl.operationparker.impl.OperationParkerImpl;
 import com.hazelcast.spi.impl.operationservice.InternalOperationService;
 import com.hazelcast.spi.impl.operationservice.impl.OperationServiceImpl;
 import com.hazelcast.spi.partition.IPartition;
+import com.hazelcast.spi.serialization.SerializationService;
 import com.hazelcast.test.jitter.JitterRule;
 import org.junit.After;
 import org.junit.ComparisonFailure;
@@ -91,6 +94,11 @@ public abstract class HazelcastTestSupport {
     static {
         ASSERT_TRUE_EVENTUALLY_TIMEOUT = getInteger("hazelcast.assertTrueEventually.timeout", 120);
         System.out.println("ASSERT_TRUE_EVENTUALLY_TIMEOUT = " + ASSERT_TRUE_EVENTUALLY_TIMEOUT);
+
+        DefaultSerializationServiceBuilder defaultSerializationServiceBuilder = new DefaultSerializationServiceBuilder();
+        SerializationService serializationService = defaultSerializationServiceBuilder
+                .setVersion(InternalSerializationService.VERSION_1).build();
+        MessageFlyweight.setSerializationService(serializationService);
     }
 
     private TestHazelcastInstanceFactory factory;
