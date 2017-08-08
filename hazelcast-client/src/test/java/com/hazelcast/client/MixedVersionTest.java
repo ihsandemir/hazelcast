@@ -16,6 +16,10 @@
 
 package com.hazelcast.client;
 
+import com.hazelcast.cache.CacheTestSupport;
+import com.hazelcast.cache.ICache;
+import com.hazelcast.client.cache.impl.HazelcastClientCachingProvider;
+import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.test.HazelcastSerialClassRunner;
@@ -28,36 +32,61 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
+import javax.cache.CacheManager;
+import javax.cache.Caching;
+import javax.cache.configuration.CompleteConfiguration;
+import javax.cache.configuration.MutableConfiguration;
+import javax.cache.spi.CachingProvider;
+
 import static org.junit.Assert.assertEquals;
 
 @RunWith(HazelcastSerialClassRunner.class)
 @Category({CompatibilityTest.class, SlowTest.class})
-public class MixedVersionTest {
+public class MixedVersionTest extends CacheTestSupport {
 
-    private static final String MEMBER_VERSION = "3.8.3";
+    private static final String MEMBER_VERSION = "3.8.2";
     private static final String CLIENT_VERSION = "3.6.2";
 
     private HazelcastInstance member;
     private HazelcastInstance client;
 
-    @Before
-    public void setup() {
-        member = HazelcastStarter.newHazelcastInstance(MEMBER_VERSION);
+    @Override
+    protected HazelcastInstance getHazelcastInstance() {
+        if (member != null) {
+            return member;
+        }
+
+        Config config = new Config();
+        config.setProperty("hazelcast.compatibility.3.6.client", "true");
+        config.getCacheConfig("example").setBackupCount(2).setName("test");
+        member = HazelcastStarter.newHazelcastInstance(MEMBER_VERSION, config, false);
+
+        return member;
+    }
+
+    @Override
+    protected void onSetup() {
+
+    }
+
+    @Override
+    protected void onTearDown() {
+        client.shutdown();
+        member.shutdown();
+    }
+
+    @Override
+    protected CachingProvider getCachingProvider() {
         client = HazelcastStarter.newHazelcastClient(CLIENT_VERSION, false);
+
+        return HazelcastClientCachingProvider.createCachingProvider(client);
     }
 
     @Test
-    public void testHzClient362_onHzMember383() {
-        IMap mapFromClient = client.getMap("test");
-        mapFromClient.put("a", "b");
+    public void testICacheHzClient362_onHzMember382() {
+        ICache<String, String> cache = createCache("testICacheHzClient362_onHzMember382");
 
-        IMap mapFromMember = member.getMap("test");
-        assertEquals("b", mapFromMember.get("a"));
-    }
-
-    @After
-    public void tearDown() {
-        client.getLifecycleService().terminate();
-        member.getLifecycleService().terminate();
+        cache.put("Key1", "Value1");
+        assertEquals("Value1", cache.get("Key1"));
     }
 }
