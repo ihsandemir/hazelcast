@@ -23,6 +23,7 @@ import com.hazelcast.core.ExecutionCallback;
 import com.hazelcast.executor.impl.DistributedExecutorService;
 import com.hazelcast.executor.impl.operations.CallableTaskOperation;
 import com.hazelcast.instance.Node;
+import com.hazelcast.logging.Logger;
 import com.hazelcast.nio.Connection;
 import com.hazelcast.nio.serialization.Data;
 import com.hazelcast.security.SecurityContext;
@@ -38,8 +39,10 @@ public class ExecutorServiceSubmitToPartitionMessageTask
         extends AbstractInvocationMessageTask<ExecutorServiceSubmitToPartitionCodec.RequestParameters>
         implements ExecutionCallback {
 
+    Object callable = null;
     public ExecutorServiceSubmitToPartitionMessageTask(ClientMessage clientMessage, Node node, Connection connection) {
         super(clientMessage, node, connection);
+        Logger.getLogger(getClass()).info("AbstractInvocationMessageTask constructor");
     }
 
     @Override
@@ -62,6 +65,10 @@ public class ExecutorServiceSubmitToPartitionMessageTask
             callable = securityContext.createSecureCallable(subject, callable);
             callableData = serializationService.toData(callable);
         }
+        callable = serializationService.toObject(parameters.callable);
+        Logger.getLogger(getClass())
+              .info("AbstractInvocationMessageTask prepareOperation parameters.name:" + parameters.name + ", parameters.uuid:"
+                      + parameters.uuid + ", callable:" + callable);
         return new CallableTaskOperation(parameters.name, parameters.uuid, callableData);
     }
 
@@ -74,6 +81,10 @@ public class ExecutorServiceSubmitToPartitionMessageTask
     @Override
     protected ClientMessage encodeResponse(Object response) {
         Data data = serializationService.toData(response);
+        Logger.getLogger(getClass())
+              .info("AbstractInvocationMessageTask encodeResponse: parameters.name:" + parameters.name + ", parameters.uuid:"
+                      + parameters.uuid + ", callable:" + callable);
+        ;
         return ExecutorServiceSubmitToPartitionCodec.encodeResponse(data);
     }
 

@@ -18,6 +18,7 @@ package com.hazelcast.executor.impl;
 
 import com.hazelcast.config.ExecutorConfig;
 import com.hazelcast.logging.ILogger;
+import com.hazelcast.logging.Logger;
 import com.hazelcast.monitor.LocalExecutorStats;
 import com.hazelcast.monitor.impl.LocalExecutorStatsImpl;
 import com.hazelcast.spi.ExecutionService;
@@ -250,6 +251,8 @@ public class DistributedExecutorService implements ManagedService, RemoteService
                     submittedTasks.remove(uuid);
                 }
                 if (!isCancelled()) {
+                    Logger.getLogger(getClass()).info("CallableProcessor.run sending response for name:" + name + ", uuid:" + uuid
+                            + ", callableToString:" + callableToString);
                     sendResponse(result);
                     if (statisticsEnabled) {
                         finishExecution(name, Clock.currentTimeMillis() - start);

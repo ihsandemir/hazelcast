@@ -95,7 +95,16 @@ abstract class AbstractCallableTaskOperation extends Operation implements Identi
     @Override
     public final void run() throws Exception {
         DistributedExecutorService service = getService();
+        getLogger().info("AbstractCallableTaskOperation run Before execute for name:" + name + ", uuid:" + uuid + ", callable:" + callable);
         service.execute(name, uuid, callable, this);
+        getLogger().info("AbstractCallableTaskOperation run After execute for name:" + name + ", uuid:" + uuid + ", callable:" + callable);
+    }
+
+    @Override
+    public void afterRun()
+            throws Exception {
+        getLogger().info("AbstractCallableTaskOperation afterRun for name:" + name + ", uuid:" + uuid + ", callable:" + callable);
+        super.afterRun();
     }
 
     @Override
