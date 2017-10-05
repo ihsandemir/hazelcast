@@ -47,7 +47,7 @@ import java.util.concurrent.Executors;
 
 @RunWith(HazelcastParallelClassRunner.class)
 @Category({QuickTest.class, ParallelTest.class})
-@Repeat(value = 1)
+@Repeat(value = 100)
 public class ClientMaxAllowedInvocationTest extends ClientTestSupport {
 
     private final TestHazelcastFactory hazelcastFactory = new TestHazelcastFactory();
