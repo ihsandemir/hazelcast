@@ -114,16 +114,16 @@ public final class CachedExecutorServiceDelegate implements ExecutorService, Man
             throw new RejectedExecutionException();
         }
         logger.info(
-                "execute ENTRY. size:" + size + ", maxPoolSize:" + maxPoolSize + ", taskQ.size:" + taskQ.size() + ", runnable:"
+                "execute ENTRY. name:"+ name + " size:" + size + ", maxPoolSize:" + maxPoolSize + ", taskQ.size:" + taskQ.size() + ", runnable:"
                         + command);
         if (!taskQ.offer(command)) {
             throw new RejectedExecutionException("Executor[" + name + "] is overloaded!");
         }
-        logger.info("execute After offer. size:" + size + ", maxPoolSize:" + maxPoolSize + ":, taskQ.size:" + taskQ.size()
+        logger.info("execute After offer. name:"+ name + " size:" + size + ", maxPoolSize:" + maxPoolSize + ":, taskQ.size:" + taskQ.size()
                 + ", runnable:" + command);
         addNewWorkerIfRequired();
         logger.info(
-                "execute EXIT. size:" + size + ", maxPoolSize:" + maxPoolSize + ":, taskQ.size:" + taskQ.size() + ", runnable:"
+                "execute EXIT.  name:"+ name + "size:" + size + ", maxPoolSize:" + maxPoolSize + ":, taskQ.size:" + taskQ.size() + ", runnable:"
                         + command);
     }
 
@@ -148,11 +148,11 @@ public final class CachedExecutorServiceDelegate implements ExecutorService, Man
 
     @SuppressFBWarnings("VO_VOLATILE_INCREMENT")
     private void addNewWorkerIfRequired() {
-        logger.info("addNewWorkerIfRequired. size:" + size + ", maxPoolSize:" + maxPoolSize + ":, taskQ.size:" + taskQ.size());
+        logger.info("addNewWorkerIfRequired.  name:"+ name + ", size:" + size + ", maxPoolSize:" + maxPoolSize + ":, taskQ.size:" + taskQ.size());
         if (size < maxPoolSize) {
             try {
                 if (lock.tryLock(TIME, TimeUnit.MILLISECONDS)) {
-                    logger.info("addNewWorkerIfRequired. Got LOCK. size:" + size + ", maxPoolSize:" + maxPoolSize + ":, taskQ.size:"
+                    logger.info("addNewWorkerIfRequired.  name:"+ name + "Got LOCK. size:" + size + ", maxPoolSize:" + maxPoolSize + ":, taskQ.size:"
                             + taskQ.size());
                     try {
                         if (size < maxPoolSize && getQueueSize() > 0) {
@@ -160,12 +160,12 @@ public final class CachedExecutorServiceDelegate implements ExecutorService, Man
                             cachedExecutor.execute(new Worker());
                         }
                     } finally {
-                        logger.info("addNewWorkerIfRequired. Unlocking the LOCK. size:" + size + ", maxPoolSize:" + maxPoolSize
+                        logger.info("addNewWorkerIfRequired.  name:"+ name + " Unlocking the LOCK. size:" + size + ", maxPoolSize:" + maxPoolSize
                                 + ":, taskQ.size:" + taskQ.size());
                         lock.unlock();
                     }
                 } else {
-                    logger.info("addNewWorkerIfRequired. COULD NOT get LOCK. size:" + size + ", maxPoolSize:" + maxPoolSize
+                    logger.info("addNewWorkerIfRequired.  name:"+ name + "COULD NOT get LOCK. size:" + size + ", maxPoolSize:" + maxPoolSize
                             + ":, taskQ.size:" + taskQ.size());
                 }
             } catch (InterruptedException e) {
@@ -239,19 +239,19 @@ public final class CachedExecutorServiceDelegate implements ExecutorService, Man
 
         @Override
         public void run() {
-            logger.info("Worker:run ENTERED. size:" + size + ", taskQ.size:" + taskQ.size());
+            logger.info("Worker:run ENTERED. name:"+ name + ", size:" + size + ", taskQ.size:" + taskQ.size());
             try {
                 Runnable r;
                 do {
-                    logger.info("Worker:run loop. size:" + size + ", taskQ.size:" + taskQ.size());
+                    logger.info("Worker:run loop. name:"+ name + ", size:" + size + ", taskQ.size:" + taskQ.size());
                     r = taskQ.poll(1, TimeUnit.MILLISECONDS);
                     if (r != null) {
-                        logger.info("Worker:run. Running runnable:" + r +" size:" + size + ", taskQ.size:" + taskQ.size());
+                        logger.info("Worker:run. name:"+ name + " Running runnable:" + r +" size:" + size + ", taskQ.size:" + taskQ.size());
                         r.run();
-                        logger.info("Worker:run. Finished running runnable:" + r +" size:" + size + ", taskQ.size:" + taskQ.size());
+                        logger.info("Worker:run. name:"+ name + " Finished running runnable:" + r +" size:" + size + ", taskQ.size:" + taskQ.size());
                         EXECUTED_COUNT.incrementAndGet(CachedExecutorServiceDelegate.this);
                     } else {
-                        logger.info("Worker:run no more tasks. Will exit. size:" + size + ", taskQ.size:" + taskQ.size());
+                        logger.info("Worker:run name:"+ name + " no more tasks. Will exit. size:" + size + ", taskQ.size:" + taskQ.size());
                     }
                 }
                 while (r != null);
@@ -259,22 +259,22 @@ public final class CachedExecutorServiceDelegate implements ExecutorService, Man
                 EmptyStatement.ignore(ignored);
             } finally {
                 exit();
-                logger.info("Worker:run EXITING. size:" + size + ", taskQ.size:" + taskQ.size());
+                logger.info("Worker:run EXITING. name:"+ name + " size:" + size + ", taskQ.size:" + taskQ.size());
             }
         }
 
         void exit() {
-            logger.info("Worker:exit ENTERED. size:" + size + ", taskQ.size:" + taskQ.size());
+            logger.info("Worker:exit ENTERED. name:"+ name + " size:" + size + ", taskQ.size:" + taskQ.size());
             lock.lock();
             try {
-                logger.info("Worker:exit got the lock. size:" + size + ", taskQ.size:" + taskQ.size());
+                logger.info("Worker:exit name:"+ name + " got the lock. size:" + size + ", taskQ.size:" + taskQ.size());
                 size--;
                 if (taskQ.peek() != null) {
                     // may cause underlying cached executor to create some extra threads!
                     addNewWorkerIfRequired();
                 }
             } finally {
-                logger.info("Worker:exit unlocking. size:" + size + ", taskQ.size:" + taskQ.size());
+                logger.info("Worker:exit name:"+ name + " unlocking. size:" + size + ", taskQ.size:" + taskQ.size());
                 lock.unlock();
             }
         }
