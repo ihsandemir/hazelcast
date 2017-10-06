@@ -240,7 +240,9 @@ public final class CachedExecutorServiceDelegate implements ExecutorService, Man
                     logger.info("Worker:run. size:" + size + ", taskQ.size:" + taskQ.size());
                     r = taskQ.poll(1, TimeUnit.MILLISECONDS);
                     if (r != null) {
+                        logger.info("Worker:run. Running runnable:" + r +" size:" + size + ", taskQ.size:" + taskQ.size());
                         r.run();
+                        logger.info("Worker:run. Finished running runnable:" + r +" size:" + size + ", taskQ.size:" + taskQ.size());
                         EXECUTED_COUNT.incrementAndGet(CachedExecutorServiceDelegate.this);
                     } else {
                         logger.info("Worker:run no more tasks. Will exit. size:" + size + ", taskQ.size:" + taskQ.size());
