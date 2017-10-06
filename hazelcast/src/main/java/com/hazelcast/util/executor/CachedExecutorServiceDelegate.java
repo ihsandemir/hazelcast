@@ -234,10 +234,11 @@ public final class CachedExecutorServiceDelegate implements ExecutorService, Man
 
         @Override
         public void run() {
+            logger.info("Worker:run ENTERED. size:" + size + ", taskQ.size:" + taskQ.size());
             try {
                 Runnable r;
                 do {
-                    logger.info("Worker:run. size:" + size + ", taskQ.size:" + taskQ.size());
+                    logger.info("Worker:run loop. size:" + size + ", taskQ.size:" + taskQ.size());
                     r = taskQ.poll(1, TimeUnit.MILLISECONDS);
                     if (r != null) {
                         logger.info("Worker:run. Running runnable:" + r +" size:" + size + ", taskQ.size:" + taskQ.size());
@@ -253,6 +254,7 @@ public final class CachedExecutorServiceDelegate implements ExecutorService, Man
                 EmptyStatement.ignore(ignored);
             } finally {
                 exit();
+                logger.info("Worker:run EXITING. size:" + size + ", taskQ.size:" + taskQ.size());
             }
         }
 
