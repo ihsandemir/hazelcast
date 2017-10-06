@@ -113,13 +113,18 @@ public final class CachedExecutorServiceDelegate implements ExecutorService, Man
         if (shutdown.get()) {
             throw new RejectedExecutionException();
         }
-        logger.info("execute ENTRY. size:" + size + ", maxPoolSize:" + maxPoolSize + ", taskQ.size:" + taskQ.size());
+        logger.info(
+                "execute ENTRY. size:" + size + ", maxPoolSize:" + maxPoolSize + ", taskQ.size:" + taskQ.size() + ", runnable:"
+                        + command);
         if (!taskQ.offer(command)) {
             throw new RejectedExecutionException("Executor[" + name + "] is overloaded!");
         }
-        logger.info("execute After offer. size:" + size + ", maxPoolSize:" + maxPoolSize + ":, taskQ.size:" + taskQ.size());
+        logger.info("execute After offer. size:" + size + ", maxPoolSize:" + maxPoolSize + ":, taskQ.size:" + taskQ.size()
+                + ", runnable:" + command);
         addNewWorkerIfRequired();
-        logger.info("execute EXIT. size:" + size + ", maxPoolSize:" + maxPoolSize + ":, taskQ.size:" + taskQ.size());
+        logger.info(
+                "execute EXIT. size:" + size + ", maxPoolSize:" + maxPoolSize + ":, taskQ.size:" + taskQ.size() + ", runnable:"
+                        + command);
     }
 
     @Override
