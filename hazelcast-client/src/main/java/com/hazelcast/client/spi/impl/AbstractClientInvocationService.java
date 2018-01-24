@@ -17,6 +17,7 @@
 package com.hazelcast.client.spi.impl;
 
 import com.hazelcast.client.HazelcastClientNotActiveException;
+import com.hazelcast.client.config.SlowOperationDetectorConfig;
 import com.hazelcast.client.connection.ClientConnectionManager;
 import com.hazelcast.client.connection.nio.ClientConnection;
 import com.hazelcast.client.impl.HazelcastClientInstanceImpl;
@@ -72,6 +73,8 @@ public abstract class AbstractClientInvocationService implements ClientInvocatio
     private volatile boolean isShutdown;
     private final long invocationTimeoutMillis;
     private final long invocationRetryPauseMillis;
+    private final SlowOperationDetectorConfig slowOperationDetectorConfig;
+    private final ConcurrentMap<Integer, Long> lastLogTime = new ConcurrentHashMap<Integer, Long>();
 
     public AbstractClientInvocationService(HazelcastClientInstanceImpl client) {
         this.client = client;
@@ -79,6 +82,7 @@ public abstract class AbstractClientInvocationService implements ClientInvocatio
         this.invocationTimeoutMillis = initInvocationTimeoutMillis();
         this.invocationRetryPauseMillis = initInvocationRetryPauseMillis();
         client.getMetricsRegistry().scanAndRegister(this, "invocations");
+        slowOperationDetectorConfig = client.getClientConfig().getSlowOperationDetectorConfig();
     }
 
     private long initInvocationRetryPauseMillis() {
@@ -106,6 +110,12 @@ public abstract class AbstractClientInvocationService implements ClientInvocatio
         }
         executionService.scheduleWithRepetition(new CleanResourcesTask(), cleanResourcesMillis,
                 cleanResourcesMillis, TimeUnit.MILLISECONDS);
+
+        if (slowOperationDetectorConfig.isEnabled()) {
+            executionService.scheduleWithRepetition(new SlowInvocationCheckTask(),
+                    slowOperationDetectorConfig.getCheckPeriodInMillis(),
+                    slowOperationDetectorConfig.getCheckPeriodInMillis(), TimeUnit.MILLISECONDS);
+        }
     }
 
     @Override
@@ -210,6 +220,80 @@ public abstract class AbstractClientInvocationService implements ClientInvocatio
 
                 notifyException(invocation, connection);
             }
+        }
+
+        private void notifyException(ClientInvocation invocation, ClientConnection connection) {
+            Exception ex;
+            /**
+             * Connection may be closed(e.g. remote member shutdown) in which case the isAlive is set to false or the
+             * heartbeat failure occurs. The order of the following check matters. We need to first check for isAlive since
+             * the connection.isHeartBeating also checks for isAlive as well.
+             */
+            if (!connection.isAlive()) {
+                ex = new TargetDisconnectedException(connection.getCloseReason(), connection.getCloseCause());
+            } else {
+                ex = new TargetDisconnectedException("Heartbeat timed out to " + connection);
+            }
+
+            invocation.notifyException(ex);
+        }
+
+    }
+
+    private class SlowInvocationCheckTask implements Runnable {
+        final SlowOperationDetectorConfig.UserNotifier userNotifier = slowOperationDetectorConfig.getUserNotifier();
+
+        @Override
+        public void run() {
+            Iterator<Map.Entry<Long, ClientInvocation>> iter = invocations.entrySet().iterator();
+            while (iter.hasNext()) {
+                Map.Entry<Long, ClientInvocation> entry = iter.next();
+                ClientInvocation invocation = entry.getValue();
+                long invokeTimeInMillis = invocation.getInvokeTimeInMillis();
+                int messageType = invocation.getClientMessage().getMessageType();
+                long timeoutInMillis = slowOperationDetectorConfig.getTimeoutInMillis(messageType);
+                if (timeoutInMillis == -1) {
+                    // do not check this message type
+                    continue;
+                }
+                long nowInMillis = System.currentTimeMillis();
+                long currentInvocationTimeInMillis = nowInMillis - invokeTimeInMillis;
+                if (currentInvocationTimeInMillis > timeoutInMillis) {
+                    resportAsSlowInvocation(invocation, timeoutInMillis, currentInvocationTimeInMillis, messageType,
+                            nowInMillis);
+                }
+            }
+        }
+
+        private void resportAsSlowInvocation(ClientInvocation invocation, long timeoutInMillis,
+                                             long currentInvocationTimeInMillis, int messageType, long nowInMillis) {
+
+            logWarning(invocation, timeoutInMillis, currentInvocationTimeInMillis, messageType, nowInMillis);
+
+            reportToClientStatisticsIfEnabled(invocation, timeoutInMillis, currentInvocationTimeInMillis, messageType, nowInMillis);
+
+
+            if (userNotifier != null) {
+                userNotifier.notifySlowInvocation(invocation, timeoutInMillis, currentInvocationTimeInMillis);
+            }
+        }
+
+        private void logWarning(ClientInvocation invocation, long timeoutInMillis, long currentInvocationTimeInMillis, int messageType, long nowInMillis) {
+            Long logTimeInMillis = lastLogTime.get(messageType);
+            ClientConnection sendConnection = invocation.getSendConnection();
+            if (sendConnection != null && (logTimeInMillis == null ||
+                    nowInMillis - logTimeInMillis > slowOperationDetectorConfig.getWarningPrintIntervalMillis())) {
+                invocationLogger.warning("Invocation to server " + sendConnection.getEndPoint() +
+                        " is longer (" + currentInvocationTimeInMillis + " msecs) than configured maximum timeout of " +
+                        timeoutInMillis + " msecs. Invocation:" + invocation);
+            }
+        }
+
+        private void reportToClientStatisticsIfEnabled(ClientInvocation invocation, long timeoutInMillis,
+                                                       long currentInvocationTimeInMillis, int messageType,
+                                                       long nowInMillis) {
+            client.getStatistics().reportSlowInvocation(invocation, timeoutInMillis, currentInvocationTimeInMillis,
+                    nowInMillis);
         }
 
         private void notifyException(ClientInvocation invocation, ClientConnection connection) {

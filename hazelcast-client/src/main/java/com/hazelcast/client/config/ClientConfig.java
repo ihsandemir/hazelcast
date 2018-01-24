@@ -17,16 +17,7 @@
 package com.hazelcast.client.config;
 
 import com.hazelcast.client.LoadBalancer;
-import com.hazelcast.config.ConfigPatternMatcher;
-import com.hazelcast.config.ConfigurationException;
-import com.hazelcast.config.FlakeIdGeneratorConfig;
-import com.hazelcast.config.GroupConfig;
-import com.hazelcast.config.ListenerConfig;
-import com.hazelcast.config.NativeMemoryConfig;
-import com.hazelcast.config.NearCacheConfig;
-import com.hazelcast.config.QueryCacheConfig;
-import com.hazelcast.config.SerializationConfig;
-import com.hazelcast.config.SocketInterceptorConfig;
+import com.hazelcast.config.*;
 import com.hazelcast.config.matcher.MatchingPointConfigPatternMatcher;
 import com.hazelcast.core.ManagedContext;
 import com.hazelcast.flakeidgen.FlakeIdGenerator;
@@ -34,12 +25,8 @@ import com.hazelcast.logging.ILogger;
 import com.hazelcast.logging.Logger;
 import com.hazelcast.security.Credentials;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.hazelcast.config.NearCacheConfigAccessor.initDefaultMaxSizeForOnHeapMaps;
@@ -122,6 +109,7 @@ public class ClientConfig {
 
     private final Map<String, FlakeIdGeneratorConfig> flakeIdGeneratorConfigMap =
             new ConcurrentHashMap<String, FlakeIdGeneratorConfig>();
+    private SlowOperationDetectorConfig slowOperationDetectorConfig = new SlowOperationDetectorConfig();
 
     /**
      * Sets the pattern matcher which is used to match item names to
@@ -928,5 +916,9 @@ public class ClientConfig {
         }
 
         return lookupByPattern(configPatternMatcher, queryCacheConfigsForMap, cacheName);
+    }
+
+    public SlowOperationDetectorConfig getSlowOperationDetectorConfig() {
+        return slowOperationDetectorConfig;
     }
 }

@@ -51,6 +51,14 @@ public class MapGetMessageTask
 
     @Override
     protected Operation prepareOperation() {
+        if (clientMessage.getCorrelationId() % 10 == 0) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
         MapOperationProvider operationProvider = getMapOperationProvider(parameters.name);
         MapOperation operation = operationProvider.createGetOperation(parameters.name, parameters.key);
         operation.setThreadId(parameters.threadId);

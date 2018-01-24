@@ -76,6 +76,7 @@ public class ClientInvocation implements Runnable {
     private boolean bypassHeartbeatCheck;
     private EventHandler handler;
     private volatile long invokeCount;
+    private volatile long invokeTimeInMillis;
 
     protected ClientInvocation(HazelcastClientInstanceImpl client,
                                ClientMessage clientMessage,
@@ -155,6 +156,7 @@ public class ClientInvocation implements Runnable {
 
     private void invokeOnSelection() {
         INVOKE_COUNT.incrementAndGet(this);
+        invokeTimeInMillis = System.currentTimeMillis();
         try {
             if (isBindToSingleConnection()) {
                 invocationService.invokeOnConnection(this, (ClientConnection) connection);
@@ -307,6 +309,10 @@ public class ClientInvocation implements Runnable {
 
     public Executor getUserExecutor() {
         return executionService.getUserExecutor();
+    }
+
+    public long getInvokeTimeInMillis() {
+        return invokeTimeInMillis;
     }
 
     private Object newOperationTimeoutException(Throwable e) {

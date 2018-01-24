@@ -23,7 +23,6 @@ import com.hazelcast.core.HazelcastInstanceNotActiveException;
 import com.hazelcast.instance.BuildInfo;
 import com.hazelcast.logging.ILogger;
 import com.hazelcast.nio.Connection;
-import com.hazelcast.nio.tcp.TcpIpConnection;
 import com.hazelcast.security.Credentials;
 import com.hazelcast.spi.EventService;
 import com.hazelcast.spi.impl.NodeEngineImpl;
@@ -36,6 +35,7 @@ import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.net.UnknownHostException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -51,7 +51,7 @@ public final class ClientEndpointImpl implements ClientEndpoint {
     private final ConcurrentMap<String, TransactionContext> transactionContextMap
             = new ConcurrentHashMap<String, TransactionContext>();
     private final ConcurrentHashMap<String, Callable> removeListenerActions = new ConcurrentHashMap<String, Callable>();
-    private final SocketAddress socketAddress;
+    private SocketAddress socketAddress;
     private final long creationTime;
 
     private LoginContext loginContext;
@@ -68,12 +68,19 @@ public final class ClientEndpointImpl implements ClientEndpoint {
         this.clientEngine = clientEngine;
         this.nodeEngine = nodeEngine;
         this.connection = connection;
+        try {
+            this.socketAddress = connection.getEndPoint().getInetSocketAddress();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+/*
         if (connection instanceof TcpIpConnection) {
             TcpIpConnection tcpIpConnection = (TcpIpConnection) connection;
             socketAddress = tcpIpConnection.getRemoteSocketAddress();
         } else {
             socketAddress = null;
         }
+*/
         this.clientVersion = BuildInfo.UNKNOWN_HAZELCAST_VERSION;
         this.clientVersionString = "Unknown";
         this.creationTime = System.currentTimeMillis();

@@ -20,11 +20,7 @@ import com.hazelcast.cache.CacheStatistics;
 import com.hazelcast.cache.impl.CacheService;
 import com.hazelcast.cache.impl.ICacheService;
 import com.hazelcast.collection.impl.queue.QueueService;
-import com.hazelcast.config.CacheConfig;
-import com.hazelcast.config.Config;
-import com.hazelcast.config.GroupConfig;
-import com.hazelcast.config.SSLConfig;
-import com.hazelcast.config.SocketInterceptorConfig;
+import com.hazelcast.config.*;
 import com.hazelcast.core.Client;
 import com.hazelcast.core.Member;
 import com.hazelcast.executor.impl.DistributedExecutorService;
@@ -37,24 +33,8 @@ import com.hazelcast.internal.management.dto.ClientEndPointDTO;
 import com.hazelcast.internal.management.dto.ClusterHotRestartStatusDTO;
 import com.hazelcast.internal.partition.InternalPartitionService;
 import com.hazelcast.map.impl.MapService;
-import com.hazelcast.monitor.LocalExecutorStats;
-import com.hazelcast.monitor.LocalMapStats;
-import com.hazelcast.monitor.LocalMemoryStats;
-import com.hazelcast.monitor.LocalMultiMapStats;
-import com.hazelcast.monitor.LocalOperationStats;
-import com.hazelcast.monitor.LocalQueueStats;
-import com.hazelcast.monitor.LocalReplicatedMapStats;
-import com.hazelcast.monitor.LocalTopicStats;
-import com.hazelcast.monitor.LocalWanStats;
-import com.hazelcast.monitor.TimedMemberState;
-import com.hazelcast.monitor.WanSyncState;
-import com.hazelcast.monitor.impl.HotRestartStateImpl;
-import com.hazelcast.monitor.impl.LocalCacheStatsImpl;
-import com.hazelcast.monitor.impl.LocalMemoryStatsImpl;
-import com.hazelcast.monitor.impl.LocalOperationStatsImpl;
-import com.hazelcast.monitor.impl.MemberPartitionStateImpl;
-import com.hazelcast.monitor.impl.MemberStateImpl;
-import com.hazelcast.monitor.impl.NodeStateImpl;
+import com.hazelcast.monitor.*;
+import com.hazelcast.monitor.impl.*;
 import com.hazelcast.multimap.impl.MultiMapService;
 import com.hazelcast.nio.Address;
 import com.hazelcast.replicatedmap.impl.ReplicatedMapService;
@@ -67,12 +47,7 @@ import com.hazelcast.topic.impl.TopicService;
 import com.hazelcast.topic.impl.reliable.ReliableTopicService;
 import com.hazelcast.wan.WanReplicationService;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static com.hazelcast.util.SetUtil.createHashSet;
@@ -157,7 +132,11 @@ public class TimedMemberStateFactory {
         final Collection<Client> clients = instance.node.clientEngine.getClients();
         final Set<ClientEndPointDTO> serializableClientEndPoints = createHashSet(clients.size());
         for (Client client : clients) {
-            serializableClientEndPoints.add(new ClientEndPointDTO(client));
+            try {
+                serializableClientEndPoints.add(new ClientEndPointDTO(client));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         memberState.setClients(serializableClientEndPoints);
 

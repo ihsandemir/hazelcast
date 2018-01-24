@@ -24,8 +24,8 @@ import com.hazelcast.client.spi.impl.ClientInvocation;
 import com.hazelcast.core.ClientType;
 import com.hazelcast.instance.BuildInfo;
 import com.hazelcast.instance.BuildInfoProvider;
-import com.hazelcast.internal.metrics.MetricsRegistry;
 import com.hazelcast.internal.metrics.Gauge;
+import com.hazelcast.internal.metrics.MetricsRegistry;
 import com.hazelcast.internal.nearcache.NearCache;
 import com.hazelcast.logging.ILogger;
 import com.hazelcast.logging.Logger;
@@ -80,6 +80,32 @@ public class Statistics {
     private PeriodicStatistics periodicStats;
 
     private volatile Address ownerAddress;
+
+    private volatile String slowInvocationsInfo = "";
+
+    private class SlowInvocationInfo {
+        private final ClientInvocation invocation;
+        private final long timeoutInMillis;
+        private final long currentInvocationTimeInMillis;
+        private final long nowInMillis;
+
+        public SlowInvocationInfo(ClientInvocation invocation, long timeoutInMillis, long currentInvocationTimeInMillis, long nowInMillis) {
+            this.invocation = invocation;
+            this.timeoutInMillis = timeoutInMillis;
+            this.currentInvocationTimeInMillis = currentInvocationTimeInMillis;
+            this.nowInMillis = nowInMillis;
+        }
+
+        @Override
+        public String toString() {
+            String prefix = "slowInvocation." + invocation.getClientMessage().getCorrelationId();
+            return prefix + ".server=" + invocation.getSendConnection().getEndPoint() + STAT_SEPARATOR +
+                    prefix + ".operationName=" + invocation.getClientMessage().getOperationName() + STAT_SEPARATOR +
+                    prefix + ".timeoutInMillis=" + timeoutInMillis + STAT_SEPARATOR +
+                    prefix + ".currentInvocationTimeInMillis=" + currentInvocationTimeInMillis + STAT_SEPARATOR +
+                    prefix + ".nowInMillis=" + nowInMillis;
+        }
+    }
 
     public Statistics(final HazelcastClientInstanceImpl clientInstance) {
         this.properties = clientInstance.getProperties();
@@ -163,9 +189,17 @@ public class Statistics {
 
                 addNearCacheStats(stats);
 
+                addSlowInvocationStats(stats);
+
                 sendStats(stats.toString(), ownerConnection);
             }
         }, 0, periodSeconds, SECONDS);
+    }
+
+    private void addSlowInvocationStats(StringBuilder stats) {
+        stats.append(STAT_SEPARATOR);
+        stats.append(slowInvocationsInfo);
+        slowInvocationsInfo = "";
     }
 
     private void addNearCacheStats(final StringBuilder stats) {
@@ -334,6 +368,12 @@ public class Statistics {
                 logger.finest("Could not send stats ", e);
             }
         }
+    }
+
+    public void reportSlowInvocation(ClientInvocation invocation, long timeoutInMillis,
+                                     long currentInvocationTimeInMillis, long nowInMillis) {
+        slowInvocationsInfo += STAT_SEPARATOR +
+                new SlowInvocationInfo(invocation, timeoutInMillis, currentInvocationTimeInMillis, nowInMillis).toString();
     }
 
     class PeriodicStatistics {
