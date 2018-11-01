@@ -16,11 +16,14 @@
 
 package com.hazelcast.client.cluster;
 
+import com.hazelcast.client.HazelcastClient;
+import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.impl.clientside.ClientTestUtil;
 import com.hazelcast.client.spi.ClientClusterService;
 import com.hazelcast.client.test.TestHazelcastFactory;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
 import com.hazelcast.core.Member;
 import com.hazelcast.test.AssertTask;
 import com.hazelcast.test.HazelcastParallelClassRunner;
@@ -47,79 +50,34 @@ import static org.junit.Assert.assertArrayEquals;
 @Category({QuickTest.class, ParallelTest.class})
 public class ClientClusterServiceMemberListTest extends HazelcastTestSupport {
 
-    private Config liteConfig = new Config().setLiteMember(true);
+    @Test
+    public void testUnlimited() {
+        HazelcastInstance hazelcastClient = HazelcastClient.newHazelcastClient(null);
 
-    private TestHazelcastFactory factory;
-
-    private HazelcastInstance liteInstance;
-    private HazelcastInstance dataInstance;
-    private HazelcastInstance dataInstance2;
-    private HazelcastInstance client;
-
-    @Before
-    public void before() {
-        factory = new TestHazelcastFactory();
-        liteInstance = factory.newHazelcastInstance(liteConfig);
-        dataInstance = factory.newHazelcastInstance();
-        dataInstance2 = factory.newHazelcastInstance();
-        client = factory.newHazelcastClient();
-    }
-
-    @After
-    public void after() {
-        factory.terminateAll();
+        generateTraffic(hazelcastClient);
     }
 
     @Test
-    public void testLiteMembers() {
-        assertTrueEventually(new AssertTask() {
-            @Override
-            public void run()
-                    throws Exception {
-                final ClientClusterService clusterService = getClientClusterService(client);
-                final Collection<Member> members = clusterService.getMembers(LITE_MEMBER_SELECTOR);
-                verifyMembers(members, singletonList(liteInstance));
+    public void testLimited() {
+        ClientConfig config = new ClientConfig();
+        config.getGroupConfig().setName("rateLimitedCluster");
+        HazelcastInstance hazelcastClient = HazelcastClient.newHazelcastClient(config);
 
-                assertEquals(1, clusterService.getSize(LITE_MEMBER_SELECTOR));
-            }
-        });
+        generateTraffic(hazelcastClient);
     }
 
-    @Test
-    public void testDataMembers() {
-        assertTrueEventually(new AssertTask() {
-            @Override
-            public void run()
-                    throws Exception {
-                final ClientClusterService clusterService = getClientClusterService(client);
-                final Collection<Member> members = clusterService.getMembers(DATA_MEMBER_SELECTOR);
-                verifyMembers(members, asList(dataInstance, dataInstance2));
+    private void generateTraffic(HazelcastInstance hazelcastClient) {
+        IMap<Integer, byte[]> map = hazelcastClient.getMap("unlimited");
 
-                assertEquals(2, clusterService.getSize(DATA_MEMBER_SELECTOR));
-            }
-        });
-    }
-
-    @Test
-    public void testMemberListOrderConsistentWithServer() {
-        Set<Member> membersFromClient = client.getCluster().getMembers();
-        Set<Member> membersFromServer = dataInstance.getCluster().getMembers();
-        assertArrayEquals(membersFromClient.toArray(), membersFromServer.toArray());
-    }
-
-    private void verifyMembers(Collection<Member> membersToCheck, Collection<HazelcastInstance> membersToExpect) {
-        for (HazelcastInstance instance : membersToExpect) {
-            assertContains(membersToCheck, getLocalMember(instance));
+        byte[] data = new byte[10 * 1024];
+        map.put(1, data);
+        long start = System.currentTimeMillis();
+        for (int i = 0; i < 10; i++) {
+            map.get(1);
         }
-
-        assertEquals(membersToExpect.size(), membersToCheck.size());
+        long end = System.currentTimeMillis();
+        System.out.println("Test Lasted in " + (end - start) + " msecs");
+        map.destroy();
     }
 
-    private Member getLocalMember(HazelcastInstance instance) {
-        return getNode(instance).getLocalMember();
-    }
-
-    private ClientClusterService getClientClusterService(HazelcastInstance client) {
-        return ClientTestUtil.getHazelcastClientInstanceImpl(client).getClientClusterService();
-    }
 }

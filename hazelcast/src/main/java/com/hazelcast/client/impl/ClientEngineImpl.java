@@ -16,6 +16,7 @@
 
 package com.hazelcast.client.impl;
 
+import com.google.common.util.concurrent.RateLimiter;
 import com.hazelcast.cache.impl.JCacheDetector;
 import com.hazelcast.client.impl.operations.ClientDisconnectionOperation;
 import com.hazelcast.client.impl.operations.GetConnectedClientsOperation;
@@ -134,6 +135,7 @@ public class ClientEngineImpl implements ClientEngine, CoreService, PreJoinAware
     private final ClientExceptions clientExceptions;
     private final int endpointRemoveDelaySeconds;
     private final ClientPartitionListenerService partitionListenerService;
+    private final RateLimiter rateLimiter;
 
     public ClientEngineImpl(Node node) {
         this.logger = node.getLogger(ClientEngine.class);
@@ -148,6 +150,7 @@ public class ClientEngineImpl implements ClientEngine, CoreService, PreJoinAware
         this.clientExceptions = initClientExceptionFactory();
         this.endpointRemoveDelaySeconds = node.getProperties().getInteger(GroupProperty.CLIENT_ENDPOINT_REMOVE_DELAY_SECONDS);
         this.partitionListenerService = new ClientPartitionListenerService(nodeEngine);
+        this.rateLimiter = RateLimiter.create(10 * 1024);
     }
 
     private ClientExceptions initClientExceptionFactory() {
@@ -616,6 +619,14 @@ public class ClientEngineImpl implements ClientEngine, CoreService, PreJoinAware
             }
         }
         return statsMap;
+    }
+
+    @Override
+    public void incrementSentBytes(int numberOfBytesSent) {
+        nodeEngine.incrementSentBytes(numberOfBytesSent);
+        if (nodeEngine.getQuotaExceeded()) {
+            rateLimiter.acquire(numberOfBytesSent);
+        }
     }
 
     private static class PriorityPartitionSpecificRunnable implements PartitionSpecificRunnable, UrgentSystemOperation {

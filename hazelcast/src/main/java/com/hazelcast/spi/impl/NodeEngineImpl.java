@@ -38,6 +38,7 @@ import com.hazelcast.internal.metrics.metricsets.StatisticsAwareMetricsSet;
 import com.hazelcast.internal.metrics.metricsets.ThreadMetricSet;
 import com.hazelcast.internal.partition.InternalPartitionService;
 import com.hazelcast.internal.partition.MigrationInfo;
+import com.hazelcast.internal.quota.QuotaChecker;
 import com.hazelcast.internal.usercodedeployment.UserCodeDeploymentClassLoader;
 import com.hazelcast.internal.usercodedeployment.UserCodeDeploymentService;
 import com.hazelcast.logging.ILogger;
@@ -79,6 +80,7 @@ import com.hazelcast.wan.WanReplicationService;
 
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.concurrent.TimeUnit;
 
 import static com.hazelcast.internal.diagnostics.Diagnostics.METRICS_DISTRIBUTED_DATASTRUCTURES;
 import static com.hazelcast.internal.diagnostics.Diagnostics.METRICS_LEVEL;
@@ -118,6 +120,8 @@ public class NodeEngineImpl implements NodeEngine {
     private final QuorumServiceImpl quorumService;
     private final Diagnostics diagnostics;
     private final SplitBrainMergePolicyProvider splitBrainMergePolicyProvider;
+    private volatile long sentBytes;
+    private volatile boolean quotaExceeded;
 
     @SuppressWarnings("checkstyle:executablestatementcount")
     public NodeEngineImpl(Node node) {
@@ -142,14 +146,9 @@ public class NodeEngineImpl implements NodeEngine {
             }
             this.transactionManagerService = new TransactionManagerServiceImpl(this);
             this.wanReplicationService = node.getNodeExtension().createService(WanReplicationService.class);
-            this.packetDispatcher = new PacketDispatcher(
-                    logger,
-                    operationService.getOperationExecutor(),
-                    operationService.getInboundResponseHandlerSupplier().get(),
-                    operationService.getInvocationMonitor(),
-                    eventService,
-                    new ConnectionManagerPacketConsumer(),
-                    new JetPacketConsumer());
+            this.packetDispatcher = new PacketDispatcher(logger, operationService.getOperationExecutor(),
+                    operationService.getInboundResponseHandlerSupplier().get(), operationService.getInvocationMonitor(),
+                    eventService, new ConnectionManagerPacketConsumer(), new JetPacketConsumer());
             this.quorumService = new QuorumServiceImpl(this);
             this.diagnostics = newDiagnostics();
             this.splitBrainMergePolicyProvider = new SplitBrainMergePolicyProvider(this);
@@ -177,10 +176,7 @@ public class NodeEngineImpl implements NodeEngine {
         String addressString = address.getHost().replace(":", "_") + "_" + address.getPort();
         String name = "diagnostics-" + addressString + "-" + currentTimeMillis();
 
-        return new Diagnostics(
-                name,
-                loggingService.getLogger(Diagnostics.class),
-                getHazelcastInstance().getName(),
+        return new Diagnostics(name, loggingService.getLogger(Diagnostics.class), getHazelcastInstance().getName(),
                 node.getProperties());
     }
 
@@ -212,6 +208,9 @@ public class NodeEngineImpl implements NodeEngine {
         diagnostics.start();
 
         node.getNodeExtension().registerPlugins(diagnostics);
+
+        // schedule periodic quota check
+        getExecutionService().scheduleWithRepetition(QuotaChecker.NAME, new QuotaChecker(this), 5, 10, TimeUnit.SECONDS);
     }
 
     public Consumer<Packet> getPacketDispatcher() {
@@ -433,8 +432,7 @@ public class NodeEngineImpl implements NodeEngine {
             Operation postJoinOperation = service.getPostJoinOperation();
             if (postJoinOperation != null) {
                 if (postJoinOperation.getPartitionId() >= 0) {
-                    logger.severe("Post-join operations should not have partition ID set! Service: "
-                            + service + ", Operation: "
+                    logger.severe("Post-join operations should not have partition ID set! Service: " + service + ", Operation: "
                             + postJoinOperation);
                     continue;
                 }
@@ -451,9 +449,8 @@ public class NodeEngineImpl implements NodeEngine {
             Operation preJoinOperation = service.getPreJoinOperation();
             if (preJoinOperation != null) {
                 if (preJoinOperation.getPartitionId() >= 0) {
-                    logger.severe("Pre-join operations operations should not have partition ID set! Service: "
-                            + service + ", Operation: "
-                            + preJoinOperation);
+                    logger.severe("Pre-join operations operations should not have partition ID set! Service: " + service
+                            + ", Operation: " + preJoinOperation);
                     continue;
                 }
                 preJoinOps.add(preJoinOperation);
@@ -502,7 +499,8 @@ public class NodeEngineImpl implements NodeEngine {
         }
     }
 
-    private class ConnectionManagerPacketConsumer implements Consumer<Packet> {
+    private class ConnectionManagerPacketConsumer
+            implements Consumer<Packet> {
 
         @Override
         public void accept(Packet packet) {
@@ -512,7 +510,8 @@ public class NodeEngineImpl implements NodeEngine {
         }
     }
 
-    private class JetPacketConsumer implements Consumer<Packet> {
+    private class JetPacketConsumer
+            implements Consumer<Packet> {
 
         private volatile Consumer<Packet> packetConsumer;
 
@@ -528,5 +527,21 @@ public class NodeEngineImpl implements NodeEngine {
             }
             packetConsumer.accept(packet);
         }
+    }
+
+    public long getSentBytes() {
+        return sentBytes;
+    }
+
+    public void incrementSentBytes(long numberOfBytesSent) {
+        sentBytes += numberOfBytesSent;
+    }
+
+    public boolean getQuotaExceeded() {
+        return quotaExceeded;
+    }
+
+    public void setQuotaExceeded(boolean quotaExceeded) {
+        this.quotaExceeded = quotaExceeded;
     }
 }

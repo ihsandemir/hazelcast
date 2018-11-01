@@ -201,7 +201,9 @@ public abstract class AbstractMessageTask<P> implements MessageTask, SecureReque
         // PETER: There is no point in chopping it up in frames and in 1 go write all these frames because it still will
         // not allow any interleaving with operations. It will only slow down the system. Framing should be done inside
         // the io system; not outside.
+        int frameLength = resultClientMessage.getFrameLength();
         connection.write(resultClientMessage);
+        clientEngine.incrementSentBytes(frameLength);
     }
 
     protected void sendClientMessage(Object key, ClientMessage resultClientMessage) {

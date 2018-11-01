@@ -63,6 +63,8 @@ public interface ClientEngine extends Consumer<ClientMessage> {
 
     SecurityContext getSecurityContext();
 
+    void incrementSentBytes(int numberOfBytesSent);
+
     /**
      * Returns the SerializationService.
      *

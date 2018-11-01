@@ -1441,4 +1441,9 @@ public class DynamicConfigurationAwareConfig extends Config {
     private Searcher initConfigSearcher() {
         return ConfigSearch.searcherFor(staticConfig, configurationService, configPatternMatcher, isStaticFirst);
     }
+
+    @Override
+    public long getClientQuotaInBytes() {
+        return staticConfig.getClientQuotaInBytes();
+    }
 }

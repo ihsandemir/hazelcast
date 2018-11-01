@@ -162,6 +162,7 @@ public class Config {
     private String licenseKey;
 
     private boolean liteMember;
+    private long clientQuotaInBytes;
 
     public Config() {
     }
@@ -3787,5 +3788,13 @@ public class Config {
                 + ", liteMember=" + liteMember
                 + ", crdtReplicationConfig=" + crdtReplicationConfig
                 + '}';
+    }
+
+    public long getClientQuotaInBytes() {
+        return clientQuotaInBytes;
+    }
+
+    public void setClientQuotaInBytes(long clientQuotaInBytes) {
+        this.clientQuotaInBytes = clientQuotaInBytes;
     }
 }

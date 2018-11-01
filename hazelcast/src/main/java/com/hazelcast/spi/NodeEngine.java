@@ -307,4 +307,12 @@ public interface NodeEngine {
      * <b>Note:</b> CoreServices will be placed at the beginning of the list.
      */
     <S> Collection<S> getServices(Class<S> serviceClass);
+
+    long getSentBytes();
+
+    void incrementSentBytes(long numberOfBytesSent);
+
+    void setQuotaExceeded(boolean quotaExceeded);
+
+    boolean getQuotaExceeded();
 }
