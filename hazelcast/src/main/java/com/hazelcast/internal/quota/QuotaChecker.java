@@ -39,6 +39,7 @@ public class QuotaChecker implements Runnable {
 
         OperationService os = nodeEngine.getOperationService();
         try {
+/*
             Set<Member> members = nodeEngine.getClusterService().getMembers();
             List<Future<Object> > futures = new ArrayList<Future<Object>>(members.size());
             for (Member member : members) {
@@ -48,17 +49,20 @@ public class QuotaChecker implements Runnable {
                     os.execute(new QuotaCheckOperation(nodeEngine));
                 }
             }
+*/
 
             long totalSentBytesInCluster = nodeEngine.getSentBytes();
+/*
             for (Future<Object> future : futures) {
                 totalSentBytesInCluster += (Long) future.get();
             }
+*/
 
-            if (totalSentBytesInCluster > clientQuotaInBytes) {
+            if (!nodeEngine.getQuotaExceeded() && totalSentBytesInCluster > clientQuotaInBytes) {
                 nodeEngine.setQuotaExceeded(true);
             }
         } catch (Throwable t) {
-            //throw ExceptionUtil.rethrow(t);
+            throw ExceptionUtil.rethrow(t);
         }
 
     }

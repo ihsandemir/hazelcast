@@ -12,9 +12,21 @@ import static junit.framework.TestCase.assertTrue;
 public class QuotaCheckerTest extends HazelcastTestSupport {
 
     @Test
-    public void checkQuota() {
-        int quotaInBytes = 100;
+    public void startServer() {
+        int quotaInBytes = 1024;
         Config config = new Config();
+        config.getGroupConfig().setName("checkQuota");
+        config.setClientQuotaInBytes(quotaInBytes);
+        Hazelcast.newHazelcastInstance(config);
+        sleepSeconds(1000);
+
+    }
+
+    @Test
+    public void checkQuota() {
+        int quotaInBytes = 1024;
+        Config config = new Config();
+        config.getGroupConfig().setName("checkQuota");
         config.setClientQuotaInBytes(quotaInBytes);
         Hazelcast.newHazelcastInstance(config);
         IMap<Integer, byte[]> map = HazelcastClient.newHazelcastClient().getMap("quotaMap");
@@ -23,7 +35,7 @@ public class QuotaCheckerTest extends HazelcastTestSupport {
         // let it exceed the quota
         map.get(1);
 
-        sleepSeconds(10);
+        sleepSeconds(1000);
 
         long start = System.currentTimeMillis();
         for (int i = 0; i < 3; i++) {
