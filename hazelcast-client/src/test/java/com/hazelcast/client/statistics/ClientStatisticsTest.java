@@ -181,6 +181,16 @@ public class ClientStatisticsTest extends ClientTestSupport {
     }
 
     @Test
+    public void testAssert() {
+        assertTrueEventually(new AssertTask() {
+            @Override
+            public void run() {
+                assertEquals("clientStatistics.size() should be 1", 1, 0);
+            }
+        }, STATS_PERIOD_SECONDS * 3);
+    }
+
+    @Test
     public void testStatisticsClusterReconnect() {
         HazelcastInstance hazelcastInstance = hazelcastFactory.newHazelcastInstance();
         HazelcastClientInstanceImpl client = createHazelcastClient();
