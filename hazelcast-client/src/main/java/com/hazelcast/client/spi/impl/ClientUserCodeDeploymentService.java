@@ -50,7 +50,7 @@ public class ClientUserCodeDeploymentService {
     private final ClientUserCodeDeploymentConfig clientUserCodeDeploymentConfig;
     private final ClassLoader configClassLoader;
     //List<Map.Entry> is used instead of Map to comply with generated code of client protocol
-    private final List<Map.Entry<String, byte[]>> classDefinitionList = new ArrayList<Map.Entry<String, byte[]>>();
+    private List<Map.Entry<String, byte[]>> classDefinitionList;
 
     public ClientUserCodeDeploymentService(ClientUserCodeDeploymentConfig clientUserCodeDeploymentConfig,
                                            ClassLoader configClassLoader) {
@@ -63,10 +63,11 @@ public class ClientUserCodeDeploymentService {
             return;
         }
         loadClassesFromJars();
-        loadClasses();
+        this.classDefinitionList = loadClasses(clientUserCodeDeploymentConfig, configClassLoader);
     }
 
-    private void loadClasses() throws ClassNotFoundException {
+    public static List<Map.Entry<String, byte[]>> loadClasses(ClientUserCodeDeploymentConfig clientUserCodeDeploymentConfig, ClassLoader configClassLoader) throws ClassNotFoundException {
+        List<Map.Entry<String, byte[]>> classDefinitionList = new ArrayList<Map.Entry<String, byte[]>>();
         for (String className : clientUserCodeDeploymentConfig.getClassNames()) {
             String resource = className.replace('.', '/').concat(".class");
             InputStream is = null;
@@ -83,6 +84,7 @@ public class ClientUserCodeDeploymentService {
                 closeResource(is);
             }
         }
+        return classDefinitionList;
     }
 
     private void loadClassesFromJars() throws IOException {
