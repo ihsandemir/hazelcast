@@ -103,7 +103,7 @@ public final class ClientPartitionServiceImpl implements ClientPartitionService 
             ClientMessage clientMessage = ClientAddPartitionListenerCodec.encodeRequest();
             ClientInvocation invocation = new ClientInvocation(client, clientMessage, null, ownerConnection);
             invocation.setEventHandler(new PartitionEventHandler(ownerConnection));
-            invocation.invokeUrgent().get();
+            invocation.invokeUrgent();
         }
     }
 
@@ -168,7 +168,7 @@ public final class ClientPartitionServiceImpl implements ClientPartitionService 
      * The partitions can be empty on the response, client will not apply the empty partition table,
      * see {@link ClientPartitionListenerService#getPartitions(PartitionTableView)}
      */
-    private void processPartitionResponse(Connection connection, Collection<Map.Entry<Address, List<Integer>>> partitions,
+    public void processPartitionResponse(Connection connection, Collection<Map.Entry<Address, List<Integer>>> partitions,
                                           int partitionStateVersion,
                                           boolean partitionStateVersionExist) {
 

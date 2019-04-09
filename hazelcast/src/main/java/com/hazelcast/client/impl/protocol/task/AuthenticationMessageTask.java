@@ -24,6 +24,7 @@ import com.hazelcast.instance.Node;
 import com.hazelcast.nio.Address;
 import com.hazelcast.nio.Connection;
 import com.hazelcast.security.UsernamePasswordCredentials;
+import com.hazelcast.spi.partition.IPartitionService;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -75,9 +76,11 @@ public class AuthenticationMessageTask extends AuthenticationBaseMessageTask<Cli
     @Override
     protected ClientMessage encodeAuth(byte status, Address thisAddress, String uuid, String ownerUuid, byte version,
                                        List<Member> cleanedUpMembers, int partitionCount, String clusterId) {
+        IPartitionService partitionService = clientEngine.getPartitionService();
         return ClientAuthenticationCodec
                 .encodeResponse(status, thisAddress, uuid, ownerUuid, version, getMemberBuildInfo().getVersion(),
-                        cleanedUpMembers, partitionCount, clusterId);
+                        cleanedUpMembers, partitionCount, clusterId, partitionService.getMemberPartitionsMap().entrySet(),
+                        partitionService.getPartitionStateVersion(), clientEngine.getClusterService().getMembers());
     }
 
     @Override

@@ -33,9 +33,13 @@ import com.hazelcast.client.impl.protocol.ClientMessage;
 import com.hazelcast.client.impl.protocol.codec.ClientAuthenticationCodec;
 import com.hazelcast.client.impl.protocol.codec.ClientAuthenticationCustomCodec;
 import com.hazelcast.client.impl.protocol.codec.ClientIsFailoverSupportedCodec;
+import com.hazelcast.client.proxy.PartitionServiceProxy;
 import com.hazelcast.client.spi.ClientExecutionService;
+import com.hazelcast.client.spi.ClientPartitionService;
+import com.hazelcast.client.spi.impl.ClientClusterServiceImpl;
 import com.hazelcast.client.spi.impl.ClientInvocation;
 import com.hazelcast.client.spi.impl.ClientInvocationFuture;
+import com.hazelcast.client.spi.impl.ClientPartitionServiceImpl;
 import com.hazelcast.config.SSLConfig;
 import com.hazelcast.core.ExecutionCallback;
 import com.hazelcast.core.HazelcastException;
@@ -709,6 +713,16 @@ public class ClientConnectionManagerImpl implements ClientConnectionManager {
                 setPrincipal(principal);
                 ownerConnectionAddress = connection.getEndPoint();
                 logger.info("Setting " + connection + " as owner with principal " + principal);
+            }
+
+            if (result.partitionsExist) {
+                PartitionServiceProxy partitionServiceProxy = (PartitionServiceProxy) client.getPartitionService();
+                ClientPartitionServiceImpl clientPartitionServiceImpl = partitionServiceProxy.getClientPartitionServiceImpl();
+                clientPartitionServiceImpl.processPartitionResponse(connection, result.partitions, result.partitionStateVersion, result.partitionStateVersionExist);
+            }
+
+            if (result.membersExist) {
+                ((ClientClusterServiceImpl) client.getClientClusterService()).setMembers(result.members);
             }
         }
 

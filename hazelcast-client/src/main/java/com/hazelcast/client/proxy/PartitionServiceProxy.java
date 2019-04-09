@@ -22,6 +22,7 @@ import com.hazelcast.client.impl.protocol.codec.ClientRemovePartitionLostListene
 import com.hazelcast.client.spi.ClientListenerService;
 import com.hazelcast.client.spi.ClientPartitionService;
 import com.hazelcast.client.spi.EventHandler;
+import com.hazelcast.client.spi.impl.ClientPartitionServiceImpl;
 import com.hazelcast.client.spi.impl.ListenerMessageCodec;
 import com.hazelcast.core.Member;
 import com.hazelcast.core.MigrationListener;
@@ -135,6 +136,10 @@ public final class PartitionServiceProxy implements PartitionService {
     @Override
     public boolean forceLocalMemberToBeSafe(long timeout, TimeUnit unit) {
         throw new UnsupportedOperationException();
+    }
+
+    public ClientPartitionServiceImpl getClientPartitionServiceImpl() {
+        return (ClientPartitionServiceImpl) partitionService;
     }
 
     private static class ClientPartitionLostEventHandler extends ClientAddPartitionLostListenerCodec.AbstractEventHandler

@@ -208,13 +208,17 @@ public class ClientClusterServiceImpl implements ClientClusterService {
     void handleInitialMembershipEvent(InitialMembershipEvent event) {
         synchronized (initialMembershipListenerMutex) {
             Set<Member> initialMembers = event.getMembers();
-            LinkedHashMap<Address, Member> newMap = new LinkedHashMap<Address, Member>();
-            for (Member initialMember : initialMembers) {
-                newMap.put(initialMember.getAddress(), initialMember);
-            }
-            members.set(Collections.unmodifiableMap(newMap));
+            setMembers(initialMembers);
             fireInitialMembershipEvent(event);
         }
+    }
+
+    public void setMembers(Collection<Member> initialMembers) {
+        LinkedHashMap<Address, Member> newMap = new LinkedHashMap<Address, Member>();
+        for (Member initialMember : initialMembers) {
+            newMap.put(initialMember.getAddress(), initialMember);
+        }
+        members.set(Collections.unmodifiableMap(newMap));
     }
 
     void handleMembershipEvent(MembershipEvent event) {

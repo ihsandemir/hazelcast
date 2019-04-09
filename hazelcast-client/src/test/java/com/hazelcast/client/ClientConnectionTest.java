@@ -66,6 +66,12 @@ public class ClientConnectionTest extends HazelcastTestSupport {
         hazelcastFactory.terminateAll();
     }
 
+    @Test
+    public void testSuccessConnect() {
+        hazelcastFactory.newHazelcastInstance();
+        hazelcastFactory.newHazelcastClient();
+    }
+
     @Test(expected = IllegalStateException.class)
     public void testWithIllegalAddress() {
         String illegalAddress = randomString();
