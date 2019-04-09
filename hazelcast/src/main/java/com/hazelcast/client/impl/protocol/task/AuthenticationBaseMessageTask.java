@@ -100,7 +100,8 @@ public abstract class AuthenticationBaseMessageTask<P> extends AbstractStableClu
                     if (logger.isFineEnabled()) {
                         logger.fine("Processing owner authentication with principal " + principal);
                     }
-                    super.processMessage();
+                    sendClientMessage(prepareAuthenticatedClientMessage());
+                    //super.processMessage();
                 } else {
                     sendClientMessage(prepareAuthenticatedClientMessage());
                 }

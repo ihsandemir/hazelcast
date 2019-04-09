@@ -34,6 +34,10 @@ public final class StartServer {
     private StartServer() {
     }
 
+    static {
+        System.setProperty("hazelcast.multicast.group", "224.18.19.20");
+    }
+
     /**
      * Creates a server instance of Hazelcast.
      * <p>
