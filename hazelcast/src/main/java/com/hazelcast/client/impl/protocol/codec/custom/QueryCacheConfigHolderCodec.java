@@ -20,13 +20,11 @@ import com.hazelcast.client.impl.protocol.ClientMessage;
 import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.codec.builtin.CodecUtil.fastForwardToEndFrame;
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
-@Generated("b0f7cf953880a1bc5321f036270db617")
+@Generated("3a77af0ffbde24fd3ebdd02dbf7be0b5")
 public final class QueryCacheConfigHolderCodec {
     private static final int BATCH_SIZE_FIELD_OFFSET = 0;
     private static final int BUFFER_SIZE_FIELD_OFFSET = BATCH_SIZE_FIELD_OFFSET + INT_SIZE_IN_BYTES;
@@ -40,7 +38,7 @@ public final class QueryCacheConfigHolderCodec {
     }
 
     public static void encode(ClientMessage clientMessage, com.hazelcast.client.impl.protocol.task.dynamicconfig.QueryCacheConfigHolder queryCacheConfigHolder) {
-        clientMessage.add(BEGIN_FRAME);
+        clientMessage.add(BEGIN_FRAME.copy());
 
         ClientMessage.Frame initialFrame = new ClientMessage.Frame(new byte[INITIAL_FRAME_SIZE]);
         encodeInt(initialFrame.content, BATCH_SIZE_FIELD_OFFSET, queryCacheConfigHolder.getBatchSize());
@@ -58,10 +56,11 @@ public final class QueryCacheConfigHolderCodec {
         ListMultiFrameCodec.encodeNullable(clientMessage, queryCacheConfigHolder.getListenerConfigs(), ListenerConfigHolderCodec::encode);
         ListMultiFrameCodec.encodeNullable(clientMessage, queryCacheConfigHolder.getIndexConfigs(), MapIndexConfigCodec::encode);
 
-        clientMessage.add(END_FRAME);
+        clientMessage.add(END_FRAME.copy());
     }
 
-    public static com.hazelcast.client.impl.protocol.task.dynamicconfig.QueryCacheConfigHolder decode(ListIterator<ClientMessage.Frame> iterator) {
+    public static com.hazelcast.client.impl.protocol.task.dynamicconfig.QueryCacheConfigHolder decode(
+            ClientMessage.FrameIterator iterator) {
         // begin frame
         iterator.next();
 
