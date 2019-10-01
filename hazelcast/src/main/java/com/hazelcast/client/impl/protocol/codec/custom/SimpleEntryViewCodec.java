@@ -24,7 +24,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.CodecUtil.fastFor
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
-@Generated("a1e071865bbcb7c02d967964afe23d85")
+@Generated("0d8db8df68a3e1d3441123fd0c322653")
 public final class SimpleEntryViewCodec {
     private static final int COST_FIELD_OFFSET = 0;
     private static final int CREATION_TIME_FIELD_OFFSET = COST_FIELD_OFFSET + LONG_SIZE_IN_BYTES;
@@ -63,11 +63,11 @@ public final class SimpleEntryViewCodec {
         clientMessage.add(END_FRAME.copy());
     }
 
-    public static com.hazelcast.map.impl.SimpleEntryView<com.hazelcast.nio.serialization.Data, com.hazelcast.nio.serialization.Data> decode(ClientMessage.ForwardFrameIterator iterator) {
+    public static com.hazelcast.map.impl.SimpleEntryView<com.hazelcast.nio.serialization.Data, com.hazelcast.nio.serialization.Data> decode(ClientMessage clientMessage) {
         // begin frame
-        iterator.next();
+        clientMessage.next();
 
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         long cost = decodeLong(initialFrame.content, COST_FIELD_OFFSET);
         long creationTime = decodeLong(initialFrame.content, CREATION_TIME_FIELD_OFFSET);
         long expirationTime = decodeLong(initialFrame.content, EXPIRATION_TIME_FIELD_OFFSET);
@@ -79,10 +79,10 @@ public final class SimpleEntryViewCodec {
         long ttl = decodeLong(initialFrame.content, TTL_FIELD_OFFSET);
         long maxIdle = decodeLong(initialFrame.content, MAX_IDLE_FIELD_OFFSET);
 
-        com.hazelcast.nio.serialization.Data key = DataCodec.decode(iterator);
-        com.hazelcast.nio.serialization.Data value = DataCodec.decode(iterator);
+        com.hazelcast.nio.serialization.Data key = DataCodec.decode(clientMessage);
+        com.hazelcast.nio.serialization.Data value = DataCodec.decode(clientMessage);
 
-        fastForwardToEndFrame(iterator);
+        fastForwardToEndFrame(clientMessage);
 
         return CustomTypeFactory.createSimpleEntryView(key, value, cost, creationTime, expirationTime, hits, lastAccessTime, lastStoredTime, lastUpdateTime, version, ttl, maxIdle);
     }

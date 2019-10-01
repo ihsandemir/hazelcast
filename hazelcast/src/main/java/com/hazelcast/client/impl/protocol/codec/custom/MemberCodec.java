@@ -24,7 +24,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.CodecUtil.fastFor
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
-@Generated("0942e59447035e180ad445dd12533e48")
+@Generated("4e3d4384f7e86e94221b900a0f596498")
 public final class MemberCodec {
     private static final int UUID_FIELD_OFFSET = 0;
     private static final int LITE_MEMBER_FIELD_OFFSET = UUID_FIELD_OFFSET + UUID_SIZE_IN_BYTES;
@@ -47,18 +47,18 @@ public final class MemberCodec {
         clientMessage.add(END_FRAME.copy());
     }
 
-    public static com.hazelcast.client.impl.MemberImpl decode(ClientMessage.ForwardFrameIterator iterator) {
+    public static com.hazelcast.client.impl.MemberImpl decode(ClientMessage clientMessage) {
         // begin frame
-        iterator.next();
+        clientMessage.next();
 
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         java.util.UUID uuid = decodeUUID(initialFrame.content, UUID_FIELD_OFFSET);
         boolean liteMember = decodeBoolean(initialFrame.content, LITE_MEMBER_FIELD_OFFSET);
 
-        com.hazelcast.nio.Address address = AddressCodec.decode(iterator);
-        java.util.Map<java.lang.String, java.lang.String> attributes = MapCodec.decode(iterator, StringCodec::decode, StringCodec::decode);
+        com.hazelcast.nio.Address address = AddressCodec.decode(clientMessage);
+        java.util.Map<java.lang.String, java.lang.String> attributes = MapCodec.decode(clientMessage, StringCodec::decode, StringCodec::decode);
 
-        fastForwardToEndFrame(iterator);
+        fastForwardToEndFrame(clientMessage);
 
         return new com.hazelcast.client.impl.MemberImpl(address, uuid, attributes, liteMember);
     }

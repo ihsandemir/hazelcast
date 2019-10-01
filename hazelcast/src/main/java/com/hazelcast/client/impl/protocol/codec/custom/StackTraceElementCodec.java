@@ -24,7 +24,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.CodecUtil.fastFor
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
-@Generated("6434b513ac6b74b699cb126c112ea5ed")
+@Generated("3d5ef7d258809ca5c487cd0569ecb57a")
 public final class StackTraceElementCodec {
     private static final int LINE_NUMBER_FIELD_OFFSET = 0;
     private static final int INITIAL_FRAME_SIZE = LINE_NUMBER_FIELD_OFFSET + INT_SIZE_IN_BYTES;
@@ -46,18 +46,18 @@ public final class StackTraceElementCodec {
         clientMessage.add(END_FRAME.copy());
     }
 
-    public static java.lang.StackTraceElement decode(ClientMessage.ForwardFrameIterator iterator) {
+    public static java.lang.StackTraceElement decode(ClientMessage clientMessage) {
         // begin frame
-        iterator.next();
+        clientMessage.next();
 
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         int lineNumber = decodeInt(initialFrame.content, LINE_NUMBER_FIELD_OFFSET);
 
-        java.lang.String className = StringCodec.decode(iterator);
-        java.lang.String methodName = StringCodec.decode(iterator);
-        java.lang.String fileName = CodecUtil.decodeNullable(iterator, StringCodec::decode);
+        java.lang.String className = StringCodec.decode(clientMessage);
+        java.lang.String methodName = StringCodec.decode(clientMessage);
+        java.lang.String fileName = CodecUtil.decodeNullable(clientMessage, StringCodec::decode);
 
-        fastForwardToEndFrame(iterator);
+        fastForwardToEndFrame(clientMessage);
 
         return new java.lang.StackTraceElement(className, methodName, fileName, lineNumber);
     }

@@ -24,7 +24,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.CodecUtil.fastFor
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
-@Generated("f690fe066b49533e4be5c48b1be7b6bf")
+@Generated("04a6c6f49b848f2eadb098f5bab85dd2")
 public final class QueryCacheConfigHolderCodec {
     private static final int BATCH_SIZE_FIELD_OFFSET = 0;
     private static final int BUFFER_SIZE_FIELD_OFFSET = BATCH_SIZE_FIELD_OFFSET + INT_SIZE_IN_BYTES;
@@ -59,11 +59,11 @@ public final class QueryCacheConfigHolderCodec {
         clientMessage.add(END_FRAME.copy());
     }
 
-    public static com.hazelcast.client.impl.protocol.task.dynamicconfig.QueryCacheConfigHolder decode(ClientMessage.ForwardFrameIterator iterator) {
+    public static com.hazelcast.client.impl.protocol.task.dynamicconfig.QueryCacheConfigHolder decode(ClientMessage clientMessage) {
         // begin frame
-        iterator.next();
+        clientMessage.next();
 
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         int batchSize = decodeInt(initialFrame.content, BATCH_SIZE_FIELD_OFFSET);
         int bufferSize = decodeInt(initialFrame.content, BUFFER_SIZE_FIELD_OFFSET);
         int delaySeconds = decodeInt(initialFrame.content, DELAY_SECONDS_FIELD_OFFSET);
@@ -71,14 +71,14 @@ public final class QueryCacheConfigHolderCodec {
         boolean populate = decodeBoolean(initialFrame.content, POPULATE_FIELD_OFFSET);
         boolean coalesce = decodeBoolean(initialFrame.content, COALESCE_FIELD_OFFSET);
 
-        java.lang.String inMemoryFormat = StringCodec.decode(iterator);
-        java.lang.String name = StringCodec.decode(iterator);
-        com.hazelcast.client.impl.protocol.task.dynamicconfig.PredicateConfigHolder predicateConfigHolder = PredicateConfigHolderCodec.decode(iterator);
-        com.hazelcast.client.impl.protocol.task.dynamicconfig.EvictionConfigHolder evictionConfigHolder = EvictionConfigHolderCodec.decode(iterator);
-        java.util.List<com.hazelcast.client.impl.protocol.task.dynamicconfig.ListenerConfigHolder> listenerConfigs = ListMultiFrameCodec.decodeNullable(iterator, ListenerConfigHolderCodec::decode);
-        java.util.List<com.hazelcast.config.MapIndexConfig> indexConfigs = ListMultiFrameCodec.decodeNullable(iterator, MapIndexConfigCodec::decode);
+        java.lang.String inMemoryFormat = StringCodec.decode(clientMessage);
+        java.lang.String name = StringCodec.decode(clientMessage);
+        com.hazelcast.client.impl.protocol.task.dynamicconfig.PredicateConfigHolder predicateConfigHolder = PredicateConfigHolderCodec.decode(clientMessage);
+        com.hazelcast.client.impl.protocol.task.dynamicconfig.EvictionConfigHolder evictionConfigHolder = EvictionConfigHolderCodec.decode(clientMessage);
+        java.util.List<com.hazelcast.client.impl.protocol.task.dynamicconfig.ListenerConfigHolder> listenerConfigs = ListMultiFrameCodec.decodeNullable(clientMessage, ListenerConfigHolderCodec::decode);
+        java.util.List<com.hazelcast.config.MapIndexConfig> indexConfigs = ListMultiFrameCodec.decodeNullable(clientMessage, MapIndexConfigCodec::decode);
 
-        fastForwardToEndFrame(iterator);
+        fastForwardToEndFrame(clientMessage);
 
         return new com.hazelcast.client.impl.protocol.task.dynamicconfig.QueryCacheConfigHolder(batchSize, bufferSize, delaySeconds, includeValue, populate, coalesce, inMemoryFormat, name, predicateConfigHolder, evictionConfigHolder, listenerConfigs, indexConfigs);
     }

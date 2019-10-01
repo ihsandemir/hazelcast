@@ -24,7 +24,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.CodecUtil.fastFor
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
-@Generated("b9aff66efafe347a80bf2ed2cd0c994f")
+@Generated("6b2667acb8f5eabf53dc73c1e0e354c1")
 public final class MapIndexConfigCodec {
     private static final int ORDERED_FIELD_OFFSET = 0;
     private static final int INITIAL_FRAME_SIZE = ORDERED_FIELD_OFFSET + BOOLEAN_SIZE_IN_BYTES;
@@ -44,16 +44,16 @@ public final class MapIndexConfigCodec {
         clientMessage.add(END_FRAME.copy());
     }
 
-    public static com.hazelcast.config.MapIndexConfig decode(ClientMessage.ForwardFrameIterator iterator) {
+    public static com.hazelcast.config.MapIndexConfig decode(ClientMessage clientMessage) {
         // begin frame
-        iterator.next();
+        clientMessage.next();
 
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         boolean ordered = decodeBoolean(initialFrame.content, ORDERED_FIELD_OFFSET);
 
-        java.lang.String attribute = StringCodec.decode(iterator);
+        java.lang.String attribute = StringCodec.decode(clientMessage);
 
-        fastForwardToEndFrame(iterator);
+        fastForwardToEndFrame(clientMessage);
 
         return new com.hazelcast.config.MapIndexConfig(attribute, ordered);
     }

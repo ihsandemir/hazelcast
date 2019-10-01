@@ -24,7 +24,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.CodecUtil.fastFor
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
-@Generated("4bd5f70d35ce20c840c5a00000337365")
+@Generated("75f57dfe277986ffdbe8222026e835b9")
 public final class QueryCacheEventDataCodec {
     private static final int SEQUENCE_FIELD_OFFSET = 0;
     private static final int EVENT_TYPE_FIELD_OFFSET = SEQUENCE_FIELD_OFFSET + LONG_SIZE_IN_BYTES;
@@ -49,19 +49,19 @@ public final class QueryCacheEventDataCodec {
         clientMessage.add(END_FRAME.copy());
     }
 
-    public static com.hazelcast.map.impl.querycache.event.DefaultQueryCacheEventData decode(ClientMessage.ForwardFrameIterator iterator) {
+    public static com.hazelcast.map.impl.querycache.event.DefaultQueryCacheEventData decode(ClientMessage clientMessage) {
         // begin frame
-        iterator.next();
+        clientMessage.next();
 
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         long sequence = decodeLong(initialFrame.content, SEQUENCE_FIELD_OFFSET);
         int eventType = decodeInt(initialFrame.content, EVENT_TYPE_FIELD_OFFSET);
         int partitionId = decodeInt(initialFrame.content, PARTITION_ID_FIELD_OFFSET);
 
-        com.hazelcast.nio.serialization.Data dataKey = CodecUtil.decodeNullable(iterator, DataCodec::decode);
-        com.hazelcast.nio.serialization.Data dataNewValue = CodecUtil.decodeNullable(iterator, DataCodec::decode);
+        com.hazelcast.nio.serialization.Data dataKey = CodecUtil.decodeNullable(clientMessage, DataCodec::decode);
+        com.hazelcast.nio.serialization.Data dataNewValue = CodecUtil.decodeNullable(clientMessage, DataCodec::decode);
 
-        fastForwardToEndFrame(iterator);
+        fastForwardToEndFrame(clientMessage);
 
         return CustomTypeFactory.createQueryCacheEventData(dataKey, dataNewValue, sequence, eventType, partitionId);
     }

@@ -24,7 +24,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.CodecUtil.fastFor
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
-@Generated("8629644303b63ded181a2ecede9b644e")
+@Generated("f47e8313c4813bfbb706f4a52a388a52")
 public final class WanReplicationRefCodec {
     private static final int REPUBLISHING_ENABLED_FIELD_OFFSET = 0;
     private static final int INITIAL_FRAME_SIZE = REPUBLISHING_ENABLED_FIELD_OFFSET + BOOLEAN_SIZE_IN_BYTES;
@@ -46,18 +46,18 @@ public final class WanReplicationRefCodec {
         clientMessage.add(END_FRAME.copy());
     }
 
-    public static com.hazelcast.config.WanReplicationRef decode(ClientMessage.ForwardFrameIterator iterator) {
+    public static com.hazelcast.config.WanReplicationRef decode(ClientMessage clientMessage) {
         // begin frame
-        iterator.next();
+        clientMessage.next();
 
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         boolean republishingEnabled = decodeBoolean(initialFrame.content, REPUBLISHING_ENABLED_FIELD_OFFSET);
 
-        java.lang.String name = StringCodec.decode(iterator);
-        java.lang.String mergePolicy = StringCodec.decode(iterator);
-        java.util.List<java.lang.String> filters = ListMultiFrameCodec.decodeNullable(iterator, StringCodec::decode);
+        java.lang.String name = StringCodec.decode(clientMessage);
+        java.lang.String mergePolicy = StringCodec.decode(clientMessage);
+        java.util.List<java.lang.String> filters = ListMultiFrameCodec.decodeNullable(clientMessage, StringCodec::decode);
 
-        fastForwardToEndFrame(iterator);
+        fastForwardToEndFrame(clientMessage);
 
         return new com.hazelcast.config.WanReplicationRef(name, mergePolicy, filters, republishingEnabled);
     }

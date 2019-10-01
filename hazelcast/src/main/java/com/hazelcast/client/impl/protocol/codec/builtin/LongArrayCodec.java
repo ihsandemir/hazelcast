@@ -45,7 +45,7 @@ public final class LongArrayCodec {
         return result;
     }
 
-    public static long[] decode(ClientMessage.ForwardFrameIterator iterator) {
+    public static long[] decode(ClientMessage iterator) {
         return decode(iterator.next());
     }
 

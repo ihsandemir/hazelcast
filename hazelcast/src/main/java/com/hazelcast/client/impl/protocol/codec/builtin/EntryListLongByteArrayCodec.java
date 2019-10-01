@@ -43,7 +43,7 @@ public final class EntryListLongByteArrayCodec {
         ListLongCodec.encode(clientMessage, valueList);
     }
 
-    public static List<Map.Entry<Long, byte[]>> decode(ClientMessage.ForwardFrameIterator iterator) {
+    public static List<Map.Entry<Long, byte[]>> decode(ClientMessage iterator) {
         List<byte[]> listV = ListMultiFrameCodec.decode(iterator, ByteArrayCodec::decode);
         List<Long> listK = ListLongCodec.decode(iterator);
 

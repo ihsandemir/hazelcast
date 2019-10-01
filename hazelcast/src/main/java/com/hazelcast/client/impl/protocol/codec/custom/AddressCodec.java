@@ -24,7 +24,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.CodecUtil.fastFor
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
-@Generated("aa2be30522a42edca679223d559f5721")
+@Generated("77db71c0814f18d4f3ee2ffdf09672f6")
 public final class AddressCodec {
     private static final int PORT_FIELD_OFFSET = 0;
     private static final int INITIAL_FRAME_SIZE = PORT_FIELD_OFFSET + INT_SIZE_IN_BYTES;
@@ -44,16 +44,16 @@ public final class AddressCodec {
         clientMessage.add(END_FRAME.copy());
     }
 
-    public static com.hazelcast.nio.Address decode(ClientMessage.ForwardFrameIterator iterator) {
+    public static com.hazelcast.nio.Address decode(ClientMessage clientMessage) {
         // begin frame
-        iterator.next();
+        clientMessage.next();
 
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         int port = decodeInt(initialFrame.content, PORT_FIELD_OFFSET);
 
-        java.lang.String host = StringCodec.decode(iterator);
+        java.lang.String host = StringCodec.decode(clientMessage);
 
-        fastForwardToEndFrame(iterator);
+        fastForwardToEndFrame(clientMessage);
 
         return CustomTypeFactory.createAddress(host, port);
     }

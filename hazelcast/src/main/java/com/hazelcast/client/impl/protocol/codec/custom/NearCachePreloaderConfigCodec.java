@@ -24,7 +24,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.CodecUtil.fastFor
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
-@Generated("5f12a95e958d7666f51b2424ad3e24db")
+@Generated("ee442ffb0b24b668f501bc058f9a8db8")
 public final class NearCachePreloaderConfigCodec {
     private static final int ENABLED_FIELD_OFFSET = 0;
     private static final int STORE_INITIAL_DELAY_SECONDS_FIELD_OFFSET = ENABLED_FIELD_OFFSET + BOOLEAN_SIZE_IN_BYTES;
@@ -48,18 +48,18 @@ public final class NearCachePreloaderConfigCodec {
         clientMessage.add(END_FRAME.copy());
     }
 
-    public static com.hazelcast.config.NearCachePreloaderConfig decode(ClientMessage.ForwardFrameIterator iterator) {
+    public static com.hazelcast.config.NearCachePreloaderConfig decode(ClientMessage clientMessage) {
         // begin frame
-        iterator.next();
+        clientMessage.next();
 
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         boolean enabled = decodeBoolean(initialFrame.content, ENABLED_FIELD_OFFSET);
         int storeInitialDelaySeconds = decodeInt(initialFrame.content, STORE_INITIAL_DELAY_SECONDS_FIELD_OFFSET);
         int storeIntervalSeconds = decodeInt(initialFrame.content, STORE_INTERVAL_SECONDS_FIELD_OFFSET);
 
-        java.lang.String directory = StringCodec.decode(iterator);
+        java.lang.String directory = StringCodec.decode(clientMessage);
 
-        fastForwardToEndFrame(iterator);
+        fastForwardToEndFrame(clientMessage);
 
         return CustomTypeFactory.createNearCachePreloaderConfig(enabled, directory, storeInitialDelaySeconds, storeIntervalSeconds);
     }

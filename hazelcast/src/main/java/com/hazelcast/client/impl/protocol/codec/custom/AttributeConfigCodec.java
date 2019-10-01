@@ -24,7 +24,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.CodecUtil.fastFor
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
-@Generated("01d650721099ba9c4cf90ce1e4385d41")
+@Generated("7da766c547ff1a8d1105520c89a28423")
 public final class AttributeConfigCodec {
 
     private AttributeConfigCodec() {
@@ -39,14 +39,14 @@ public final class AttributeConfigCodec {
         clientMessage.add(END_FRAME.copy());
     }
 
-    public static com.hazelcast.config.AttributeConfig decode(ClientMessage.ForwardFrameIterator iterator) {
+    public static com.hazelcast.config.AttributeConfig decode(ClientMessage clientMessage) {
         // begin frame
-        iterator.next();
+        clientMessage.next();
 
-        java.lang.String name = StringCodec.decode(iterator);
-        java.lang.String extractorClassName = StringCodec.decode(iterator);
+        java.lang.String name = StringCodec.decode(clientMessage);
+        java.lang.String extractorClassName = StringCodec.decode(clientMessage);
 
-        fastForwardToEndFrame(iterator);
+        fastForwardToEndFrame(clientMessage);
 
         return new com.hazelcast.config.AttributeConfig(name, extractorClassName);
     }

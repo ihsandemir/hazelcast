@@ -24,7 +24,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.CodecUtil.fastFor
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
-@Generated("364eb9f0f4270c6430a7780010e47d3a")
+@Generated("04c9b8b381cebadfe2c0f15dbc6340c9")
 public final class CacheConfigHolderCodec {
     private static final int BACKUP_COUNT_FIELD_OFFSET = 0;
     private static final int ASYNC_BACKUP_COUNT_FIELD_OFFSET = BACKUP_COUNT_FIELD_OFFSET + INT_SIZE_IN_BYTES;
@@ -74,11 +74,11 @@ public final class CacheConfigHolderCodec {
         clientMessage.add(END_FRAME.copy());
     }
 
-    public static com.hazelcast.client.impl.protocol.codec.holder.CacheConfigHolder decode(ClientMessage.ForwardFrameIterator iterator) {
+    public static com.hazelcast.client.impl.protocol.codec.holder.CacheConfigHolder decode(ClientMessage clientMessage) {
         // begin frame
-        iterator.next();
+        clientMessage.next();
 
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         int backupCount = decodeInt(initialFrame.content, BACKUP_COUNT_FIELD_OFFSET);
         int asyncBackupCount = decodeInt(initialFrame.content, ASYNC_BACKUP_COUNT_FIELD_OFFSET);
         boolean readThrough = decodeBoolean(initialFrame.content, READ_THROUGH_FIELD_OFFSET);
@@ -88,25 +88,25 @@ public final class CacheConfigHolderCodec {
         boolean statisticsEnabled = decodeBoolean(initialFrame.content, STATISTICS_ENABLED_FIELD_OFFSET);
         boolean disablePerEntryInvalidationEvents = decodeBoolean(initialFrame.content, DISABLE_PER_ENTRY_INVALIDATION_EVENTS_FIELD_OFFSET);
 
-        java.lang.String name = StringCodec.decode(iterator);
-        java.lang.String managerPrefix = CodecUtil.decodeNullable(iterator, StringCodec::decode);
-        java.lang.String uriString = CodecUtil.decodeNullable(iterator, StringCodec::decode);
-        java.lang.String inMemoryFormat = StringCodec.decode(iterator);
-        com.hazelcast.client.impl.protocol.task.dynamicconfig.EvictionConfigHolder evictionConfigHolder = EvictionConfigHolderCodec.decode(iterator);
-        com.hazelcast.config.WanReplicationRef wanReplicationRef = CodecUtil.decodeNullable(iterator, WanReplicationRefCodec::decode);
-        java.lang.String keyClassName = StringCodec.decode(iterator);
-        java.lang.String valueClassName = StringCodec.decode(iterator);
-        com.hazelcast.nio.serialization.Data cacheLoaderFactory = CodecUtil.decodeNullable(iterator, DataCodec::decode);
-        com.hazelcast.nio.serialization.Data cacheWriterFactory = CodecUtil.decodeNullable(iterator, DataCodec::decode);
-        com.hazelcast.nio.serialization.Data expiryPolicyFactory = DataCodec.decode(iterator);
-        com.hazelcast.config.HotRestartConfig hotRestartConfig = CodecUtil.decodeNullable(iterator, HotRestartConfigCodec::decode);
-        com.hazelcast.config.EventJournalConfig eventJournalConfig = CodecUtil.decodeNullable(iterator, EventJournalConfigCodec::decode);
-        java.lang.String splitBrainProtectionName = CodecUtil.decodeNullable(iterator, StringCodec::decode);
-        java.util.List<com.hazelcast.nio.serialization.Data> listenerConfigurations = ListMultiFrameCodec.decodeNullable(iterator, DataCodec::decode);
-        com.hazelcast.config.MergePolicyConfig mergePolicyConfig = MergePolicyConfigCodec.decode(iterator);
-        java.util.List<com.hazelcast.client.impl.protocol.task.dynamicconfig.ListenerConfigHolder> cachePartitionLostListenerConfigs = ListMultiFrameCodec.decodeNullable(iterator, ListenerConfigHolderCodec::decode);
+        java.lang.String name = StringCodec.decode(clientMessage);
+        java.lang.String managerPrefix = CodecUtil.decodeNullable(clientMessage, StringCodec::decode);
+        java.lang.String uriString = CodecUtil.decodeNullable(clientMessage, StringCodec::decode);
+        java.lang.String inMemoryFormat = StringCodec.decode(clientMessage);
+        com.hazelcast.client.impl.protocol.task.dynamicconfig.EvictionConfigHolder evictionConfigHolder = EvictionConfigHolderCodec.decode(clientMessage);
+        com.hazelcast.config.WanReplicationRef wanReplicationRef = CodecUtil.decodeNullable(clientMessage, WanReplicationRefCodec::decode);
+        java.lang.String keyClassName = StringCodec.decode(clientMessage);
+        java.lang.String valueClassName = StringCodec.decode(clientMessage);
+        com.hazelcast.nio.serialization.Data cacheLoaderFactory = CodecUtil.decodeNullable(clientMessage, DataCodec::decode);
+        com.hazelcast.nio.serialization.Data cacheWriterFactory = CodecUtil.decodeNullable(clientMessage, DataCodec::decode);
+        com.hazelcast.nio.serialization.Data expiryPolicyFactory = DataCodec.decode(clientMessage);
+        com.hazelcast.config.HotRestartConfig hotRestartConfig = CodecUtil.decodeNullable(clientMessage, HotRestartConfigCodec::decode);
+        com.hazelcast.config.EventJournalConfig eventJournalConfig = CodecUtil.decodeNullable(clientMessage, EventJournalConfigCodec::decode);
+        java.lang.String splitBrainProtectionName = CodecUtil.decodeNullable(clientMessage, StringCodec::decode);
+        java.util.List<com.hazelcast.nio.serialization.Data> listenerConfigurations = ListMultiFrameCodec.decodeNullable(clientMessage, DataCodec::decode);
+        com.hazelcast.config.MergePolicyConfig mergePolicyConfig = MergePolicyConfigCodec.decode(clientMessage);
+        java.util.List<com.hazelcast.client.impl.protocol.task.dynamicconfig.ListenerConfigHolder> cachePartitionLostListenerConfigs = ListMultiFrameCodec.decodeNullable(clientMessage, ListenerConfigHolderCodec::decode);
 
-        fastForwardToEndFrame(iterator);
+        fastForwardToEndFrame(clientMessage);
 
         return new com.hazelcast.client.impl.protocol.codec.holder.CacheConfigHolder(name, managerPrefix, uriString, backupCount, asyncBackupCount, inMemoryFormat, evictionConfigHolder, wanReplicationRef, keyClassName, valueClassName, cacheLoaderFactory, cacheWriterFactory, expiryPolicyFactory, readThrough, writeThrough, storeByValue, managementEnabled, statisticsEnabled, hotRestartConfig, eventJournalConfig, splitBrainProtectionName, listenerConfigurations, mergePolicyConfig, disablePerEntryInvalidationEvents, cachePartitionLostListenerConfigs);
     }

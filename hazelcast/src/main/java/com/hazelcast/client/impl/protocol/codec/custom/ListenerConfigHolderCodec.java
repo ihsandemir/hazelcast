@@ -24,7 +24,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.CodecUtil.fastFor
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
-@Generated("b605440c4ebd207baa98eb688638f831")
+@Generated("0c031c78338d699d1e9140ea5a5e940c")
 public final class ListenerConfigHolderCodec {
     private static final int LISTENER_TYPE_FIELD_OFFSET = 0;
     private static final int INCLUDE_VALUE_FIELD_OFFSET = LISTENER_TYPE_FIELD_OFFSET + INT_SIZE_IN_BYTES;
@@ -49,19 +49,19 @@ public final class ListenerConfigHolderCodec {
         clientMessage.add(END_FRAME.copy());
     }
 
-    public static com.hazelcast.client.impl.protocol.task.dynamicconfig.ListenerConfigHolder decode(ClientMessage.ForwardFrameIterator iterator) {
+    public static com.hazelcast.client.impl.protocol.task.dynamicconfig.ListenerConfigHolder decode(ClientMessage clientMessage) {
         // begin frame
-        iterator.next();
+        clientMessage.next();
 
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         int listenerType = decodeInt(initialFrame.content, LISTENER_TYPE_FIELD_OFFSET);
         boolean includeValue = decodeBoolean(initialFrame.content, INCLUDE_VALUE_FIELD_OFFSET);
         boolean local = decodeBoolean(initialFrame.content, LOCAL_FIELD_OFFSET);
 
-        com.hazelcast.nio.serialization.Data listenerImplementation = CodecUtil.decodeNullable(iterator, DataCodec::decode);
-        java.lang.String className = CodecUtil.decodeNullable(iterator, StringCodec::decode);
+        com.hazelcast.nio.serialization.Data listenerImplementation = CodecUtil.decodeNullable(clientMessage, DataCodec::decode);
+        java.lang.String className = CodecUtil.decodeNullable(clientMessage, StringCodec::decode);
 
-        fastForwardToEndFrame(iterator);
+        fastForwardToEndFrame(clientMessage);
 
         return new com.hazelcast.client.impl.protocol.task.dynamicconfig.ListenerConfigHolder(listenerType, listenerImplementation, className, includeValue, local);
     }

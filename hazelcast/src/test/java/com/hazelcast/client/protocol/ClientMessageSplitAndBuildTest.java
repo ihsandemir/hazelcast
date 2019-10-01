@@ -106,6 +106,7 @@ public class ClientMessageSplitAndBuildTest {
         decoder.src(buffer);
         decoder.onRead();
 
+        clientMessage1.resetIterator();
         assertEquals(getNumberOfFrames(clientMessage1), getNumberOfFrames(resultingMessage.get()));
         assertEquals(clientMessage1.getFrameLength(), resultingMessage.get().getFrameLength());
     }
@@ -184,11 +185,9 @@ public class ClientMessageSplitAndBuildTest {
         //these flags related to framing and can differ between two semantically equal messages
         int mask = ~(ClientMessage.UNFRAGMENTED_MESSAGE | ClientMessage.IS_FINAL_FLAG);
 
-        ClientMessage.ForwardFrameIterator actualIterator = actual.frameIterator();
-        ClientMessage.ForwardFrameIterator expectedFrameIterator = expected.frameIterator();
-        while (expectedFrameIterator.hasNext()) {
-            ClientMessage.Frame actualFrame = actualIterator.next();
-            ClientMessage.Frame expectedFrame = expectedFrameIterator.next();
+        while (expected.hasNext()) {
+            ClientMessage.Frame actualFrame = actual.next();
+            ClientMessage.Frame expectedFrame = expected.next();
             assertEquals(actualFrame.getSize(), expectedFrame.getSize());
             assertEquals(actualFrame.flags & mask, expectedFrame.flags & mask);
             Assert.assertArrayEquals(expectedFrame.content, actualFrame.content);
@@ -197,9 +196,8 @@ public class ClientMessageSplitAndBuildTest {
 
     private int getNumberOfFrames(ClientMessage message) {
         int size = 0;
-        ClientMessage.ForwardFrameIterator frameIterator = message.frameIterator();
-        while (frameIterator.hasNext()) {
-            frameIterator.next();
+        while (message.hasNext()) {
+            message.next();
             ++size;
         }
         return size;

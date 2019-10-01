@@ -22,6 +22,7 @@ import com.hazelcast.internal.nio.Connection;
 import com.hazelcast.internal.serialization.BinaryInterface;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.Objects;
 
 /**
@@ -98,7 +99,7 @@ import java.util.Objects;
  */
 @SuppressWarnings("checkstyle:MagicNumber")
 @BinaryInterface
-public final class ClientMessage implements OutboundFrame {
+public final class ClientMessage implements OutboundFrame, Iterator<ClientMessage.Frame> {
 
     // All offsets here are offset of frame.content byte[]
     // Note that frames have frame length and flags before this byte[] content
@@ -139,8 +140,9 @@ public final class ClientMessage implements OutboundFrame {
     private transient String operationName;
     private transient Connection connection;
 
-    private ClientMessage() {
+    private Frame nextFrame;
 
+    private ClientMessage() {
     }
 
     private ClientMessage(Frame startFrame) {
@@ -149,6 +151,7 @@ public final class ClientMessage implements OutboundFrame {
         while (endFrame.next != null) {
             endFrame = endFrame.next;
         }
+        nextFrame = startFrame;
     }
 
     public static ClientMessage createForEncode() {
@@ -168,16 +171,13 @@ public final class ClientMessage implements OutboundFrame {
         if (startFrame == null) {
             startFrame = frame;
             endFrame = frame;
+            nextFrame = startFrame;
             return this;
         }
 
         endFrame.next = frame;
         endFrame = frame;
         return this;
-    }
-
-    public ForwardFrameIterator frameIterator() {
-        return new ForwardFrameIterator(startFrame);
     }
 
     public int getMessageType() {
@@ -363,29 +363,24 @@ public final class ClientMessage implements OutboundFrame {
         return result;
     }
 
-    public static final class ForwardFrameIterator {
-        private Frame nextFrame;
-
-        private ForwardFrameIterator(Frame start) {
-            nextFrame = start;
+    public Frame next() {
+        Frame result = nextFrame;
+        if (nextFrame != null) {
+            nextFrame = nextFrame.next;
         }
+        return result;
+    }
 
-        public Frame next() {
-            Frame result = nextFrame;
-            if (nextFrame != null) {
-                nextFrame = nextFrame.next;
-            }
-            return result;
-        }
+    public boolean hasNext() {
+        return nextFrame != null;
+    }
 
-        public boolean hasNext() {
-            return nextFrame != null;
-        }
+    public Frame peekNext() {
+        return nextFrame;
+    }
 
-        public Frame peekNext() {
-            return nextFrame;
-        }
-
+    public void resetIterator() {
+        nextFrame = startFrame;
     }
 
     @SuppressWarnings("checkstyle:VisibilityModifier")

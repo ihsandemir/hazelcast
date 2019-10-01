@@ -24,7 +24,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.CodecUtil.fastFor
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
-@Generated("8a9349a09ca3677543c02e47663e3855")
+@Generated("1ddf1f65ecef20026a2fdb9a2a9e4651")
 public final class ErrorHolderCodec {
     private static final int ERROR_CODE_FIELD_OFFSET = 0;
     private static final int INITIAL_FRAME_SIZE = ERROR_CODE_FIELD_OFFSET + INT_SIZE_IN_BYTES;
@@ -46,18 +46,18 @@ public final class ErrorHolderCodec {
         clientMessage.add(END_FRAME.copy());
     }
 
-    public static com.hazelcast.client.impl.protocol.exception.ErrorHolder decode(ClientMessage.ForwardFrameIterator iterator) {
+    public static com.hazelcast.client.impl.protocol.exception.ErrorHolder decode(ClientMessage clientMessage) {
         // begin frame
-        iterator.next();
+        clientMessage.next();
 
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         int errorCode = decodeInt(initialFrame.content, ERROR_CODE_FIELD_OFFSET);
 
-        java.lang.String className = StringCodec.decode(iterator);
-        java.lang.String message = CodecUtil.decodeNullable(iterator, StringCodec::decode);
-        java.util.List<java.lang.StackTraceElement> stackTraceElements = ListMultiFrameCodec.decode(iterator, StackTraceElementCodec::decode);
+        java.lang.String className = StringCodec.decode(clientMessage);
+        java.lang.String message = CodecUtil.decodeNullable(clientMessage, StringCodec::decode);
+        java.util.List<java.lang.StackTraceElement> stackTraceElements = ListMultiFrameCodec.decode(clientMessage, StackTraceElementCodec::decode);
 
-        fastForwardToEndFrame(iterator);
+        fastForwardToEndFrame(clientMessage);
 
         return new com.hazelcast.client.impl.protocol.exception.ErrorHolder(errorCode, className, message, stackTraceElements);
     }

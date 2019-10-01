@@ -24,7 +24,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.CodecUtil.fastFor
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
-@Generated("2ea61ee15bf4fddcc389a73f8c767313")
+@Generated("2aad8877866eb19fe438f2d88c813d4d")
 public final class MapStoreConfigHolderCodec {
     private static final int ENABLED_FIELD_OFFSET = 0;
     private static final int WRITE_COALESCING_FIELD_OFFSET = ENABLED_FIELD_OFFSET + BOOLEAN_SIZE_IN_BYTES;
@@ -55,24 +55,24 @@ public final class MapStoreConfigHolderCodec {
         clientMessage.add(END_FRAME.copy());
     }
 
-    public static com.hazelcast.client.impl.protocol.task.dynamicconfig.MapStoreConfigHolder decode(ClientMessage.ForwardFrameIterator iterator) {
+    public static com.hazelcast.client.impl.protocol.task.dynamicconfig.MapStoreConfigHolder decode(ClientMessage clientMessage) {
         // begin frame
-        iterator.next();
+        clientMessage.next();
 
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         boolean enabled = decodeBoolean(initialFrame.content, ENABLED_FIELD_OFFSET);
         boolean writeCoalescing = decodeBoolean(initialFrame.content, WRITE_COALESCING_FIELD_OFFSET);
         int writeDelaySeconds = decodeInt(initialFrame.content, WRITE_DELAY_SECONDS_FIELD_OFFSET);
         int writeBatchSize = decodeInt(initialFrame.content, WRITE_BATCH_SIZE_FIELD_OFFSET);
 
-        java.lang.String className = CodecUtil.decodeNullable(iterator, StringCodec::decode);
-        com.hazelcast.nio.serialization.Data implementation = CodecUtil.decodeNullable(iterator, DataCodec::decode);
-        java.lang.String factoryClassName = CodecUtil.decodeNullable(iterator, StringCodec::decode);
-        com.hazelcast.nio.serialization.Data factoryImplementation = CodecUtil.decodeNullable(iterator, DataCodec::decode);
-        java.util.Map<java.lang.String, java.lang.String> properties = MapCodec.decodeNullable(iterator, StringCodec::decode, StringCodec::decode);
-        java.lang.String initialLoadMode = StringCodec.decode(iterator);
+        java.lang.String className = CodecUtil.decodeNullable(clientMessage, StringCodec::decode);
+        com.hazelcast.nio.serialization.Data implementation = CodecUtil.decodeNullable(clientMessage, DataCodec::decode);
+        java.lang.String factoryClassName = CodecUtil.decodeNullable(clientMessage, StringCodec::decode);
+        com.hazelcast.nio.serialization.Data factoryImplementation = CodecUtil.decodeNullable(clientMessage, DataCodec::decode);
+        java.util.Map<java.lang.String, java.lang.String> properties = MapCodec.decodeNullable(clientMessage, StringCodec::decode, StringCodec::decode);
+        java.lang.String initialLoadMode = StringCodec.decode(clientMessage);
 
-        fastForwardToEndFrame(iterator);
+        fastForwardToEndFrame(clientMessage);
 
         return new com.hazelcast.client.impl.protocol.task.dynamicconfig.MapStoreConfigHolder(enabled, writeCoalescing, writeDelaySeconds, writeBatchSize, className, implementation, factoryClassName, factoryImplementation, properties, initialLoadMode);
     }

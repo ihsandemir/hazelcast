@@ -42,7 +42,7 @@ public final class ListLongCodec {
         clientMessage.add(frame);
     }
 
-    public static List<Long> decode(ClientMessage.ForwardFrameIterator iterator) {
+    public static List<Long> decode(ClientMessage iterator) {
         return decode(iterator.next());
     }
 

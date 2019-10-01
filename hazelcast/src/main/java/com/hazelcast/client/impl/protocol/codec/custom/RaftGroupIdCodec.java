@@ -24,7 +24,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.CodecUtil.fastFor
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
-@Generated("2a73c83028938ca917faf3059edf31cf")
+@Generated("0ac120a27f26a6cefa49763b689d9a74")
 public final class RaftGroupIdCodec {
     private static final int SEED_FIELD_OFFSET = 0;
     private static final int ID_FIELD_OFFSET = SEED_FIELD_OFFSET + LONG_SIZE_IN_BYTES;
@@ -46,17 +46,17 @@ public final class RaftGroupIdCodec {
         clientMessage.add(END_FRAME.copy());
     }
 
-    public static com.hazelcast.cp.internal.RaftGroupId decode(ClientMessage.ForwardFrameIterator iterator) {
+    public static com.hazelcast.cp.internal.RaftGroupId decode(ClientMessage clientMessage) {
         // begin frame
-        iterator.next();
+        clientMessage.next();
 
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         long seed = decodeLong(initialFrame.content, SEED_FIELD_OFFSET);
         long id = decodeLong(initialFrame.content, ID_FIELD_OFFSET);
 
-        java.lang.String name = StringCodec.decode(iterator);
+        java.lang.String name = StringCodec.decode(clientMessage);
 
-        fastForwardToEndFrame(iterator);
+        fastForwardToEndFrame(clientMessage);
 
         return new com.hazelcast.cp.internal.RaftGroupId(name, seed, id);
     }

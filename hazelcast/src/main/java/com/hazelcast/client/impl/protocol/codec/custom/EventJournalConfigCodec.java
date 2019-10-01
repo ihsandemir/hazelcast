@@ -24,7 +24,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.CodecUtil.fastFor
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
-@Generated("56e7367d5e3d630029fa1e5173092791")
+@Generated("46035ed8a0f1d4076452939a08a84953")
 public final class EventJournalConfigCodec {
     private static final int ENABLED_FIELD_OFFSET = 0;
     private static final int CAPACITY_FIELD_OFFSET = ENABLED_FIELD_OFFSET + BOOLEAN_SIZE_IN_BYTES;
@@ -46,16 +46,16 @@ public final class EventJournalConfigCodec {
         clientMessage.add(END_FRAME.copy());
     }
 
-    public static com.hazelcast.config.EventJournalConfig decode(ClientMessage.ForwardFrameIterator iterator) {
+    public static com.hazelcast.config.EventJournalConfig decode(ClientMessage clientMessage) {
         // begin frame
-        iterator.next();
+        clientMessage.next();
 
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         boolean enabled = decodeBoolean(initialFrame.content, ENABLED_FIELD_OFFSET);
         int capacity = decodeInt(initialFrame.content, CAPACITY_FIELD_OFFSET);
         int timeToLiveSeconds = decodeInt(initialFrame.content, TIME_TO_LIVE_SECONDS_FIELD_OFFSET);
 
-        fastForwardToEndFrame(iterator);
+        fastForwardToEndFrame(clientMessage);
 
         return CustomTypeFactory.createEventJournalConfig(enabled, capacity, timeToLiveSeconds);
     }

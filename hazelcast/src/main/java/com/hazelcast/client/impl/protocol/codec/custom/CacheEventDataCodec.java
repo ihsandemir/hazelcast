@@ -24,7 +24,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.CodecUtil.fastFor
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
-@Generated("282e93f22afcfa00409312ef12e2b2e3")
+@Generated("38eb837ec9f7328911d17274ca77c22f")
 public final class CacheEventDataCodec {
     private static final int CACHE_EVENT_TYPE_FIELD_OFFSET = 0;
     private static final int OLD_VALUE_AVAILABLE_FIELD_OFFSET = CACHE_EVENT_TYPE_FIELD_OFFSET + INT_SIZE_IN_BYTES;
@@ -49,20 +49,20 @@ public final class CacheEventDataCodec {
         clientMessage.add(END_FRAME.copy());
     }
 
-    public static com.hazelcast.cache.impl.CacheEventDataImpl decode(ClientMessage.ForwardFrameIterator iterator) {
+    public static com.hazelcast.cache.impl.CacheEventDataImpl decode(ClientMessage clientMessage) {
         // begin frame
-        iterator.next();
+        clientMessage.next();
 
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         int cacheEventType = decodeInt(initialFrame.content, CACHE_EVENT_TYPE_FIELD_OFFSET);
         boolean oldValueAvailable = decodeBoolean(initialFrame.content, OLD_VALUE_AVAILABLE_FIELD_OFFSET);
 
-        java.lang.String name = StringCodec.decode(iterator);
-        com.hazelcast.nio.serialization.Data dataKey = CodecUtil.decodeNullable(iterator, DataCodec::decode);
-        com.hazelcast.nio.serialization.Data dataValue = CodecUtil.decodeNullable(iterator, DataCodec::decode);
-        com.hazelcast.nio.serialization.Data dataOldValue = CodecUtil.decodeNullable(iterator, DataCodec::decode);
+        java.lang.String name = StringCodec.decode(clientMessage);
+        com.hazelcast.nio.serialization.Data dataKey = CodecUtil.decodeNullable(clientMessage, DataCodec::decode);
+        com.hazelcast.nio.serialization.Data dataValue = CodecUtil.decodeNullable(clientMessage, DataCodec::decode);
+        com.hazelcast.nio.serialization.Data dataOldValue = CodecUtil.decodeNullable(clientMessage, DataCodec::decode);
 
-        fastForwardToEndFrame(iterator);
+        fastForwardToEndFrame(clientMessage);
 
         return CustomTypeFactory.createCacheEventData(name, cacheEventType, dataKey, dataValue, dataOldValue, oldValueAvailable);
     }

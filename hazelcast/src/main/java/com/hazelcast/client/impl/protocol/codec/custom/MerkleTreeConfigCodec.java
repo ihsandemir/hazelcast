@@ -24,7 +24,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.CodecUtil.fastFor
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
-@Generated("965d2b62022aeae721d502570586e8d6")
+@Generated("b64dddc74b920e609188ad660f3dfb97")
 public final class MerkleTreeConfigCodec {
     private static final int ENABLED_FIELD_OFFSET = 0;
     private static final int DEPTH_FIELD_OFFSET = ENABLED_FIELD_OFFSET + BOOLEAN_SIZE_IN_BYTES;
@@ -44,15 +44,15 @@ public final class MerkleTreeConfigCodec {
         clientMessage.add(END_FRAME.copy());
     }
 
-    public static com.hazelcast.config.MerkleTreeConfig decode(ClientMessage.ForwardFrameIterator iterator) {
+    public static com.hazelcast.config.MerkleTreeConfig decode(ClientMessage clientMessage) {
         // begin frame
-        iterator.next();
+        clientMessage.next();
 
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         boolean enabled = decodeBoolean(initialFrame.content, ENABLED_FIELD_OFFSET);
         int depth = decodeInt(initialFrame.content, DEPTH_FIELD_OFFSET);
 
-        fastForwardToEndFrame(iterator);
+        fastForwardToEndFrame(clientMessage);
 
         return CustomTypeFactory.createMerkleTreeConfig(enabled, depth);
     }

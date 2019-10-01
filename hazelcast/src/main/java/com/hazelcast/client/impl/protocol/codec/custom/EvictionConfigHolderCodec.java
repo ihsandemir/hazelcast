@@ -24,7 +24,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.CodecUtil.fastFor
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
-@Generated("5706c96c4875c2fe556b806d64afe6ad")
+@Generated("ee687ea916cfa9b70951d916783af314")
 public final class EvictionConfigHolderCodec {
     private static final int SIZE_FIELD_OFFSET = 0;
     private static final int INITIAL_FRAME_SIZE = SIZE_FIELD_OFFSET + INT_SIZE_IN_BYTES;
@@ -47,19 +47,19 @@ public final class EvictionConfigHolderCodec {
         clientMessage.add(END_FRAME.copy());
     }
 
-    public static com.hazelcast.client.impl.protocol.task.dynamicconfig.EvictionConfigHolder decode(ClientMessage.ForwardFrameIterator iterator) {
+    public static com.hazelcast.client.impl.protocol.task.dynamicconfig.EvictionConfigHolder decode(ClientMessage clientMessage) {
         // begin frame
-        iterator.next();
+        clientMessage.next();
 
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         int size = decodeInt(initialFrame.content, SIZE_FIELD_OFFSET);
 
-        java.lang.String maxSizePolicy = StringCodec.decode(iterator);
-        java.lang.String evictionPolicy = StringCodec.decode(iterator);
-        java.lang.String comparatorClassName = CodecUtil.decodeNullable(iterator, StringCodec::decode);
-        com.hazelcast.nio.serialization.Data comparator = CodecUtil.decodeNullable(iterator, DataCodec::decode);
+        java.lang.String maxSizePolicy = StringCodec.decode(clientMessage);
+        java.lang.String evictionPolicy = StringCodec.decode(clientMessage);
+        java.lang.String comparatorClassName = CodecUtil.decodeNullable(clientMessage, StringCodec::decode);
+        com.hazelcast.nio.serialization.Data comparator = CodecUtil.decodeNullable(clientMessage, DataCodec::decode);
 
-        fastForwardToEndFrame(iterator);
+        fastForwardToEndFrame(clientMessage);
 
         return new com.hazelcast.client.impl.protocol.task.dynamicconfig.EvictionConfigHolder(size, maxSizePolicy, evictionPolicy, comparatorClassName, comparator);
     }

@@ -24,7 +24,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.CodecUtil.fastFor
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
-@Generated("90fef85f84a90dd33b5fef9f784bc227")
+@Generated("1805b641a959a20deed9c991b88c3349")
 public final class DurationConfigCodec {
     private static final int DURATION_AMOUNT_FIELD_OFFSET = 0;
     private static final int INITIAL_FRAME_SIZE = DURATION_AMOUNT_FIELD_OFFSET + LONG_SIZE_IN_BYTES;
@@ -44,16 +44,16 @@ public final class DurationConfigCodec {
         clientMessage.add(END_FRAME.copy());
     }
 
-    public static com.hazelcast.config.CacheSimpleConfig.ExpiryPolicyFactoryConfig.DurationConfig decode(ClientMessage.ForwardFrameIterator iterator) {
+    public static com.hazelcast.config.CacheSimpleConfig.ExpiryPolicyFactoryConfig.DurationConfig decode(ClientMessage clientMessage) {
         // begin frame
-        iterator.next();
+        clientMessage.next();
 
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         long durationAmount = decodeLong(initialFrame.content, DURATION_AMOUNT_FIELD_OFFSET);
 
-        String timeUnit = StringCodec.decode(iterator);
+        String timeUnit = StringCodec.decode(clientMessage);
 
-        fastForwardToEndFrame(iterator);
+        fastForwardToEndFrame(clientMessage);
 
         return CustomTypeFactory.createDurationConfig(durationAmount, timeUnit);
     }

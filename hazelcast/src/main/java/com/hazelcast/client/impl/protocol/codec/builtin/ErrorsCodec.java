@@ -47,9 +47,8 @@ public final class ErrorsCodec {
     }
 
     public static List<ErrorHolder> decode(ClientMessage clientMessage) {
-        ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         //initial frame
-        iterator.next();
-        return ListMultiFrameCodec.decode(iterator, ErrorHolderCodec::decode);
+        clientMessage.next();
+        return ListMultiFrameCodec.decode(clientMessage, ErrorHolderCodec::decode);
     }
 }

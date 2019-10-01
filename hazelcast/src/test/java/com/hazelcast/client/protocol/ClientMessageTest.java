@@ -67,11 +67,10 @@ public class ClientMessageTest {
 
         clientMessage.add(END_FRAME.copy());
 
-        ClientMessage.ForwardFrameIterator iterator = clientMessage.frameIterator();
         // begin frame
-        iterator.next();
-        CodecUtil.fastForwardToEndFrame(iterator);
-        assertFalse(iterator.hasNext());
+        clientMessage.next();
+        CodecUtil.fastForwardToEndFrame(clientMessage);
+        assertFalse(clientMessage.hasNext());
     }
 
     @Test
@@ -98,12 +97,10 @@ public class ClientMessageTest {
         ClientMessage copyMessage = clientMessage.copyWithNewCorrelationId(newCorrelationId);
         assertEquals(clientMessage.getMessageType(), copyMessage.getMessageType());
         // get the frame after the start frame for comparison
-        ClientMessage.ForwardFrameIterator originalIterator = clientMessage.frameIterator();
-        originalIterator.next();
-        ClientMessage.ForwardFrameIterator copyIterator = copyMessage.frameIterator();
-        copyIterator.next();
-        ClientMessage.Frame originalFrame = originalIterator.next();
-        ClientMessage.Frame copyFrame = copyIterator.next();
+        clientMessage.next();
+        copyMessage.next();
+        ClientMessage.Frame originalFrame = clientMessage.next();
+        ClientMessage.Frame copyFrame = copyMessage.next();
         assertEquals(originalFrame, copyFrame);
         assertEquals(newCorrelationId, copyMessage.getCorrelationId());
         assertEquals(clientMessage.getPartitionId(), copyMessage.getPartitionId());

@@ -87,16 +87,16 @@ public class ClientMessageDecoder extends InboundHandlerWithCounters<ByteBuffer,
                 if (ClientMessage.isFlagSet(flags, UNFRAGMENTED_MESSAGE)) {
                     handleMessage(activeReader.getClientMessage());
                 } else {
-                    ClientMessage.ForwardFrameIterator frameIterator = activeReader.getClientMessage().frameIterator();
+                    ClientMessage clientMessage = activeReader.getClientMessage();
                     //ignore the fragmentationFrame
-                    frameIterator.next();
-                    ClientMessage.Frame startFrame = frameIterator.next();
+                    clientMessage.next();
+                    ClientMessage.Frame startFrame = clientMessage.next();
                     long fragmentationId = Bits.readLongL(firstFrame.content, FRAGMENTATION_ID_OFFSET);
                     if (ClientMessage.isFlagSet(flags, BEGIN_FRAGMENT_FLAG)) {
                         builderBySessionIdMap.put(fragmentationId, ClientMessage.createForDecode(startFrame));
                     } else if (ClientMessage.isFlagSet(flags, END_FRAGMENT_FLAG)) {
-                        ClientMessage clientMessage = mergeIntoExistingClientMessage(fragmentationId);
-                        handleMessage(clientMessage);
+                        ClientMessage mergedClientMessage = mergeIntoExistingClientMessage(fragmentationId);
+                        handleMessage(mergedClientMessage);
                     } else {
                         mergeIntoExistingClientMessage(fragmentationId);
                     }

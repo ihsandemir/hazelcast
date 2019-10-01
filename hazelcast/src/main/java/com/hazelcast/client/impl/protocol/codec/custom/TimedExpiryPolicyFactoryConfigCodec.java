@@ -24,7 +24,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.CodecUtil.fastFor
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
-@Generated("f9514b1565705c20a5341f4c9e6182d6")
+@Generated("87baa4ee4380c15d3c332c145fffdc9f")
 public final class TimedExpiryPolicyFactoryConfigCodec {
 
     private TimedExpiryPolicyFactoryConfigCodec() {
@@ -39,14 +39,14 @@ public final class TimedExpiryPolicyFactoryConfigCodec {
         clientMessage.add(END_FRAME.copy());
     }
 
-    public static com.hazelcast.config.CacheSimpleConfig.ExpiryPolicyFactoryConfig.TimedExpiryPolicyFactoryConfig decode(ClientMessage.ForwardFrameIterator iterator) {
+    public static com.hazelcast.config.CacheSimpleConfig.ExpiryPolicyFactoryConfig.TimedExpiryPolicyFactoryConfig decode(ClientMessage clientMessage) {
         // begin frame
-        iterator.next();
+        clientMessage.next();
 
-        String expiryPolicyType = StringCodec.decode(iterator);
-        com.hazelcast.config.CacheSimpleConfig.ExpiryPolicyFactoryConfig.DurationConfig durationConfig = DurationConfigCodec.decode(iterator);
+        String expiryPolicyType = StringCodec.decode(clientMessage);
+        com.hazelcast.config.CacheSimpleConfig.ExpiryPolicyFactoryConfig.DurationConfig durationConfig = DurationConfigCodec.decode(clientMessage);
 
-        fastForwardToEndFrame(iterator);
+        fastForwardToEndFrame(clientMessage);
 
         return CustomTypeFactory.createTimedExpiryPolicyFactoryConfig(expiryPolicyType, durationConfig);
     }

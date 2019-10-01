@@ -24,7 +24,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.CodecUtil.fastFor
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
-@Generated("a2c6108c7a74732d7bfa8170ae7b7fad")
+@Generated("ed26d1c11b9262452c14159a4c971ffe")
 public final class ScheduledTaskHandlerCodec {
     private static final int PARTITION_ID_FIELD_OFFSET = 0;
     private static final int INITIAL_FRAME_SIZE = PARTITION_ID_FIELD_OFFSET + INT_SIZE_IN_BYTES;
@@ -46,18 +46,18 @@ public final class ScheduledTaskHandlerCodec {
         clientMessage.add(END_FRAME.copy());
     }
 
-    public static com.hazelcast.scheduledexecutor.impl.ScheduledTaskHandlerImpl decode(ClientMessage.ForwardFrameIterator iterator) {
+    public static com.hazelcast.scheduledexecutor.impl.ScheduledTaskHandlerImpl decode(ClientMessage clientMessage) {
         // begin frame
-        iterator.next();
+        clientMessage.next();
 
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         int partitionId = decodeInt(initialFrame.content, PARTITION_ID_FIELD_OFFSET);
 
-        com.hazelcast.nio.Address address = CodecUtil.decodeNullable(iterator, AddressCodec::decode);
-        java.lang.String schedulerName = StringCodec.decode(iterator);
-        java.lang.String taskName = StringCodec.decode(iterator);
+        com.hazelcast.nio.Address address = CodecUtil.decodeNullable(clientMessage, AddressCodec::decode);
+        java.lang.String schedulerName = StringCodec.decode(clientMessage);
+        java.lang.String taskName = StringCodec.decode(clientMessage);
 
-        fastForwardToEndFrame(iterator);
+        fastForwardToEndFrame(clientMessage);
 
         return new com.hazelcast.scheduledexecutor.impl.ScheduledTaskHandlerImpl(address, partitionId, schedulerName, taskName);
     }

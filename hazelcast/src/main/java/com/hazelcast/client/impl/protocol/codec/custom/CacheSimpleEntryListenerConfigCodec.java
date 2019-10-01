@@ -24,7 +24,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.CodecUtil.fastFor
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
-@Generated("d1b446bdd3f236115ecf1eaf068effb9")
+@Generated("5cd4d3fe8a6399a3348762546df4bb55")
 public final class CacheSimpleEntryListenerConfigCodec {
     private static final int OLD_VALUE_REQUIRED_FIELD_OFFSET = 0;
     private static final int SYNCHRONOUS_FIELD_OFFSET = OLD_VALUE_REQUIRED_FIELD_OFFSET + BOOLEAN_SIZE_IN_BYTES;
@@ -47,18 +47,18 @@ public final class CacheSimpleEntryListenerConfigCodec {
         clientMessage.add(END_FRAME.copy());
     }
 
-    public static com.hazelcast.config.CacheSimpleEntryListenerConfig decode(ClientMessage.ForwardFrameIterator iterator) {
+    public static com.hazelcast.config.CacheSimpleEntryListenerConfig decode(ClientMessage clientMessage) {
         // begin frame
-        iterator.next();
+        clientMessage.next();
 
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         boolean oldValueRequired = decodeBoolean(initialFrame.content, OLD_VALUE_REQUIRED_FIELD_OFFSET);
         boolean synchronous = decodeBoolean(initialFrame.content, SYNCHRONOUS_FIELD_OFFSET);
 
-        java.lang.String cacheEntryListenerFactory = CodecUtil.decodeNullable(iterator, StringCodec::decode);
-        java.lang.String cacheEntryEventFilterFactory = CodecUtil.decodeNullable(iterator, StringCodec::decode);
+        java.lang.String cacheEntryListenerFactory = CodecUtil.decodeNullable(clientMessage, StringCodec::decode);
+        java.lang.String cacheEntryEventFilterFactory = CodecUtil.decodeNullable(clientMessage, StringCodec::decode);
 
-        fastForwardToEndFrame(iterator);
+        fastForwardToEndFrame(clientMessage);
 
         return CustomTypeFactory.createCacheSimpleEntryListenerConfig(oldValueRequired, synchronous, cacheEntryListenerFactory, cacheEntryEventFilterFactory);
     }

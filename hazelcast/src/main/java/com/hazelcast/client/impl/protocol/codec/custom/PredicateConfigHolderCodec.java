@@ -24,7 +24,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.CodecUtil.fastFor
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
-@Generated("6e0f94fa7c1cbd2912b9490d1dac3b49")
+@Generated("f2ea446b0d41aa22ec3d5318578debc8")
 public final class PredicateConfigHolderCodec {
 
     private PredicateConfigHolderCodec() {
@@ -40,15 +40,15 @@ public final class PredicateConfigHolderCodec {
         clientMessage.add(END_FRAME.copy());
     }
 
-    public static com.hazelcast.client.impl.protocol.task.dynamicconfig.PredicateConfigHolder decode(ClientMessage.ForwardFrameIterator iterator) {
+    public static com.hazelcast.client.impl.protocol.task.dynamicconfig.PredicateConfigHolder decode(ClientMessage clientMessage) {
         // begin frame
-        iterator.next();
+        clientMessage.next();
 
-        java.lang.String className = CodecUtil.decodeNullable(iterator, StringCodec::decode);
-        java.lang.String sql = CodecUtil.decodeNullable(iterator, StringCodec::decode);
-        com.hazelcast.nio.serialization.Data implementation = CodecUtil.decodeNullable(iterator, DataCodec::decode);
+        java.lang.String className = CodecUtil.decodeNullable(clientMessage, StringCodec::decode);
+        java.lang.String sql = CodecUtil.decodeNullable(clientMessage, StringCodec::decode);
+        com.hazelcast.nio.serialization.Data implementation = CodecUtil.decodeNullable(clientMessage, DataCodec::decode);
 
-        fastForwardToEndFrame(iterator);
+        fastForwardToEndFrame(clientMessage);
 
         return new com.hazelcast.client.impl.protocol.task.dynamicconfig.PredicateConfigHolder(className, sql, implementation);
     }

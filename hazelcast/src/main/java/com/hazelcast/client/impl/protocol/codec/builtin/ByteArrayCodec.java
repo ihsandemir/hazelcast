@@ -31,7 +31,7 @@ public final class ByteArrayCodec {
         return frame.content;
     }
 
-    public static byte[] decode(ClientMessage.ForwardFrameIterator iterator) {
+    public static byte[] decode(ClientMessage iterator) {
         return decode(iterator.next());
     }
 }

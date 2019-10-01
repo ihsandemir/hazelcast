@@ -24,7 +24,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.CodecUtil.fastFor
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
-@Generated("22f29bd9d78acdc562a6682e884101e7")
+@Generated("98647e0a36e418e1dbce824774ac9fa9")
 public final class NearCacheConfigHolderCodec {
     private static final int SERIALIZE_KEYS_FIELD_OFFSET = 0;
     private static final int INVALIDATE_ON_CHANGE_FIELD_OFFSET = SERIALIZE_KEYS_FIELD_OFFSET + BOOLEAN_SIZE_IN_BYTES;
@@ -56,24 +56,24 @@ public final class NearCacheConfigHolderCodec {
         clientMessage.add(END_FRAME.copy());
     }
 
-    public static com.hazelcast.client.impl.protocol.task.dynamicconfig.NearCacheConfigHolder decode(ClientMessage.ForwardFrameIterator iterator) {
+    public static com.hazelcast.client.impl.protocol.task.dynamicconfig.NearCacheConfigHolder decode(ClientMessage clientMessage) {
         // begin frame
-        iterator.next();
+        clientMessage.next();
 
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         boolean serializeKeys = decodeBoolean(initialFrame.content, SERIALIZE_KEYS_FIELD_OFFSET);
         boolean invalidateOnChange = decodeBoolean(initialFrame.content, INVALIDATE_ON_CHANGE_FIELD_OFFSET);
         int timeToLiveSeconds = decodeInt(initialFrame.content, TIME_TO_LIVE_SECONDS_FIELD_OFFSET);
         int maxIdleSeconds = decodeInt(initialFrame.content, MAX_IDLE_SECONDS_FIELD_OFFSET);
         boolean cacheLocalEntries = decodeBoolean(initialFrame.content, CACHE_LOCAL_ENTRIES_FIELD_OFFSET);
 
-        java.lang.String name = StringCodec.decode(iterator);
-        java.lang.String inMemoryFormat = StringCodec.decode(iterator);
-        com.hazelcast.client.impl.protocol.task.dynamicconfig.EvictionConfigHolder evictionConfigHolder = EvictionConfigHolderCodec.decode(iterator);
-        java.lang.String localUpdatePolicy = StringCodec.decode(iterator);
-        com.hazelcast.config.NearCachePreloaderConfig preloaderConfig = CodecUtil.decodeNullable(iterator, NearCachePreloaderConfigCodec::decode);
+        java.lang.String name = StringCodec.decode(clientMessage);
+        java.lang.String inMemoryFormat = StringCodec.decode(clientMessage);
+        com.hazelcast.client.impl.protocol.task.dynamicconfig.EvictionConfigHolder evictionConfigHolder = EvictionConfigHolderCodec.decode(clientMessage);
+        java.lang.String localUpdatePolicy = StringCodec.decode(clientMessage);
+        com.hazelcast.config.NearCachePreloaderConfig preloaderConfig = CodecUtil.decodeNullable(clientMessage, NearCachePreloaderConfigCodec::decode);
 
-        fastForwardToEndFrame(iterator);
+        fastForwardToEndFrame(clientMessage);
 
         return new com.hazelcast.client.impl.protocol.task.dynamicconfig.NearCacheConfigHolder(name, inMemoryFormat, serializeKeys, invalidateOnChange, timeToLiveSeconds, maxIdleSeconds, evictionConfigHolder, cacheLocalEntries, localUpdatePolicy, preloaderConfig);
     }

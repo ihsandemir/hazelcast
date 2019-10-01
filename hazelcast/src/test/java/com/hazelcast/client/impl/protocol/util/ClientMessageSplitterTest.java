@@ -70,29 +70,26 @@ public class ClientMessageSplitterTest extends HazelcastTestSupport {
     @Test
     public void testGetSubFrames() {
         List<ClientMessage> fragments = getFragments(128, clientMessage);
-        ClientMessage.ForwardFrameIterator originalIterator = clientMessage.frameIterator();
         assertEquals(18, fragments.size());
 
-        assertFragments(fragments, originalIterator);
+        assertFragments(fragments, clientMessage);
     }
 
     @Test
     @RequireAssertEnabled
     public void testGetSubFrame_whenFrameSizeGreaterThanFrameLength_thenReturnOriginalMessage() {
         List<ClientMessage> fragments = getFragments(4000, clientMessage);
-        ClientMessage.ForwardFrameIterator originalIterator = clientMessage.frameIterator();
 
-        assertFragments(fragments, originalIterator);
+        assertFragments(fragments, clientMessage);
     }
 
-    private void assertFragments(List<ClientMessage> fragments, ClientMessage.ForwardFrameIterator originalIterator) {
+    private void assertFragments(List<ClientMessage> fragments, ClientMessage originalMessage) {
         for (ClientMessage fragment : fragments) {
-            ClientMessage.ForwardFrameIterator iterator = fragment.frameIterator();
             //skip fragmentation header
-            iterator.next();
-            while (iterator.hasNext()) {
-                ClientMessage.Frame actualFrame = iterator.next();
-                ClientMessage.Frame expectedFrame = originalIterator.next();
+            fragment.next();
+            while (fragment.hasNext()) {
+                ClientMessage.Frame actualFrame = fragment.next();
+                ClientMessage.Frame expectedFrame = originalMessage.next();
                 assertEquals(actualFrame.getSize(), expectedFrame.getSize());
                 assertEquals(actualFrame.flags, expectedFrame.flags);
                 Assert.assertArrayEquals(actualFrame.content, expectedFrame.content);
