@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -36,7 +34,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Creates a new CP group with the given name
  */
-@Generated("f8b629a4a57aeb57b4eb5cecdb148255")
+@Generated("4e0d814f206f8b698d2c39a4a720bac5")
 public final class CPGroupCreateCPGroupCodec {
     //hex: 0x210100
     public static final int REQUEST_MESSAGE_TYPE = 2162944;
@@ -70,11 +68,10 @@ public final class CPGroupCreateCPGroupCodec {
     }
 
     public static CPGroupCreateCPGroupCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
         //empty initial frame
-        iterator.next();
-        request.proxyName = StringCodec.decode(iterator);
+        clientMessage.next();
+        request.proxyName = StringCodec.decode(clientMessage);
         return request;
     }
 
@@ -98,11 +95,10 @@ public final class CPGroupCreateCPGroupCodec {
     }
 
     public static CPGroupCreateCPGroupCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
         //empty initial frame
-        iterator.next();
-        response.groupId = RaftGroupIdCodec.decode(iterator);
+        clientMessage.next();
+        response.groupId = RaftGroupIdCodec.decode(clientMessage);
         return response;
     }
 

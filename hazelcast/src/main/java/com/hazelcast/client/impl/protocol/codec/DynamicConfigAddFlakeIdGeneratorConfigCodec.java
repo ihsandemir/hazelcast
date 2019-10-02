@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -38,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * If a flake ID generator configuration for the same name already exists, then
  * the new configuration is ignored and the existing one is preserved.
  */
-@Generated("7e394059e42178c20f1f6756a3021c47")
+@Generated("238003188bd6e9b494930cf3a23451d4")
 public final class DynamicConfigAddFlakeIdGeneratorConfigCodec {
     //hex: 0x1E1200
     public static final int REQUEST_MESSAGE_TYPE = 1970688;
@@ -107,15 +105,14 @@ public final class DynamicConfigAddFlakeIdGeneratorConfigCodec {
     }
 
     public static DynamicConfigAddFlakeIdGeneratorConfigCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         request.prefetchCount = decodeInt(initialFrame.content, REQUEST_PREFETCH_COUNT_FIELD_OFFSET);
         request.prefetchValidity = decodeLong(initialFrame.content, REQUEST_PREFETCH_VALIDITY_FIELD_OFFSET);
         request.idOffset = decodeLong(initialFrame.content, REQUEST_ID_OFFSET_FIELD_OFFSET);
         request.statisticsEnabled = decodeBoolean(initialFrame.content, REQUEST_STATISTICS_ENABLED_FIELD_OFFSET);
         request.nodeIdOffset = decodeLong(initialFrame.content, REQUEST_NODE_ID_OFFSET_FIELD_OFFSET);
-        request.name = StringCodec.decode(iterator);
+        request.name = StringCodec.decode(clientMessage);
         return request;
     }
 
@@ -133,10 +130,9 @@ public final class DynamicConfigAddFlakeIdGeneratorConfigCodec {
     }
 
     public static DynamicConfigAddFlakeIdGeneratorConfigCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
         //empty initial frame
-        iterator.next();
+        clientMessage.next();
         return response;
     }
 

@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 import com.hazelcast.logging.Logger;
@@ -37,7 +35,7 @@ import com.hazelcast.logging.Logger;
 /**
  * Adds an listener for this collection. Listener will be notified or all collection add/remove events.
  */
-@Generated("a27ec0bf56ee95c1f9601181c7eeb7dd")
+@Generated("e4ab7b1656ca55805f636e28023cc4a7")
 public final class QueueAddListenerCodec {
     //hex: 0x031100
     public static final int REQUEST_MESSAGE_TYPE = 200960;
@@ -91,12 +89,11 @@ public final class QueueAddListenerCodec {
     }
 
     public static QueueAddListenerCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         request.includeValue = decodeBoolean(initialFrame.content, REQUEST_INCLUDE_VALUE_FIELD_OFFSET);
         request.localOnly = decodeBoolean(initialFrame.content, REQUEST_LOCAL_ONLY_FIELD_OFFSET);
-        request.name = StringCodec.decode(iterator);
+        request.name = StringCodec.decode(clientMessage);
         return request;
     }
 
@@ -120,9 +117,8 @@ public final class QueueAddListenerCodec {
     }
 
     public static QueueAddListenerCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         response.response = decodeUUID(initialFrame.content, RESPONSE_RESPONSE_FIELD_OFFSET);
         return response;
     }
@@ -144,12 +140,11 @@ public final class QueueAddListenerCodec {
 
         public void handle(ClientMessage clientMessage) {
             int messageType = clientMessage.getMessageType();
-            ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
             if (messageType == EVENT_ITEM_MESSAGE_TYPE) {
-                ClientMessage.Frame initialFrame = iterator.next();
+                ClientMessage.Frame initialFrame = clientMessage.next();
                 java.util.UUID uuid = decodeUUID(initialFrame.content, EVENT_ITEM_UUID_FIELD_OFFSET);
                 int eventType = decodeInt(initialFrame.content, EVENT_ITEM_EVENT_TYPE_FIELD_OFFSET);
-                com.hazelcast.nio.serialization.Data item = CodecUtil.decodeNullable(iterator, DataCodec::decode);
+                com.hazelcast.nio.serialization.Data item = CodecUtil.decodeNullable(clientMessage, DataCodec::decode);
                 handleItemEvent(item, uuid, eventType);
                 return;
             }

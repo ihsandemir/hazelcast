@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -37,7 +35,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * If the specified key is not already associated with a value, associate it with the given value.
  * The object to be put will be accessible only in the current transaction context until the transaction is committed.
  */
-@Generated("aa68c6efbad1d898de9d284851619158")
+@Generated("ee79175bec87f1fb05f6b36dd778ed27")
 public final class TransactionalMapPutIfAbsentCodec {
     //hex: 0x100800
     public static final int REQUEST_MESSAGE_TYPE = 1050624;
@@ -97,14 +95,13 @@ public final class TransactionalMapPutIfAbsentCodec {
     }
 
     public static TransactionalMapPutIfAbsentCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         request.txnId = decodeUUID(initialFrame.content, REQUEST_TXN_ID_FIELD_OFFSET);
         request.threadId = decodeLong(initialFrame.content, REQUEST_THREAD_ID_FIELD_OFFSET);
-        request.name = StringCodec.decode(iterator);
-        request.key = DataCodec.decode(iterator);
-        request.value = DataCodec.decode(iterator);
+        request.name = StringCodec.decode(clientMessage);
+        request.key = DataCodec.decode(clientMessage);
+        request.value = DataCodec.decode(clientMessage);
         return request;
     }
 
@@ -128,11 +125,10 @@ public final class TransactionalMapPutIfAbsentCodec {
     }
 
     public static TransactionalMapPutIfAbsentCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
         //empty initial frame
-        iterator.next();
-        response.response = CodecUtil.decodeNullable(iterator, DataCodec::decode);
+        clientMessage.next();
+        response.response = CodecUtil.decodeNullable(clientMessage, DataCodec::decode);
         return response;
     }
 

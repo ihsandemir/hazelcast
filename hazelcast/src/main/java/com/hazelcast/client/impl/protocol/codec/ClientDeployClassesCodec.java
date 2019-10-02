@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -38,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * Each item is a Map.Entry<String, byte[]> in the list.
  * key of entry is full class name, and byte[] is the class definition.
  */
-@Generated("86382949e6924c09f907a996261dc065")
+@Generated("061f8a59c5be7d260858c4d04da804d9")
 public final class ClientDeployClassesCodec {
     //hex: 0x001100
     public static final int REQUEST_MESSAGE_TYPE = 4352;
@@ -72,11 +70,10 @@ public final class ClientDeployClassesCodec {
     }
 
     public static ClientDeployClassesCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
         //empty initial frame
-        iterator.next();
-        request.classDefinitions = EntryListCodec.decode(iterator, StringCodec::decode, ByteArrayCodec::decode);
+        clientMessage.next();
+        request.classDefinitions = EntryListCodec.decode(clientMessage, StringCodec::decode, ByteArrayCodec::decode);
         return request;
     }
 
@@ -94,10 +91,9 @@ public final class ClientDeployClassesCodec {
     }
 
     public static ClientDeployClassesCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
         //empty initial frame
-        iterator.next();
+        clientMessage.next();
         return response;
     }
 

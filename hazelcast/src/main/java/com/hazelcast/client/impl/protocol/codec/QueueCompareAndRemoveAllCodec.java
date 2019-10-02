@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -37,7 +35,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * Removes all of this collection's elements that are also contained in the specified collection (optional operation).
  * After this call returns, this collection will contain no elements in common with the specified collection.
  */
-@Generated("63c7153b25d0f0fed0445dfcd106b48d")
+@Generated("c341f5d4b9e8c39ce6b182466c15cfeb")
 public final class QueueCompareAndRemoveAllCodec {
     //hex: 0x030D00
     public static final int REQUEST_MESSAGE_TYPE = 199936;
@@ -78,12 +76,11 @@ public final class QueueCompareAndRemoveAllCodec {
     }
 
     public static QueueCompareAndRemoveAllCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
         //empty initial frame
-        iterator.next();
-        request.name = StringCodec.decode(iterator);
-        request.dataList = ListMultiFrameCodec.decode(iterator, DataCodec::decode);
+        clientMessage.next();
+        request.name = StringCodec.decode(clientMessage);
+        request.dataList = ListMultiFrameCodec.decode(clientMessage, DataCodec::decode);
         return request;
     }
 
@@ -107,9 +104,8 @@ public final class QueueCompareAndRemoveAllCodec {
     }
 
     public static QueueCompareAndRemoveAllCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         response.response = decodeBoolean(initialFrame.content, RESPONSE_RESPONSE_FIELD_OFFSET);
         return response;
     }

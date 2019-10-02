@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -36,7 +34,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Returns all scheduled tasks in for a given scheduler in the given member.
  */
-@Generated("95f97d9b416a8220723c78d262002018")
+@Generated("94eae088e4b05b0dc10eae56a0098759")
 public final class ScheduledExecutorGetAllScheduledFuturesCodec {
     //hex: 0x1D0400
     public static final int REQUEST_MESSAGE_TYPE = 1901568;
@@ -70,11 +68,10 @@ public final class ScheduledExecutorGetAllScheduledFuturesCodec {
     }
 
     public static ScheduledExecutorGetAllScheduledFuturesCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
         //empty initial frame
-        iterator.next();
-        request.schedulerName = StringCodec.decode(iterator);
+        clientMessage.next();
+        request.schedulerName = StringCodec.decode(clientMessage);
         return request;
     }
 
@@ -98,11 +95,10 @@ public final class ScheduledExecutorGetAllScheduledFuturesCodec {
     }
 
     public static ScheduledExecutorGetAllScheduledFuturesCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
         //empty initial frame
-        iterator.next();
-        response.handlers = EntryListCodec.decode(iterator, MemberCodec::decode, ListScheduledTaskHandlerCodec::decode);
+        clientMessage.next();
+        response.handlers = EntryListCodec.decode(clientMessage, MemberCodec::decode, ListScheduledTaskHandlerCodec::decode);
         return response;
     }
 

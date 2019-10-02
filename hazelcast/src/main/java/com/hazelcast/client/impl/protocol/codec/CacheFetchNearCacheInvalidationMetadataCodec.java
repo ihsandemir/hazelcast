@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -36,7 +34,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Fetches invalidation metadata from partitions of map.
  */
-@Generated("476c94921a09511a6860f7b82229236d")
+@Generated("abefa96859c4e6e8ae083484bfdf97b5")
 public final class CacheFetchNearCacheInvalidationMetadataCodec {
     //hex: 0x151F00
     public static final int REQUEST_MESSAGE_TYPE = 1384192;
@@ -76,12 +74,11 @@ public final class CacheFetchNearCacheInvalidationMetadataCodec {
     }
 
     public static CacheFetchNearCacheInvalidationMetadataCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
         //empty initial frame
-        iterator.next();
-        request.names = ListMultiFrameCodec.decode(iterator, StringCodec::decode);
-        request.address = AddressCodec.decode(iterator);
+        clientMessage.next();
+        request.names = ListMultiFrameCodec.decode(clientMessage, StringCodec::decode);
+        request.address = AddressCodec.decode(clientMessage);
         return request;
     }
 
@@ -111,12 +108,11 @@ public final class CacheFetchNearCacheInvalidationMetadataCodec {
     }
 
     public static CacheFetchNearCacheInvalidationMetadataCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
         //empty initial frame
-        iterator.next();
-        response.namePartitionSequenceList = EntryListCodec.decode(iterator, StringCodec::decode, EntryListIntegerLongCodec::decode);
-        response.partitionUuidList = EntryListIntegerUUIDCodec.decode(iterator);
+        clientMessage.next();
+        response.namePartitionSequenceList = EntryListCodec.decode(clientMessage, StringCodec::decode, EntryListIntegerLongCodec::decode);
+        response.partitionUuidList = EntryListIntegerUUIDCodec.decode(clientMessage);
         return response;
     }
 

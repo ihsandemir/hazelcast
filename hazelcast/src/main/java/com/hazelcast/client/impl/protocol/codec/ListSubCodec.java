@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -46,7 +44,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * structurally modified in any way other than via the returned list.(Structural modifications are those that change
  * the size of this list, or otherwise perturb it in such a fashion that iterations in progress may yield incorrect results.)
  */
-@Generated("934865635543182099e4b8a62c92523c")
+@Generated("28c2cae489ce912d5fd3fceab8a0b9a7")
 public final class ListSubCodec {
     //hex: 0x051500
     public static final int REQUEST_MESSAGE_TYPE = 333056;
@@ -94,12 +92,11 @@ public final class ListSubCodec {
     }
 
     public static ListSubCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         request.from = decodeInt(initialFrame.content, REQUEST_FROM_FIELD_OFFSET);
         request.to = decodeInt(initialFrame.content, REQUEST_TO_FIELD_OFFSET);
-        request.name = StringCodec.decode(iterator);
+        request.name = StringCodec.decode(clientMessage);
         return request;
     }
 
@@ -123,11 +120,10 @@ public final class ListSubCodec {
     }
 
     public static ListSubCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
         //empty initial frame
-        iterator.next();
-        response.response = ListMultiFrameCodec.decode(iterator, DataCodec::decode);
+        clientMessage.next();
+        response.response = ListMultiFrameCodec.decode(clientMessage, DataCodec::decode);
         return response;
     }
 

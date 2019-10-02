@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -184,7 +182,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * nc.hz/StatICacheName.lastPersistenceWrittenBytes=0,nc.hz/StatICacheName.misses=1,nc.hz/StatICacheName.ownedEntryCount=1,
  * nc.hz/StatICacheName.expirations=0,nc.hz/StatICacheName.ownedEntryMemoryCost=140
  */
-@Generated("3d0a3cfadc9fb9504b55e61439219a29")
+@Generated("7bbb08b05cf9a1786dd523053eaa9a75")
 public final class ClientStatisticsCodec {
     //hex: 0x001000
     public static final int REQUEST_MESSAGE_TYPE = 4096;
@@ -218,11 +216,10 @@ public final class ClientStatisticsCodec {
     }
 
     public static ClientStatisticsCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
         //empty initial frame
-        iterator.next();
-        request.stats = StringCodec.decode(iterator);
+        clientMessage.next();
+        request.stats = StringCodec.decode(clientMessage);
         return request;
     }
 
@@ -240,10 +237,9 @@ public final class ClientStatisticsCodec {
     }
 
     public static ClientStatisticsCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
         //empty initial frame
-        iterator.next();
+        clientMessage.next();
         return response;
     }
 

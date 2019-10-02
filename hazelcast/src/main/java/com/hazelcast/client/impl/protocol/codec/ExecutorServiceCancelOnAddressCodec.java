@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -36,7 +34,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * TODO DOC
  */
-@Generated("fc68f69aac539e9fc117d69f995108c2")
+@Generated("9f7fa08b22ad3341383bcd3abbbc0a34")
 public final class ExecutorServiceCancelOnAddressCodec {
     //hex: 0x090400
     public static final int REQUEST_MESSAGE_TYPE = 590848;
@@ -85,12 +83,11 @@ public final class ExecutorServiceCancelOnAddressCodec {
     }
 
     public static ExecutorServiceCancelOnAddressCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         request.uuid = decodeUUID(initialFrame.content, REQUEST_UUID_FIELD_OFFSET);
         request.interrupt = decodeBoolean(initialFrame.content, REQUEST_INTERRUPT_FIELD_OFFSET);
-        request.address = AddressCodec.decode(iterator);
+        request.address = AddressCodec.decode(clientMessage);
         return request;
     }
 
@@ -114,9 +111,8 @@ public final class ExecutorServiceCancelOnAddressCodec {
     }
 
     public static ExecutorServiceCancelOnAddressCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         response.response = decodeBoolean(initialFrame.content, RESPONSE_RESPONSE_FIELD_OFFSET);
         return response;
     }

@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -36,7 +34,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Retrieves and disposes the result of the execution with the given sequence
  */
-@Generated("ee7f02622847005a429d85b235bf62f4")
+@Generated("30aa80831a6a0b2ce1ec850ee02c5be9")
 public final class DurableExecutorRetrieveAndDisposeResultCodec {
     //hex: 0x1B0600
     public static final int REQUEST_MESSAGE_TYPE = 1771008;
@@ -77,11 +75,10 @@ public final class DurableExecutorRetrieveAndDisposeResultCodec {
     }
 
     public static DurableExecutorRetrieveAndDisposeResultCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         request.sequence = decodeInt(initialFrame.content, REQUEST_SEQUENCE_FIELD_OFFSET);
-        request.name = StringCodec.decode(iterator);
+        request.name = StringCodec.decode(clientMessage);
         return request;
     }
 
@@ -105,11 +102,10 @@ public final class DurableExecutorRetrieveAndDisposeResultCodec {
     }
 
     public static DurableExecutorRetrieveAndDisposeResultCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
         //empty initial frame
-        iterator.next();
-        response.response = CodecUtil.decodeNullable(iterator, DataCodec::decode);
+        clientMessage.next();
+        response.response = CodecUtil.decodeNullable(clientMessage, DataCodec::decode);
         return response;
     }
 

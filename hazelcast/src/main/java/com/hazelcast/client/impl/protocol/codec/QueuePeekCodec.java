@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -36,7 +34,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Retrieves, but does not remove, the head of this queue, or returns null if this queue is empty.
  */
-@Generated("622d0586b74218ef0092b09a93f21b7e")
+@Generated("d7b8d434eb4eaa0d6e530b86ce9a1050")
 public final class QueuePeekCodec {
     //hex: 0x030700
     public static final int REQUEST_MESSAGE_TYPE = 198400;
@@ -70,11 +68,10 @@ public final class QueuePeekCodec {
     }
 
     public static QueuePeekCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
         //empty initial frame
-        iterator.next();
-        request.name = StringCodec.decode(iterator);
+        clientMessage.next();
+        request.name = StringCodec.decode(clientMessage);
         return request;
     }
 
@@ -98,11 +95,10 @@ public final class QueuePeekCodec {
     }
 
     public static QueuePeekCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
         //empty initial frame
-        iterator.next();
-        response.response = CodecUtil.decodeNullable(iterator, DataCodec::decode);
+        clientMessage.next();
+        response.response = CodecUtil.decodeNullable(clientMessage, DataCodec::decode);
         return response;
     }
 

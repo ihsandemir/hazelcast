@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -37,7 +35,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * Same as put except that MapStore, if defined, will not be called to store/persist the entry.
  * If ttl and maxIdle are 0, then the entry lives forever.
  */
-@Generated("29d48294223ef403afdbf8a7842bec45")
+@Generated("05403604ce7f9e3fd73d0879d597f4fd")
 public final class MapPutTransientWithMaxIdleCodec {
     //hex: 0x014B00
     public static final int REQUEST_MESSAGE_TYPE = 84736;
@@ -105,15 +103,14 @@ public final class MapPutTransientWithMaxIdleCodec {
     }
 
     public static MapPutTransientWithMaxIdleCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         request.threadId = decodeLong(initialFrame.content, REQUEST_THREAD_ID_FIELD_OFFSET);
         request.ttl = decodeLong(initialFrame.content, REQUEST_TTL_FIELD_OFFSET);
         request.maxIdle = decodeLong(initialFrame.content, REQUEST_MAX_IDLE_FIELD_OFFSET);
-        request.name = StringCodec.decode(iterator);
-        request.key = DataCodec.decode(iterator);
-        request.value = DataCodec.decode(iterator);
+        request.name = StringCodec.decode(clientMessage);
+        request.key = DataCodec.decode(clientMessage);
+        request.value = DataCodec.decode(clientMessage);
         return request;
     }
 
@@ -137,11 +134,10 @@ public final class MapPutTransientWithMaxIdleCodec {
     }
 
     public static MapPutTransientWithMaxIdleCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
         //empty initial frame
-        iterator.next();
-        response.response = CodecUtil.decodeNullable(iterator, DataCodec::decode);
+        clientMessage.next();
+        response.response = CodecUtil.decodeNullable(clientMessage, DataCodec::decode);
         return response;
     }
 

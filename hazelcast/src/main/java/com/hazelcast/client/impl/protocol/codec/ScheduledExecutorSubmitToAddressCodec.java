@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -36,7 +34,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Submits the task to a member for execution, member is provided in the form of an address.
  */
-@Generated("cd609d6dc4ebb9646562bcc47cb06862")
+@Generated("f8dd0c4d90e832eb9bf08c7fb8976dd5")
 public final class ScheduledExecutorSubmitToAddressCodec {
     //hex: 0x1D0300
     public static final int REQUEST_MESSAGE_TYPE = 1901312;
@@ -109,16 +107,15 @@ public final class ScheduledExecutorSubmitToAddressCodec {
     }
 
     public static ScheduledExecutorSubmitToAddressCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         request.type = decodeByte(initialFrame.content, REQUEST_TYPE_FIELD_OFFSET);
         request.initialDelayInMillis = decodeLong(initialFrame.content, REQUEST_INITIAL_DELAY_IN_MILLIS_FIELD_OFFSET);
         request.periodInMillis = decodeLong(initialFrame.content, REQUEST_PERIOD_IN_MILLIS_FIELD_OFFSET);
-        request.schedulerName = StringCodec.decode(iterator);
-        request.address = AddressCodec.decode(iterator);
-        request.taskName = StringCodec.decode(iterator);
-        request.task = DataCodec.decode(iterator);
+        request.schedulerName = StringCodec.decode(clientMessage);
+        request.address = AddressCodec.decode(clientMessage);
+        request.taskName = StringCodec.decode(clientMessage);
+        request.task = DataCodec.decode(clientMessage);
         return request;
     }
 
@@ -136,10 +133,9 @@ public final class ScheduledExecutorSubmitToAddressCodec {
     }
 
     public static ScheduledExecutorSubmitToAddressCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
         //empty initial frame
-        iterator.next();
+        clientMessage.next();
         return response;
     }
 

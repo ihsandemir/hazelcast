@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -38,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * If a lock configuration with the given {@code name} already exists, then
  * the new configuration is ignored and the existing one is preserved.
  */
-@Generated("fd731c92f6e9de91e526d1948f2523ad")
+@Generated("0bae66e7d106f56f3bc4f7362cad2184")
 public final class DynamicConfigAddLockConfigCodec {
     //hex: 0x1E0400
     public static final int REQUEST_MESSAGE_TYPE = 1967104;
@@ -80,12 +78,11 @@ public final class DynamicConfigAddLockConfigCodec {
     }
 
     public static DynamicConfigAddLockConfigCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
         //empty initial frame
-        iterator.next();
-        request.name = StringCodec.decode(iterator);
-        request.splitBrainProtectionName = CodecUtil.decodeNullable(iterator, StringCodec::decode);
+        clientMessage.next();
+        request.name = StringCodec.decode(clientMessage);
+        request.splitBrainProtectionName = CodecUtil.decodeNullable(clientMessage, StringCodec::decode);
         return request;
     }
 
@@ -103,10 +100,9 @@ public final class DynamicConfigAddLockConfigCodec {
     }
 
     public static DynamicConfigAddLockConfigCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
         //empty initial frame
-        iterator.next();
+        clientMessage.next();
         return response;
     }
 

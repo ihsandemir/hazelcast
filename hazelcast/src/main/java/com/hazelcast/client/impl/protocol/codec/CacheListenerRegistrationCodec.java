@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -36,7 +34,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * TODO DOC
  */
-@Generated("d0395cf5ad6789de3075b9a8007efd1f")
+@Generated("ad07a7960303b25df075c52e3ec85551")
 public final class CacheListenerRegistrationCodec {
     //hex: 0x151000
     public static final int REQUEST_MESSAGE_TYPE = 1380352;
@@ -90,13 +88,12 @@ public final class CacheListenerRegistrationCodec {
     }
 
     public static CacheListenerRegistrationCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         request.shouldRegister = decodeBoolean(initialFrame.content, REQUEST_SHOULD_REGISTER_FIELD_OFFSET);
-        request.name = StringCodec.decode(iterator);
-        request.listenerConfig = DataCodec.decode(iterator);
-        request.address = AddressCodec.decode(iterator);
+        request.name = StringCodec.decode(clientMessage);
+        request.listenerConfig = DataCodec.decode(clientMessage);
+        request.address = AddressCodec.decode(clientMessage);
         return request;
     }
 
@@ -114,10 +111,9 @@ public final class CacheListenerRegistrationCodec {
     }
 
     public static CacheListenerRegistrationCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
         //empty initial frame
-        iterator.next();
+        clientMessage.next();
         return response;
     }
 

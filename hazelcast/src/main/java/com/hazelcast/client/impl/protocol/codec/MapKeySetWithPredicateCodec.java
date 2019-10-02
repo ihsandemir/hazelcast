@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -39,7 +37,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * set, and vice-versa. This method is always executed by a distributed query, so it may throw a
  * QueryResultSizeExceededException if query result size limit is configured.
  */
-@Generated("a37bcdaec6b4a3f439c9d80ec72ba034")
+@Generated("afebab2fb23317398b370170cebda2c4")
 public final class MapKeySetWithPredicateCodec {
     //hex: 0x012A00
     public static final int REQUEST_MESSAGE_TYPE = 76288;
@@ -79,12 +77,11 @@ public final class MapKeySetWithPredicateCodec {
     }
 
     public static MapKeySetWithPredicateCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
         //empty initial frame
-        iterator.next();
-        request.name = StringCodec.decode(iterator);
-        request.predicate = DataCodec.decode(iterator);
+        clientMessage.next();
+        request.name = StringCodec.decode(clientMessage);
+        request.predicate = DataCodec.decode(clientMessage);
         return request;
     }
 
@@ -108,11 +105,10 @@ public final class MapKeySetWithPredicateCodec {
     }
 
     public static MapKeySetWithPredicateCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
         //empty initial frame
-        iterator.next();
-        response.response = ListMultiFrameCodec.decode(iterator, DataCodec::decode);
+        clientMessage.next();
+        response.response = ListMultiFrameCodec.decode(clientMessage, DataCodec::decode);
         return response;
     }
 

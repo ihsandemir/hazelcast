@@ -16,36 +16,6 @@
 
 package com.hazelcast.client.protocol;
 
-import static com.hazelcast.client.impl.protocol.ClientMessage.IS_FINAL_FLAG;
-import static com.hazelcast.client.impl.protocol.ClientMessage.SIZE_OF_FRAME_LENGTH_AND_FLAGS;
-import static com.hazelcast.internal.nio.IOUtil.readFully;
-import static com.hazelcast.internal.nio.Protocols.CLIENT_BINARY_NEW;
-import static com.hazelcast.internal.util.StringUtil.UTF8_CHARSET;
-import static com.hazelcast.test.HazelcastTestSupport.getNode;
-import static com.hazelcast.test.HazelcastTestSupport.smallInstanceConfig;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-
-import org.junit.After;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-
 import com.hazelcast.client.impl.protocol.AuthenticationStatus;
 import com.hazelcast.client.impl.protocol.ClientMessage;
 import com.hazelcast.client.impl.protocol.ClientMessage.Frame;
@@ -58,6 +28,34 @@ import com.hazelcast.spi.properties.GroupProperty;
 import com.hazelcast.test.HazelcastParallelClassRunner;
 import com.hazelcast.test.TestAwareInstanceFactory;
 import com.hazelcast.test.annotation.QuickTest;
+import org.junit.After;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.SocketTimeoutException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.hazelcast.client.impl.protocol.ClientMessage.IS_FINAL_FLAG;
+import static com.hazelcast.client.impl.protocol.ClientMessage.SIZE_OF_FRAME_LENGTH_AND_FLAGS;
+import static com.hazelcast.internal.nio.IOUtil.readFully;
+import static com.hazelcast.internal.nio.Protocols.CLIENT_BINARY_NEW;
+import static com.hazelcast.internal.util.StringUtil.UTF8_CHARSET;
+import static com.hazelcast.test.HazelcastTestSupport.getNode;
+import static com.hazelcast.test.HazelcastTestSupport.smallInstanceConfig;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * This class verifies that client protocol protection is able to filter large and fragmented messages for untrusted
@@ -103,6 +101,7 @@ public class ClientMessageProtectionTest {
                 authnResponse = ClientAuthenticationCodec.decodeResponse(respMessage);
                 assertEquals(AuthenticationStatus.AUTHENTICATED, AuthenticationStatus.getById(authnResponse.status));
 
+                clientMessage.resetIterator();
                 List<ClientMessage> subFrames = ClientMessageSplitter.getFragments(50, clientMessage);
                 assertTrue(subFrames.size() > 1);
                 for (ClientMessage frame : subFrames) {
@@ -129,7 +128,7 @@ public class ClientMessageProtectionTest {
                 List<ClientMessage> subFrames = ClientMessageSplitter.getFragments(50, clientMessage);
                 assertTrue(subFrames.size() > 1);
                 writeClientMessage(os, subFrames.get(0));
-                expected.expect(EOFException.class);
+                expected.expect(SocketTimeoutException.class);
                 readResponse(is);
             }
         }
@@ -168,7 +167,7 @@ public class ClientMessageProtectionTest {
                 ByteBuffer buffer = ByteBuffer.allocateDirect(1024 * 1024);
                 buffer.order(ByteOrder.LITTLE_ENDIAN);
                 // it should be enough to write just the first frame
-                Frame frame = clientMessage.get(0);
+                Frame frame = clientMessage.getStartFrame();
                 buffer.putInt(Integer.MIN_VALUE);
                 buffer.putShort((short) (frame.flags));
                 buffer.put(frame.content);
@@ -191,13 +190,14 @@ public class ClientMessageProtectionTest {
             try (OutputStream os = socket.getOutputStream(); InputStream is = socket.getInputStream()) {
                 os.write(CLIENT_BINARY_NEW.getBytes(UTF8_CHARSET));
                 // it should be enough to write just the first frame
-                byte[] firstFrameBytes = frameAsBytes(clientMessage.get(0), false);
+                byte[] firstFrameBytes = frameAsBytes(clientMessage.getStartFrame(), false);
                 os.write(firstFrameBytes);
                 ByteBuffer buffer = ByteBuffer.allocateDirect(SIZE_OF_FRAME_LENGTH_AND_FLAGS);
                 buffer.order(ByteOrder.LITTLE_ENDIAN);
                 // try to cause the size accumulator overflow
                 buffer.putInt(Integer.MAX_VALUE - firstFrameBytes.length + 1);
-                Frame frame = clientMessage.get(1);
+                clientMessage.next();
+                Frame frame = clientMessage.next();
                 buffer.putShort((short) frame.flags);
                 os.write(byteBufferToBytes(buffer));
                 os.flush();
@@ -217,7 +217,7 @@ public class ClientMessageProtectionTest {
     }
 
     private ClientMessage readResponse(InputStream is) throws IOException, EOFException {
-        LinkedList<ClientMessage.Frame> frames = new LinkedList<>();
+        ClientMessage clientMessage = ClientMessage.createForEncode();
         while (true) {
             ByteBuffer frameSizeBuffer = ByteBuffer.allocate(SIZE_OF_FRAME_LENGTH_AND_FLAGS);
             frameSizeBuffer.order(ByteOrder.LITTLE_ENDIAN);
@@ -226,19 +226,19 @@ public class ClientMessageProtectionTest {
             int flags = frameSizeBuffer.getShort() & 0xffff;
             byte[] content = new byte[frameSize - SIZE_OF_FRAME_LENGTH_AND_FLAGS];
             readFully(is, content);
-            frames.add(new ClientMessage.Frame(content, flags));
+            clientMessage.add(new ClientMessage.Frame(content, flags));
             if (ClientMessage.isFlagSet(flags, IS_FINAL_FLAG)) {
                 break;
             }
         }
-        ClientMessage respMessage = ClientMessage.createForDecode(frames);
+        ClientMessage respMessage = ClientMessage.createForDecode(clientMessage.getStartFrame());
         return respMessage;
     }
 
     private void writeClientMessage(OutputStream os, final ClientMessage clientMessage) throws IOException {
-        for (Iterator<ClientMessage.Frame> it = clientMessage.iterator(); it.hasNext();) {
-            ClientMessage.Frame frame = it.next();
-            os.write(frameAsBytes(frame, it.hasNext()));
+        while (clientMessage.hasNext()) {
+            ClientMessage.Frame frame = clientMessage.next();
+            os.write(frameAsBytes(frame, clientMessage.hasNext()));
         }
         os.flush();
     }

@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -38,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * For every entry in the key set, the following are called: any registered CacheEntryRemovedListeners if the cache
  * is a write-through cache, the CacheWriter. If the key set is empty, the CacheWriter is not called.
  */
-@Generated("b6d3edf5e5350150e655b9a8494c4c08")
+@Generated("6948c1bc6fc0221d7f7c2b8e4a1aaab2")
 public final class CacheRemoveAllKeysCodec {
     //hex: 0x150400
     public static final int REQUEST_MESSAGE_TYPE = 1377280;
@@ -86,12 +84,11 @@ public final class CacheRemoveAllKeysCodec {
     }
 
     public static CacheRemoveAllKeysCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         request.completionId = decodeInt(initialFrame.content, REQUEST_COMPLETION_ID_FIELD_OFFSET);
-        request.name = StringCodec.decode(iterator);
-        request.keys = ListMultiFrameCodec.decode(iterator, DataCodec::decode);
+        request.name = StringCodec.decode(clientMessage);
+        request.keys = ListMultiFrameCodec.decode(clientMessage, DataCodec::decode);
         return request;
     }
 
@@ -109,10 +106,9 @@ public final class CacheRemoveAllKeysCodec {
     }
 
     public static CacheRemoveAllKeysCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
         //empty initial frame
-        iterator.next();
+        clientMessage.next();
         return response;
     }
 

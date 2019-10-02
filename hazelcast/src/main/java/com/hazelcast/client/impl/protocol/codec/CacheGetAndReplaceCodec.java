@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -39,7 +37,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * write-through operation mode, the underlying configured javax.cache.integration.CacheWriter might be called to
  * store the value of the key to any kind of external resource.
  */
-@Generated("6a4f1c3b552d4c43ae639434622e66a4")
+@Generated("0a4dcbd6735ec236928ffb5dfc3a0528")
 public final class CacheGetAndReplaceCodec {
     //hex: 0x150C00
     public static final int REQUEST_MESSAGE_TYPE = 1379328;
@@ -100,14 +98,13 @@ public final class CacheGetAndReplaceCodec {
     }
 
     public static CacheGetAndReplaceCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         request.completionId = decodeInt(initialFrame.content, REQUEST_COMPLETION_ID_FIELD_OFFSET);
-        request.name = StringCodec.decode(iterator);
-        request.key = DataCodec.decode(iterator);
-        request.value = DataCodec.decode(iterator);
-        request.expiryPolicy = CodecUtil.decodeNullable(iterator, DataCodec::decode);
+        request.name = StringCodec.decode(clientMessage);
+        request.key = DataCodec.decode(clientMessage);
+        request.value = DataCodec.decode(clientMessage);
+        request.expiryPolicy = CodecUtil.decodeNullable(clientMessage, DataCodec::decode);
         return request;
     }
 
@@ -131,11 +128,10 @@ public final class CacheGetAndReplaceCodec {
     }
 
     public static CacheGetAndReplaceCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
         //empty initial frame
-        iterator.next();
-        response.response = CodecUtil.decodeNullable(iterator, DataCodec::decode);
+        clientMessage.next();
+        response.response = CodecUtil.decodeNullable(clientMessage, DataCodec::decode);
         return response;
     }
 

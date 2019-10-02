@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -36,7 +34,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Returns an iterator over the elements in this list in proper sequence.
  */
-@Generated("9bb5d88c5dec59a4ac95e521ad826aa1")
+@Generated("5126d02bc5b9c6b24c2ca58ba02c80e9")
 public final class ListIteratorCodec {
     //hex: 0x051600
     public static final int REQUEST_MESSAGE_TYPE = 333312;
@@ -70,11 +68,10 @@ public final class ListIteratorCodec {
     }
 
     public static ListIteratorCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
         //empty initial frame
-        iterator.next();
-        request.name = StringCodec.decode(iterator);
+        clientMessage.next();
+        request.name = StringCodec.decode(clientMessage);
         return request;
     }
 
@@ -98,11 +95,10 @@ public final class ListIteratorCodec {
     }
 
     public static ListIteratorCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
         //empty initial frame
-        iterator.next();
-        response.response = ListMultiFrameCodec.decode(iterator, DataCodec::decode);
+        clientMessage.next();
+        response.response = ListMultiFrameCodec.decode(clientMessage, DataCodec::decode);
         return response;
     }
 

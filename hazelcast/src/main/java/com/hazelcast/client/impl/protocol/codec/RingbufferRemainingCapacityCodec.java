@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -37,7 +35,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * Returns the remaining capacity of the ringbuffer. The returned value could be stale as soon as it is returned.
  * If ttl is not set, the remaining capacity will always be the capacity.
  */
-@Generated("e2084036c34907c86fae472d4ed25c52")
+@Generated("b1c6d8fb8ea56d4a7c71f5dd18a64df2")
 public final class RingbufferRemainingCapacityCodec {
     //hex: 0x190500
     public static final int REQUEST_MESSAGE_TYPE = 1639680;
@@ -72,11 +70,10 @@ public final class RingbufferRemainingCapacityCodec {
     }
 
     public static RingbufferRemainingCapacityCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
         //empty initial frame
-        iterator.next();
-        request.name = StringCodec.decode(iterator);
+        clientMessage.next();
+        request.name = StringCodec.decode(clientMessage);
         return request;
     }
 
@@ -100,9 +97,8 @@ public final class RingbufferRemainingCapacityCodec {
     }
 
     public static RingbufferRemainingCapacityCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         response.response = decodeLong(initialFrame.content, RESPONSE_RESPONSE_FIELD_OFFSET);
         return response;
     }

@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -36,7 +34,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Loads the given keys. This is a batch load operation so that an implementation can optimize the multiple loads.
  */
-@Generated("e0e9600512fb45a6f473a1084336be4e")
+@Generated("e559499fadedb5a86ae1e6fc71bf66d9")
 public final class MapLoadGivenKeysCodec {
     //hex: 0x012500
     public static final int REQUEST_MESSAGE_TYPE = 75008;
@@ -83,12 +81,11 @@ public final class MapLoadGivenKeysCodec {
     }
 
     public static MapLoadGivenKeysCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         request.replaceExistingValues = decodeBoolean(initialFrame.content, REQUEST_REPLACE_EXISTING_VALUES_FIELD_OFFSET);
-        request.name = StringCodec.decode(iterator);
-        request.keys = ListMultiFrameCodec.decode(iterator, DataCodec::decode);
+        request.name = StringCodec.decode(clientMessage);
+        request.keys = ListMultiFrameCodec.decode(clientMessage, DataCodec::decode);
         return request;
     }
 
@@ -106,10 +103,9 @@ public final class MapLoadGivenKeysCodec {
     }
 
     public static MapLoadGivenKeysCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
         //empty initial frame
-        iterator.next();
+        clientMessage.next();
         return response;
     }
 

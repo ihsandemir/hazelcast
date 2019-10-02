@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -36,7 +34,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * TODO DOC
  */
-@Generated("2a6bbd4d7d5e4a7b2f699445358d90ea")
+@Generated("3e0d018901ebe9a7ae47a58e67535b73")
 public final class CacheCreateConfigCodec {
     //hex: 0x150700
     public static final int REQUEST_MESSAGE_TYPE = 1378048;
@@ -77,11 +75,10 @@ public final class CacheCreateConfigCodec {
     }
 
     public static CacheCreateConfigCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         request.createAlsoOnOthers = decodeBoolean(initialFrame.content, REQUEST_CREATE_ALSO_ON_OTHERS_FIELD_OFFSET);
-        request.cacheConfig = CacheConfigHolderCodec.decode(iterator);
+        request.cacheConfig = CacheConfigHolderCodec.decode(clientMessage);
         return request;
     }
 
@@ -105,11 +102,10 @@ public final class CacheCreateConfigCodec {
     }
 
     public static CacheCreateConfigCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
         //empty initial frame
-        iterator.next();
-        response.response = CodecUtil.decodeNullable(iterator, CacheConfigHolderCodec::decode);
+        clientMessage.next();
+        response.response = CodecUtil.decodeNullable(clientMessage, CacheConfigHolderCodec::decode);
         return response;
     }
 

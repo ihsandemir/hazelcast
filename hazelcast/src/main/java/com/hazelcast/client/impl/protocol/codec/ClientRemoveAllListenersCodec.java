@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -36,7 +34,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * TODO DOC
  */
-@Generated("a663d9e4d39fe21fc85ee5626e2170b7")
+@Generated("8686b013967f5ec07e5837f3b08a603c")
 public final class ClientRemoveAllListenersCodec {
     //hex: 0x000900
     public static final int REQUEST_MESSAGE_TYPE = 2304;
@@ -64,10 +62,9 @@ public final class ClientRemoveAllListenersCodec {
     }
 
     public static ClientRemoveAllListenersCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
         //empty initial frame
-        iterator.next();
+        clientMessage.next();
         return request;
     }
 
@@ -85,10 +82,9 @@ public final class ClientRemoveAllListenersCodec {
     }
 
     public static ClientRemoveAllListenersCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
         //empty initial frame
-        iterator.next();
+        clientMessage.next();
         return response;
     }
 

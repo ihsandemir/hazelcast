@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -38,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * If a scheduled executor configuration with the given {@code name} already exists, then
  * the new configuration is ignored and the existing one is preserved.
  */
-@Generated("d82df1d3c892e9b0f983d400bbd27fbb")
+@Generated("2d4724802ec07533590ca4c55299e908")
 public final class DynamicConfigAddScheduledExecutorConfigCodec {
     //hex: 0x1E0B00
     public static final int REQUEST_MESSAGE_TYPE = 1968896;
@@ -114,16 +112,15 @@ public final class DynamicConfigAddScheduledExecutorConfigCodec {
     }
 
     public static DynamicConfigAddScheduledExecutorConfigCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         request.poolSize = decodeInt(initialFrame.content, REQUEST_POOL_SIZE_FIELD_OFFSET);
         request.durability = decodeInt(initialFrame.content, REQUEST_DURABILITY_FIELD_OFFSET);
         request.capacity = decodeInt(initialFrame.content, REQUEST_CAPACITY_FIELD_OFFSET);
         request.mergeBatchSize = decodeInt(initialFrame.content, REQUEST_MERGE_BATCH_SIZE_FIELD_OFFSET);
-        request.name = StringCodec.decode(iterator);
-        request.splitBrainProtectionName = CodecUtil.decodeNullable(iterator, StringCodec::decode);
-        request.mergePolicy = StringCodec.decode(iterator);
+        request.name = StringCodec.decode(clientMessage);
+        request.splitBrainProtectionName = CodecUtil.decodeNullable(clientMessage, StringCodec::decode);
+        request.mergePolicy = StringCodec.decode(clientMessage);
         return request;
     }
 
@@ -141,10 +138,9 @@ public final class DynamicConfigAddScheduledExecutorConfigCodec {
     }
 
     public static DynamicConfigAddScheduledExecutorConfigCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
         //empty initial frame
-        iterator.next();
+        clientMessage.next();
         return response;
     }
 

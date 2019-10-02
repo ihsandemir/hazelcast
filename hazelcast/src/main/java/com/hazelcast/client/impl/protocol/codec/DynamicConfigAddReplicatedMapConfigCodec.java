@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -38,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * If a replicated map configuration with the given {@code name} already exists, then
  * the new configuration is ignored and the existing one is preserved.
  */
-@Generated("113e30f9a6063cbb0e6928920612620b")
+@Generated("a7e61df39a82a3a7c521d7b59bf52841")
 public final class DynamicConfigAddReplicatedMapConfigCodec {
     //hex: 0x1E0700
     public static final int REQUEST_MESSAGE_TYPE = 1967872;
@@ -123,17 +121,16 @@ public final class DynamicConfigAddReplicatedMapConfigCodec {
     }
 
     public static DynamicConfigAddReplicatedMapConfigCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         request.asyncFillup = decodeBoolean(initialFrame.content, REQUEST_ASYNC_FILLUP_FIELD_OFFSET);
         request.statisticsEnabled = decodeBoolean(initialFrame.content, REQUEST_STATISTICS_ENABLED_FIELD_OFFSET);
         request.mergeBatchSize = decodeInt(initialFrame.content, REQUEST_MERGE_BATCH_SIZE_FIELD_OFFSET);
-        request.name = StringCodec.decode(iterator);
-        request.inMemoryFormat = StringCodec.decode(iterator);
-        request.mergePolicy = StringCodec.decode(iterator);
-        request.listenerConfigs = ListMultiFrameCodec.decodeNullable(iterator, ListenerConfigHolderCodec::decode);
-        request.splitBrainProtectionName = CodecUtil.decodeNullable(iterator, StringCodec::decode);
+        request.name = StringCodec.decode(clientMessage);
+        request.inMemoryFormat = StringCodec.decode(clientMessage);
+        request.mergePolicy = StringCodec.decode(clientMessage);
+        request.listenerConfigs = ListMultiFrameCodec.decodeNullable(clientMessage, ListenerConfigHolderCodec::decode);
+        request.splitBrainProtectionName = CodecUtil.decodeNullable(clientMessage, StringCodec::decode);
         return request;
     }
 
@@ -151,10 +148,9 @@ public final class DynamicConfigAddReplicatedMapConfigCodec {
     }
 
     public static DynamicConfigAddReplicatedMapConfigCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
         //empty initial frame
-        iterator.next();
+        clientMessage.next();
         return response;
     }
 

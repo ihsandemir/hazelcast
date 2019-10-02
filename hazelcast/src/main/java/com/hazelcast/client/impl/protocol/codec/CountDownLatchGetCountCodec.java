@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -36,7 +34,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Returns the current count.
  */
-@Generated("73647c395977f11a8e2592ef0a3ec1b6")
+@Generated("c9778c18c12e1195439a2fec03605b76")
 public final class CountDownLatchGetCountCodec {
     //hex: 0x0C0400
     public static final int REQUEST_MESSAGE_TYPE = 787456;
@@ -77,12 +75,11 @@ public final class CountDownLatchGetCountCodec {
     }
 
     public static CountDownLatchGetCountCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
         //empty initial frame
-        iterator.next();
-        request.groupId = RaftGroupIdCodec.decode(iterator);
-        request.name = StringCodec.decode(iterator);
+        clientMessage.next();
+        request.groupId = RaftGroupIdCodec.decode(clientMessage);
+        request.name = StringCodec.decode(clientMessage);
         return request;
     }
 
@@ -106,9 +103,8 @@ public final class CountDownLatchGetCountCodec {
     }
 
     public static CountDownLatchGetCountCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         response.response = decodeInt(initialFrame.content, RESPONSE_RESPONSE_FIELD_OFFSET);
         return response;
     }

@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -40,7 +38,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * The behavior of this operation is undefined if the specified collection is modified while the operation is in progress.
  * (Note that this will occur if the specified collection is this list, and it's nonempty.)
  */
-@Generated("9943e83aa70dee2e6be4f44677de871a")
+@Generated("c6d83ee2ebb23a6176f08205738e3b8e")
 public final class ListAddAllWithIndexCodec {
     //hex: 0x050E00
     public static final int REQUEST_MESSAGE_TYPE = 331264;
@@ -88,12 +86,11 @@ public final class ListAddAllWithIndexCodec {
     }
 
     public static ListAddAllWithIndexCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         request.index = decodeInt(initialFrame.content, REQUEST_INDEX_FIELD_OFFSET);
-        request.name = StringCodec.decode(iterator);
-        request.valueList = ListMultiFrameCodec.decode(iterator, DataCodec::decode);
+        request.name = StringCodec.decode(clientMessage);
+        request.valueList = ListMultiFrameCodec.decode(clientMessage, DataCodec::decode);
         return request;
     }
 
@@ -117,9 +114,8 @@ public final class ListAddAllWithIndexCodec {
     }
 
     public static ListAddAllWithIndexCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         response.response = decodeBoolean(initialFrame.content, RESPONSE_RESPONSE_FIELD_OFFSET);
         return response;
     }

@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -36,7 +34,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Cancels further execution and scheduling of the task
  */
-@Generated("ab035295ed7d977b418ae008bb1aa5ae")
+@Generated("a371f6dd497f3791cbfd8537ceffa0c8")
 public final class ScheduledExecutorCancelFromAddressCodec {
     //hex: 0x1D0A00
     public static final int REQUEST_MESSAGE_TYPE = 1903104;
@@ -90,13 +88,12 @@ public final class ScheduledExecutorCancelFromAddressCodec {
     }
 
     public static ScheduledExecutorCancelFromAddressCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         request.mayInterruptIfRunning = decodeBoolean(initialFrame.content, REQUEST_MAY_INTERRUPT_IF_RUNNING_FIELD_OFFSET);
-        request.schedulerName = StringCodec.decode(iterator);
-        request.taskName = StringCodec.decode(iterator);
-        request.address = AddressCodec.decode(iterator);
+        request.schedulerName = StringCodec.decode(clientMessage);
+        request.taskName = StringCodec.decode(clientMessage);
+        request.address = AddressCodec.decode(clientMessage);
         return request;
     }
 
@@ -120,9 +117,8 @@ public final class ScheduledExecutorCancelFromAddressCodec {
     }
 
     public static ScheduledExecutorCancelFromAddressCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         response.response = decodeBoolean(initialFrame.content, RESPONSE_RESPONSE_FIELD_OFFSET);
         return response;
     }

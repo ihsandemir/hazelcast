@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -38,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * If a cardinality estimator configuration with the given {@code name} already exists, then
  * the new configuration is ignored and the existing one is preserved.
  */
-@Generated("8f78c96a7d596c764c196f842f190cc2")
+@Generated("23b88f2714434dac3878cd312b10f9b1")
 public final class DynamicConfigAddCardinalityEstimatorConfigCodec {
     //hex: 0x1E0300
     public static final int REQUEST_MESSAGE_TYPE = 1966848;
@@ -107,15 +105,14 @@ public final class DynamicConfigAddCardinalityEstimatorConfigCodec {
     }
 
     public static DynamicConfigAddCardinalityEstimatorConfigCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         request.backupCount = decodeInt(initialFrame.content, REQUEST_BACKUP_COUNT_FIELD_OFFSET);
         request.asyncBackupCount = decodeInt(initialFrame.content, REQUEST_ASYNC_BACKUP_COUNT_FIELD_OFFSET);
         request.mergeBatchSize = decodeInt(initialFrame.content, REQUEST_MERGE_BATCH_SIZE_FIELD_OFFSET);
-        request.name = StringCodec.decode(iterator);
-        request.splitBrainProtectionName = CodecUtil.decodeNullable(iterator, StringCodec::decode);
-        request.mergePolicy = StringCodec.decode(iterator);
+        request.name = StringCodec.decode(clientMessage);
+        request.splitBrainProtectionName = CodecUtil.decodeNullable(clientMessage, StringCodec::decode);
+        request.mergePolicy = StringCodec.decode(clientMessage);
         return request;
     }
 
@@ -133,10 +130,9 @@ public final class DynamicConfigAddCardinalityEstimatorConfigCodec {
     }
 
     public static DynamicConfigAddCardinalityEstimatorConfigCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
         //empty initial frame
-        iterator.next();
+        clientMessage.next();
         return response;
     }
 

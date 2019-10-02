@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -36,7 +34,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Alters the currently stored value by applying a function on it.
  */
-@Generated("afa9cf119051cd8d72cea8ad0b60ceea")
+@Generated("9de7f90d290836d570011acfc99ed213")
 public final class AtomicLongAlterCodec {
     //hex: 0x0A0200
     public static final int REQUEST_MESSAGE_TYPE = 655872;
@@ -90,13 +88,12 @@ public final class AtomicLongAlterCodec {
     }
 
     public static AtomicLongAlterCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         request.returnValueType = decodeInt(initialFrame.content, REQUEST_RETURN_VALUE_TYPE_FIELD_OFFSET);
-        request.groupId = RaftGroupIdCodec.decode(iterator);
-        request.name = StringCodec.decode(iterator);
-        request.function = DataCodec.decode(iterator);
+        request.groupId = RaftGroupIdCodec.decode(clientMessage);
+        request.name = StringCodec.decode(clientMessage);
+        request.function = DataCodec.decode(clientMessage);
         return request;
     }
 
@@ -120,9 +117,8 @@ public final class AtomicLongAlterCodec {
     }
 
     public static AtomicLongAlterCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         response.response = decodeLong(initialFrame.content, RESPONSE_RESPONSE_FIELD_OFFSET);
         return response;
     }

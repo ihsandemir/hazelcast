@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -36,7 +34,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Gets the current value.
  */
-@Generated("406f5d0faf657bf5e702b3716ccf0d4c")
+@Generated("cbab9272cce3f30f257b1a6c21dbbdbf")
 public final class AtomicRefGetCodec {
     //hex: 0x0B0500
     public static final int REQUEST_MESSAGE_TYPE = 722176;
@@ -76,12 +74,11 @@ public final class AtomicRefGetCodec {
     }
 
     public static AtomicRefGetCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
         //empty initial frame
-        iterator.next();
-        request.groupId = RaftGroupIdCodec.decode(iterator);
-        request.name = StringCodec.decode(iterator);
+        clientMessage.next();
+        request.groupId = RaftGroupIdCodec.decode(clientMessage);
+        request.name = StringCodec.decode(clientMessage);
         return request;
     }
 
@@ -105,11 +102,10 @@ public final class AtomicRefGetCodec {
     }
 
     public static AtomicRefGetCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
         //empty initial frame
-        iterator.next();
-        response.response = CodecUtil.decodeNullable(iterator, DataCodec::decode);
+        clientMessage.next();
+        response.response = CodecUtil.decodeNullable(clientMessage, DataCodec::decode);
         return response;
     }
 

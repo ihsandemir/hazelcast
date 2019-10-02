@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -36,7 +34,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Alters the currently stored value by applying a function on it.
  */
-@Generated("1c2f2eaee421f32990c7c75264bdb1d1")
+@Generated("a76621b43ccfa78045390e25f63b3483")
 public final class AtomicRefCompareAndSetCodec {
     //hex: 0x0B0200
     public static final int REQUEST_MESSAGE_TYPE = 721408;
@@ -89,14 +87,13 @@ public final class AtomicRefCompareAndSetCodec {
     }
 
     public static AtomicRefCompareAndSetCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
         //empty initial frame
-        iterator.next();
-        request.groupId = RaftGroupIdCodec.decode(iterator);
-        request.name = StringCodec.decode(iterator);
-        request.oldValue = CodecUtil.decodeNullable(iterator, DataCodec::decode);
-        request.newValue = CodecUtil.decodeNullable(iterator, DataCodec::decode);
+        clientMessage.next();
+        request.groupId = RaftGroupIdCodec.decode(clientMessage);
+        request.name = StringCodec.decode(clientMessage);
+        request.oldValue = CodecUtil.decodeNullable(clientMessage, DataCodec::decode);
+        request.newValue = CodecUtil.decodeNullable(clientMessage, DataCodec::decode);
         return request;
     }
 
@@ -121,9 +118,8 @@ public final class AtomicRefCompareAndSetCodec {
     }
 
     public static AtomicRefCompareAndSetCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         response.response = decodeBoolean(initialFrame.content, RESPONSE_RESPONSE_FIELD_OFFSET);
         return response;
     }

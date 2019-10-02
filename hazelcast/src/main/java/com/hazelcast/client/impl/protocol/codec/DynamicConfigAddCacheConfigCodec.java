@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -38,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * If a cache configuration with the given {@code name} already exists, then
  * the new configuration is ignored and the existing one is preserved.
  */
-@Generated("73cf6fb03530d00e7abfc0ac9f5f6773")
+@Generated("954a33a0b1a6c56ac5048379d35fb039")
 public final class DynamicConfigAddCacheConfigCodec {
     //hex: 0x1E1000
     public static final int REQUEST_MESSAGE_TYPE = 1970176;
@@ -230,9 +228,8 @@ public final class DynamicConfigAddCacheConfigCodec {
     }
 
     public static DynamicConfigAddCacheConfigCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         request.statisticsEnabled = decodeBoolean(initialFrame.content, REQUEST_STATISTICS_ENABLED_FIELD_OFFSET);
         request.managementEnabled = decodeBoolean(initialFrame.content, REQUEST_MANAGEMENT_ENABLED_FIELD_OFFSET);
         request.readThrough = decodeBoolean(initialFrame.content, REQUEST_READ_THROUGH_FIELD_OFFSET);
@@ -240,24 +237,24 @@ public final class DynamicConfigAddCacheConfigCodec {
         request.backupCount = decodeInt(initialFrame.content, REQUEST_BACKUP_COUNT_FIELD_OFFSET);
         request.asyncBackupCount = decodeInt(initialFrame.content, REQUEST_ASYNC_BACKUP_COUNT_FIELD_OFFSET);
         request.disablePerEntryInvalidationEvents = decodeBoolean(initialFrame.content, REQUEST_DISABLE_PER_ENTRY_INVALIDATION_EVENTS_FIELD_OFFSET);
-        request.name = StringCodec.decode(iterator);
-        request.keyType = CodecUtil.decodeNullable(iterator, StringCodec::decode);
-        request.valueType = CodecUtil.decodeNullable(iterator, StringCodec::decode);
-        request.cacheLoaderFactory = CodecUtil.decodeNullable(iterator, StringCodec::decode);
-        request.cacheWriterFactory = CodecUtil.decodeNullable(iterator, StringCodec::decode);
-        request.cacheLoader = CodecUtil.decodeNullable(iterator, StringCodec::decode);
-        request.cacheWriter = CodecUtil.decodeNullable(iterator, StringCodec::decode);
-        request.inMemoryFormat = StringCodec.decode(iterator);
-        request.splitBrainProtectionName = CodecUtil.decodeNullable(iterator, StringCodec::decode);
-        request.mergePolicy = CodecUtil.decodeNullable(iterator, StringCodec::decode);
-        request.partitionLostListenerConfigs = ListMultiFrameCodec.decodeNullable(iterator, ListenerConfigHolderCodec::decode);
-        request.expiryPolicyFactoryClassName = CodecUtil.decodeNullable(iterator, StringCodec::decode);
-        request.timedExpiryPolicyFactoryConfig = CodecUtil.decodeNullable(iterator, TimedExpiryPolicyFactoryConfigCodec::decode);
-        request.cacheEntryListeners = ListMultiFrameCodec.decodeNullable(iterator, CacheSimpleEntryListenerConfigCodec::decode);
-        request.evictionConfig = CodecUtil.decodeNullable(iterator, EvictionConfigHolderCodec::decode);
-        request.wanReplicationRef = CodecUtil.decodeNullable(iterator, WanReplicationRefCodec::decode);
-        request.eventJournalConfig = CodecUtil.decodeNullable(iterator, EventJournalConfigCodec::decode);
-        request.hotRestartConfig = CodecUtil.decodeNullable(iterator, HotRestartConfigCodec::decode);
+        request.name = StringCodec.decode(clientMessage);
+        request.keyType = CodecUtil.decodeNullable(clientMessage, StringCodec::decode);
+        request.valueType = CodecUtil.decodeNullable(clientMessage, StringCodec::decode);
+        request.cacheLoaderFactory = CodecUtil.decodeNullable(clientMessage, StringCodec::decode);
+        request.cacheWriterFactory = CodecUtil.decodeNullable(clientMessage, StringCodec::decode);
+        request.cacheLoader = CodecUtil.decodeNullable(clientMessage, StringCodec::decode);
+        request.cacheWriter = CodecUtil.decodeNullable(clientMessage, StringCodec::decode);
+        request.inMemoryFormat = StringCodec.decode(clientMessage);
+        request.splitBrainProtectionName = CodecUtil.decodeNullable(clientMessage, StringCodec::decode);
+        request.mergePolicy = CodecUtil.decodeNullable(clientMessage, StringCodec::decode);
+        request.partitionLostListenerConfigs = ListMultiFrameCodec.decodeNullable(clientMessage, ListenerConfigHolderCodec::decode);
+        request.expiryPolicyFactoryClassName = CodecUtil.decodeNullable(clientMessage, StringCodec::decode);
+        request.timedExpiryPolicyFactoryConfig = CodecUtil.decodeNullable(clientMessage, TimedExpiryPolicyFactoryConfigCodec::decode);
+        request.cacheEntryListeners = ListMultiFrameCodec.decodeNullable(clientMessage, CacheSimpleEntryListenerConfigCodec::decode);
+        request.evictionConfig = CodecUtil.decodeNullable(clientMessage, EvictionConfigHolderCodec::decode);
+        request.wanReplicationRef = CodecUtil.decodeNullable(clientMessage, WanReplicationRefCodec::decode);
+        request.eventJournalConfig = CodecUtil.decodeNullable(clientMessage, EventJournalConfigCodec::decode);
+        request.hotRestartConfig = CodecUtil.decodeNullable(clientMessage, HotRestartConfigCodec::decode);
         return request;
     }
 
@@ -275,10 +272,9 @@ public final class DynamicConfigAddCacheConfigCodec {
     }
 
     public static DynamicConfigAddCacheConfigCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
         //empty initial frame
-        iterator.next();
+        clientMessage.next();
         return response;
     }
 

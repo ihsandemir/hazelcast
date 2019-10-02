@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -36,7 +34,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * TODO DOC
  */
-@Generated("26b0b05f7b19fcc704de688fda1db663")
+@Generated("c93cbfc04e359bb8c5d0bd7713d43815")
 public final class ClientGetPartitionsCodec {
     //hex: 0x000800
     public static final int REQUEST_MESSAGE_TYPE = 2048;
@@ -65,10 +63,9 @@ public final class ClientGetPartitionsCodec {
     }
 
     public static ClientGetPartitionsCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
         //empty initial frame
-        iterator.next();
+        clientMessage.next();
         return request;
     }
 
@@ -98,11 +95,10 @@ public final class ClientGetPartitionsCodec {
     }
 
     public static ClientGetPartitionsCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         response.partitionStateVersion = decodeInt(initialFrame.content, RESPONSE_PARTITION_STATE_VERSION_FIELD_OFFSET);
-        response.partitions = EntryListCodec.decode(iterator, AddressCodec::decode, ListIntegerCodec::decode);
+        response.partitions = EntryListCodec.decode(clientMessage, AddressCodec::decode, ListIntegerCodec::decode);
         return response;
     }
 

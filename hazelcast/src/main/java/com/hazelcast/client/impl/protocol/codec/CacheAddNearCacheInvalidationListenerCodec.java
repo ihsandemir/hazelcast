@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 import com.hazelcast.logging.Logger;
@@ -39,7 +37,7 @@ import com.hazelcast.logging.Logger;
  * Eventually consistent client near caches should use this method to add invalidation listeners
  * instead of {@link #addInvalidationListener(String, boolean)}
  */
-@Generated("31b42adbda80fbf40b27b5ed3f6c85f5")
+@Generated("079a9b1a3f62da28060591e8d32f6d88")
 public final class CacheAddNearCacheInvalidationListenerCodec {
     //hex: 0x151E00
     public static final int REQUEST_MESSAGE_TYPE = 1383936;
@@ -90,11 +88,10 @@ public final class CacheAddNearCacheInvalidationListenerCodec {
     }
 
     public static CacheAddNearCacheInvalidationListenerCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         request.localOnly = decodeBoolean(initialFrame.content, REQUEST_LOCAL_ONLY_FIELD_OFFSET);
-        request.name = StringCodec.decode(iterator);
+        request.name = StringCodec.decode(clientMessage);
         return request;
     }
 
@@ -118,9 +115,8 @@ public final class CacheAddNearCacheInvalidationListenerCodec {
     }
 
     public static CacheAddNearCacheInvalidationListenerCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         response.response = decodeUUID(initialFrame.content, RESPONSE_RESPONSE_FIELD_OFFSET);
         return response;
     }
@@ -158,25 +154,24 @@ public final class CacheAddNearCacheInvalidationListenerCodec {
 
         public void handle(ClientMessage clientMessage) {
             int messageType = clientMessage.getMessageType();
-            ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
             if (messageType == EVENT_CACHE_INVALIDATION_MESSAGE_TYPE) {
-                ClientMessage.Frame initialFrame = iterator.next();
+                ClientMessage.Frame initialFrame = clientMessage.next();
                 java.util.UUID sourceUuid = decodeUUID(initialFrame.content, EVENT_CACHE_INVALIDATION_SOURCE_UUID_FIELD_OFFSET);
                 java.util.UUID partitionUuid = decodeUUID(initialFrame.content, EVENT_CACHE_INVALIDATION_PARTITION_UUID_FIELD_OFFSET);
                 long sequence = decodeLong(initialFrame.content, EVENT_CACHE_INVALIDATION_SEQUENCE_FIELD_OFFSET);
-                java.lang.String name = StringCodec.decode(iterator);
-                com.hazelcast.nio.serialization.Data key = CodecUtil.decodeNullable(iterator, DataCodec::decode);
+                java.lang.String name = StringCodec.decode(clientMessage);
+                com.hazelcast.nio.serialization.Data key = CodecUtil.decodeNullable(clientMessage, DataCodec::decode);
                 handleCacheInvalidationEvent(name, key, sourceUuid, partitionUuid, sequence);
                 return;
             }
             if (messageType == EVENT_CACHE_BATCH_INVALIDATION_MESSAGE_TYPE) {
                 //empty initial frame
-                iterator.next();
-                java.lang.String name = StringCodec.decode(iterator);
-                java.util.Collection<com.hazelcast.nio.serialization.Data> keys = ListMultiFrameCodec.decode(iterator, DataCodec::decode);
-                java.util.Collection<java.util.UUID> sourceUuids = CodecUtil.decodeNullable(iterator, ListUUIDCodec::decode);
-                java.util.Collection<java.util.UUID> partitionUuids = ListUUIDCodec.decode(iterator);
-                java.util.Collection<java.lang.Long> sequences = ListLongCodec.decode(iterator);
+                clientMessage.next();
+                java.lang.String name = StringCodec.decode(clientMessage);
+                java.util.Collection<com.hazelcast.nio.serialization.Data> keys = ListMultiFrameCodec.decode(clientMessage, DataCodec::decode);
+                java.util.Collection<java.util.UUID> sourceUuids = CodecUtil.decodeNullable(clientMessage, ListUUIDCodec::decode);
+                java.util.Collection<java.util.UUID> partitionUuids = ListUUIDCodec.decode(clientMessage);
+                java.util.Collection<java.lang.Long> sequences = ListLongCodec.decode(clientMessage);
                 handleCacheBatchInvalidationEvent(name, keys, sourceUuids, partitionUuids, sequences);
                 return;
             }

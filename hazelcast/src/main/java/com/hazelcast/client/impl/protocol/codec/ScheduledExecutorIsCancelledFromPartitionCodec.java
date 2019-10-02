@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -36,7 +34,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Checks whether a task as identified from the given handler is already cancelled.
  */
-@Generated("fb4fe6973d9c3856d8be2369f298816e")
+@Generated("e514cd2c45d942a2f2df1da0e186fdff")
 public final class ScheduledExecutorIsCancelledFromPartitionCodec {
     //hex: 0x1D0B00
     public static final int REQUEST_MESSAGE_TYPE = 1903360;
@@ -77,12 +75,11 @@ public final class ScheduledExecutorIsCancelledFromPartitionCodec {
     }
 
     public static ScheduledExecutorIsCancelledFromPartitionCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
         //empty initial frame
-        iterator.next();
-        request.schedulerName = StringCodec.decode(iterator);
-        request.taskName = StringCodec.decode(iterator);
+        clientMessage.next();
+        request.schedulerName = StringCodec.decode(clientMessage);
+        request.taskName = StringCodec.decode(clientMessage);
         return request;
     }
 
@@ -106,9 +103,8 @@ public final class ScheduledExecutorIsCancelledFromPartitionCodec {
     }
 
     public static ScheduledExecutorIsCancelledFromPartitionCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         response.response = decodeBoolean(initialFrame.content, RESPONSE_RESPONSE_FIELD_OFFSET);
         return response;
     }

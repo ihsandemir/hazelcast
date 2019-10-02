@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -37,7 +35,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * Fetches the result of the task ({@link java.util.concurrent.Callable})
  * The call will blocking until the result is ready.
  */
-@Generated("041971b71890c74497dbf57d2352cad4")
+@Generated("83a80583b8c5dacc23d87d31f3d0ac2a")
 public final class ScheduledExecutorGetResultFromAddressCodec {
     //hex: 0x1D1000
     public static final int REQUEST_MESSAGE_TYPE = 1904640;
@@ -83,13 +81,12 @@ public final class ScheduledExecutorGetResultFromAddressCodec {
     }
 
     public static ScheduledExecutorGetResultFromAddressCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
         //empty initial frame
-        iterator.next();
-        request.schedulerName = StringCodec.decode(iterator);
-        request.taskName = StringCodec.decode(iterator);
-        request.address = AddressCodec.decode(iterator);
+        clientMessage.next();
+        request.schedulerName = StringCodec.decode(clientMessage);
+        request.taskName = StringCodec.decode(clientMessage);
+        request.address = AddressCodec.decode(clientMessage);
         return request;
     }
 
@@ -113,11 +110,10 @@ public final class ScheduledExecutorGetResultFromAddressCodec {
     }
 
     public static ScheduledExecutorGetResultFromAddressCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
         //empty initial frame
-        iterator.next();
-        response.response = CodecUtil.decodeNullable(iterator, DataCodec::decode);
+        clientMessage.next();
+        response.response = CodecUtil.decodeNullable(clientMessage, DataCodec::decode);
         return response;
     }
 

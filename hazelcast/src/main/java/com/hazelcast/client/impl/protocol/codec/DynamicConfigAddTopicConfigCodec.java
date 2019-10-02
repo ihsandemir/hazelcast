@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -38,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * If a topic configuration with the given {@code name} already exists, then
  * the new configuration is ignored and the existing one is preserved.
  */
-@Generated("179d2e3ab3b42a1d3964b1fb57ce7f13")
+@Generated("5eede74ba453fc8b1850dc6081ae1f5d")
 public final class DynamicConfigAddTopicConfigCodec {
     //hex: 0x1E0800
     public static final int REQUEST_MESSAGE_TYPE = 1968128;
@@ -101,14 +99,13 @@ public final class DynamicConfigAddTopicConfigCodec {
     }
 
     public static DynamicConfigAddTopicConfigCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         request.globalOrderingEnabled = decodeBoolean(initialFrame.content, REQUEST_GLOBAL_ORDERING_ENABLED_FIELD_OFFSET);
         request.statisticsEnabled = decodeBoolean(initialFrame.content, REQUEST_STATISTICS_ENABLED_FIELD_OFFSET);
         request.multiThreadingEnabled = decodeBoolean(initialFrame.content, REQUEST_MULTI_THREADING_ENABLED_FIELD_OFFSET);
-        request.name = StringCodec.decode(iterator);
-        request.listenerConfigs = ListMultiFrameCodec.decodeNullable(iterator, ListenerConfigHolderCodec::decode);
+        request.name = StringCodec.decode(clientMessage);
+        request.listenerConfigs = ListMultiFrameCodec.decodeNullable(clientMessage, ListenerConfigHolderCodec::decode);
         return request;
     }
 
@@ -126,10 +123,9 @@ public final class DynamicConfigAddTopicConfigCodec {
     }
 
     public static DynamicConfigAddTopicConfigCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
         //empty initial frame
-        iterator.next();
+        clientMessage.next();
         return response;
     }
 

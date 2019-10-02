@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -36,7 +34,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * TODO DOC
  */
-@Generated("3bd1a5506115cc167f18aa405a517b38")
+@Generated("09944872143abd6acb3d366d62208e6c")
 public final class ClientAuthenticationCustomCodec {
     //hex: 0x000300
     public static final int REQUEST_MESSAGE_TYPE = 768;
@@ -145,20 +143,19 @@ public final class ClientAuthenticationCustomCodec {
     }
 
     public static ClientAuthenticationCustomCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         request.uuid = decodeUUID(initialFrame.content, REQUEST_UUID_FIELD_OFFSET);
         request.ownerUuid = decodeUUID(initialFrame.content, REQUEST_OWNER_UUID_FIELD_OFFSET);
         request.isOwnerConnection = decodeBoolean(initialFrame.content, REQUEST_IS_OWNER_CONNECTION_FIELD_OFFSET);
         request.serializationVersion = decodeByte(initialFrame.content, REQUEST_SERIALIZATION_VERSION_FIELD_OFFSET);
         request.partitionCount = decodeInt(initialFrame.content, REQUEST_PARTITION_COUNT_FIELD_OFFSET);
         request.clusterId = decodeUUID(initialFrame.content, REQUEST_CLUSTER_ID_FIELD_OFFSET);
-        request.credentials = DataCodec.decode(iterator);
-        request.clientType = StringCodec.decode(iterator);
-        request.clientHazelcastVersion = StringCodec.decode(iterator);
-        request.clientName = StringCodec.decode(iterator);
-        request.labels = ListMultiFrameCodec.decode(iterator, StringCodec::decode);
+        request.credentials = DataCodec.decode(clientMessage);
+        request.clientType = StringCodec.decode(clientMessage);
+        request.clientHazelcastVersion = StringCodec.decode(clientMessage);
+        request.clientName = StringCodec.decode(clientMessage);
+        request.labels = ListMultiFrameCodec.decode(clientMessage, StringCodec::decode);
         return request;
     }
 
@@ -233,18 +230,17 @@ public final class ClientAuthenticationCustomCodec {
     }
 
     public static ClientAuthenticationCustomCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         response.status = decodeByte(initialFrame.content, RESPONSE_STATUS_FIELD_OFFSET);
         response.uuid = decodeUUID(initialFrame.content, RESPONSE_UUID_FIELD_OFFSET);
         response.ownerUuid = decodeUUID(initialFrame.content, RESPONSE_OWNER_UUID_FIELD_OFFSET);
         response.serializationVersion = decodeByte(initialFrame.content, RESPONSE_SERIALIZATION_VERSION_FIELD_OFFSET);
         response.partitionCount = decodeInt(initialFrame.content, RESPONSE_PARTITION_COUNT_FIELD_OFFSET);
         response.clusterId = decodeUUID(initialFrame.content, RESPONSE_CLUSTER_ID_FIELD_OFFSET);
-        response.address = CodecUtil.decodeNullable(iterator, AddressCodec::decode);
-        response.serverHazelcastVersion = StringCodec.decode(iterator);
-        response.clientUnregisteredMembers = ListMultiFrameCodec.decodeNullable(iterator, MemberCodec::decode);
+        response.address = CodecUtil.decodeNullable(clientMessage, AddressCodec::decode);
+        response.serverHazelcastVersion = StringCodec.decode(clientMessage);
+        response.clientUnregisteredMembers = ListMultiFrameCodec.decodeNullable(clientMessage, MemberCodec::decode);
         return response;
     }
 

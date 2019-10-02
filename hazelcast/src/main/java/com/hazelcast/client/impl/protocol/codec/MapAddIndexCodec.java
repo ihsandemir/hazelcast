@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -43,7 +41,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * Until the index finishes being created, any searches for the attribute will use a full Map scan, thus avoiding
  * using a partially built index and returning incorrect results.
  */
-@Generated("6e2ee54d03954a78d7d9f182a33f61e1")
+@Generated("b7df796047464a5b8ffea603bed1b134")
 public final class MapAddIndexCodec {
     //hex: 0x012D00
     public static final int REQUEST_MESSAGE_TYPE = 77056;
@@ -90,12 +88,11 @@ public final class MapAddIndexCodec {
     }
 
     public static MapAddIndexCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         request.ordered = decodeBoolean(initialFrame.content, REQUEST_ORDERED_FIELD_OFFSET);
-        request.name = StringCodec.decode(iterator);
-        request.attribute = StringCodec.decode(iterator);
+        request.name = StringCodec.decode(clientMessage);
+        request.attribute = StringCodec.decode(clientMessage);
         return request;
     }
 
@@ -113,10 +110,9 @@ public final class MapAddIndexCodec {
     }
 
     public static MapAddIndexCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
         //empty initial frame
-        iterator.next();
+        clientMessage.next();
         return response;
     }
 

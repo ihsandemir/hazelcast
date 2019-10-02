@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -38,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * If a reliable topic configuration with the given {@code name} already exists, then
  * the new configuration is ignored and the existing one is preserved.
  */
-@Generated("937730fe5746287494c8965d3f223874")
+@Generated("830d022dfb8773eac8cdebee05ca7659")
 public final class DynamicConfigAddReliableTopicConfigCodec {
     //hex: 0x1E0F00
     public static final int REQUEST_MESSAGE_TYPE = 1969920;
@@ -106,15 +104,14 @@ public final class DynamicConfigAddReliableTopicConfigCodec {
     }
 
     public static DynamicConfigAddReliableTopicConfigCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         request.readBatchSize = decodeInt(initialFrame.content, REQUEST_READ_BATCH_SIZE_FIELD_OFFSET);
         request.statisticsEnabled = decodeBoolean(initialFrame.content, REQUEST_STATISTICS_ENABLED_FIELD_OFFSET);
-        request.name = StringCodec.decode(iterator);
-        request.listenerConfigs = ListMultiFrameCodec.decodeNullable(iterator, ListenerConfigHolderCodec::decode);
-        request.topicOverloadPolicy = StringCodec.decode(iterator);
-        request.executor = CodecUtil.decodeNullable(iterator, DataCodec::decode);
+        request.name = StringCodec.decode(clientMessage);
+        request.listenerConfigs = ListMultiFrameCodec.decodeNullable(clientMessage, ListenerConfigHolderCodec::decode);
+        request.topicOverloadPolicy = StringCodec.decode(clientMessage);
+        request.executor = CodecUtil.decodeNullable(clientMessage, DataCodec::decode);
         return request;
     }
 
@@ -132,10 +129,9 @@ public final class DynamicConfigAddReliableTopicConfigCodec {
     }
 
     public static DynamicConfigAddReliableTopicConfigCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
         //empty initial frame
-        iterator.next();
+        clientMessage.next();
         return response;
     }
 

@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -37,7 +35,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * Adds an interceptor for this map. Added interceptor will intercept operations
  * and execute user defined methods and will cancel operations if user defined method throw exception.
  */
-@Generated("97fd46c8913a342677dcfbb363275de1")
+@Generated("e702c9cf2d5e457f6fb1096acbf2cd62")
 public final class MapAddInterceptorCodec {
     //hex: 0x011700
     public static final int REQUEST_MESSAGE_TYPE = 71424;
@@ -77,12 +75,11 @@ public final class MapAddInterceptorCodec {
     }
 
     public static MapAddInterceptorCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
         //empty initial frame
-        iterator.next();
-        request.name = StringCodec.decode(iterator);
-        request.interceptor = DataCodec.decode(iterator);
+        clientMessage.next();
+        request.name = StringCodec.decode(clientMessage);
+        request.interceptor = DataCodec.decode(clientMessage);
         return request;
     }
 
@@ -106,11 +103,10 @@ public final class MapAddInterceptorCodec {
     }
 
     public static MapAddInterceptorCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
         //empty initial frame
-        iterator.next();
-        response.response = StringCodec.decode(iterator);
+        clientMessage.next();
+        response.response = StringCodec.decode(clientMessage);
         return response;
     }
 

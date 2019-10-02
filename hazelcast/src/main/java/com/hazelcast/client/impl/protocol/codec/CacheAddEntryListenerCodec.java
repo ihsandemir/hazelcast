@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 import com.hazelcast.logging.Logger;
@@ -37,7 +35,7 @@ import com.hazelcast.logging.Logger;
 /**
  * TODO DOC
  */
-@Generated("e5833aa5e55f80b585032d25f8e87c10")
+@Generated("c135ba954ab49a7381204e3b5dafd74f")
 public final class CacheAddEntryListenerCodec {
     //hex: 0x150100
     public static final int REQUEST_MESSAGE_TYPE = 1376512;
@@ -84,11 +82,10 @@ public final class CacheAddEntryListenerCodec {
     }
 
     public static CacheAddEntryListenerCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         request.localOnly = decodeBoolean(initialFrame.content, REQUEST_LOCAL_ONLY_FIELD_OFFSET);
-        request.name = StringCodec.decode(iterator);
+        request.name = StringCodec.decode(clientMessage);
         return request;
     }
 
@@ -112,9 +109,8 @@ public final class CacheAddEntryListenerCodec {
     }
 
     public static CacheAddEntryListenerCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         response.response = decodeUUID(initialFrame.content, RESPONSE_RESPONSE_FIELD_OFFSET);
         return response;
     }
@@ -136,12 +132,11 @@ public final class CacheAddEntryListenerCodec {
 
         public void handle(ClientMessage clientMessage) {
             int messageType = clientMessage.getMessageType();
-            ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
             if (messageType == EVENT_CACHE_MESSAGE_TYPE) {
-                ClientMessage.Frame initialFrame = iterator.next();
+                ClientMessage.Frame initialFrame = clientMessage.next();
                 int type = decodeInt(initialFrame.content, EVENT_CACHE_TYPE_FIELD_OFFSET);
                 int completionId = decodeInt(initialFrame.content, EVENT_CACHE_COMPLETION_ID_FIELD_OFFSET);
-                java.util.Collection<com.hazelcast.cache.impl.CacheEventData> keys = ListMultiFrameCodec.decode(iterator, CacheEventDataCodec::decode);
+                java.util.Collection<com.hazelcast.cache.impl.CacheEventData> keys = ListMultiFrameCodec.decode(clientMessage, CacheEventDataCodec::decode);
                 handleCacheEvent(type, keys, completionId);
                 return;
             }

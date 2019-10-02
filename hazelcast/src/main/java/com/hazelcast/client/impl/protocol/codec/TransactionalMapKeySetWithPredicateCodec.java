@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -39,7 +37,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * set, and vice-versa. This method is always executed by a distributed query, so it may throw a
  * QueryResultSizeExceededException if query result size limit is configured.
  */
-@Generated("e6bb45dfc3b8c4d8a5cd5086585323ea")
+@Generated("f56c51b3d20ec20622fe8bf5e9a152c1")
 public final class TransactionalMapKeySetWithPredicateCodec {
     //hex: 0x100F00
     public static final int REQUEST_MESSAGE_TYPE = 1052416;
@@ -93,13 +91,12 @@ public final class TransactionalMapKeySetWithPredicateCodec {
     }
 
     public static TransactionalMapKeySetWithPredicateCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         request.txnId = decodeUUID(initialFrame.content, REQUEST_TXN_ID_FIELD_OFFSET);
         request.threadId = decodeLong(initialFrame.content, REQUEST_THREAD_ID_FIELD_OFFSET);
-        request.name = StringCodec.decode(iterator);
-        request.predicate = DataCodec.decode(iterator);
+        request.name = StringCodec.decode(clientMessage);
+        request.predicate = DataCodec.decode(clientMessage);
         return request;
     }
 
@@ -123,11 +120,10 @@ public final class TransactionalMapKeySetWithPredicateCodec {
     }
 
     public static TransactionalMapKeySetWithPredicateCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
         //empty initial frame
-        iterator.next();
-        response.response = ListMultiFrameCodec.decode(iterator, DataCodec::decode);
+        clientMessage.next();
+        response.response = ListMultiFrameCodec.decode(clientMessage, DataCodec::decode);
         return response;
     }
 

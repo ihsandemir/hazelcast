@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -36,7 +34,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * TODO DOC
  */
-@Generated("dad1d0383a58592e460f738c7b3e6070")
+@Generated("a879cfbc0a3ec0fa54160af3198b8665")
 public final class CacheAssignAndGetUuidsCodec {
     //hex: 0x152000
     public static final int REQUEST_MESSAGE_TYPE = 1384448;
@@ -64,10 +62,9 @@ public final class CacheAssignAndGetUuidsCodec {
     }
 
     public static CacheAssignAndGetUuidsCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
         //empty initial frame
-        iterator.next();
+        clientMessage.next();
         return request;
     }
 
@@ -91,11 +88,10 @@ public final class CacheAssignAndGetUuidsCodec {
     }
 
     public static CacheAssignAndGetUuidsCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
         //empty initial frame
-        iterator.next();
-        response.partitionUuidList = EntryListIntegerUUIDCodec.decode(iterator);
+        clientMessage.next();
+        response.partitionUuidList = EntryListIntegerUUIDCodec.decode(clientMessage);
         return response;
     }
 

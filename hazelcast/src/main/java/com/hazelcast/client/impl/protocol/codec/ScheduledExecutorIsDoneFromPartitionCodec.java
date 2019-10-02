@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -37,7 +35,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * Checks whether a task is done.
  * @see {@link java.util.concurrent.Future#cancel(boolean)}
  */
-@Generated("0efcc393697c4ee48e2543e598d916b0")
+@Generated("fb80d243ffc3f5ce71c40b5d041c8583")
 public final class ScheduledExecutorIsDoneFromPartitionCodec {
     //hex: 0x1D0D00
     public static final int REQUEST_MESSAGE_TYPE = 1903872;
@@ -78,12 +76,11 @@ public final class ScheduledExecutorIsDoneFromPartitionCodec {
     }
 
     public static ScheduledExecutorIsDoneFromPartitionCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
         //empty initial frame
-        iterator.next();
-        request.schedulerName = StringCodec.decode(iterator);
-        request.taskName = StringCodec.decode(iterator);
+        clientMessage.next();
+        request.schedulerName = StringCodec.decode(clientMessage);
+        request.taskName = StringCodec.decode(clientMessage);
         return request;
     }
 
@@ -107,9 +104,8 @@ public final class ScheduledExecutorIsDoneFromPartitionCodec {
     }
 
     public static ScheduledExecutorIsDoneFromPartitionCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         response.response = decodeBoolean(initialFrame.content, RESPONSE_RESPONSE_FIELD_OFFSET);
         return response;
     }

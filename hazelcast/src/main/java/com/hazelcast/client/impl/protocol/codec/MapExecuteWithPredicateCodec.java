@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -37,7 +35,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * Applies the user defined EntryProcessor to the entries in the map which satisfies provided predicate.
  * Returns the results mapped by each key in the map.
  */
-@Generated("85fa5753e278e9a60ee5199e812bf51b")
+@Generated("1bc3ce7d675bd24c0a66d715737079d4")
 public final class MapExecuteWithPredicateCodec {
     //hex: 0x013500
     public static final int REQUEST_MESSAGE_TYPE = 79104;
@@ -83,13 +81,12 @@ public final class MapExecuteWithPredicateCodec {
     }
 
     public static MapExecuteWithPredicateCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
         //empty initial frame
-        iterator.next();
-        request.name = StringCodec.decode(iterator);
-        request.entryProcessor = DataCodec.decode(iterator);
-        request.predicate = DataCodec.decode(iterator);
+        clientMessage.next();
+        request.name = StringCodec.decode(clientMessage);
+        request.entryProcessor = DataCodec.decode(clientMessage);
+        request.predicate = DataCodec.decode(clientMessage);
         return request;
     }
 
@@ -113,11 +110,10 @@ public final class MapExecuteWithPredicateCodec {
     }
 
     public static MapExecuteWithPredicateCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
         //empty initial frame
-        iterator.next();
-        response.response = EntryListCodec.decode(iterator, DataCodec::decode, DataCodec::decode);
+        clientMessage.next();
+        response.response = EntryListCodec.decode(clientMessage, DataCodec::decode, DataCodec::decode);
         return response;
     }
 

@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -36,7 +34,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * TODO DOC
  */
-@Generated("5380c96c281ebc1e0b2a2c70516c7c0e")
+@Generated("49f6e7e953e9357f6186fe4dfa63112d")
 public final class ClientIsFailoverSupportedCodec {
     //hex: 0x001400
     public static final int REQUEST_MESSAGE_TYPE = 5120;
@@ -65,10 +63,9 @@ public final class ClientIsFailoverSupportedCodec {
     }
 
     public static ClientIsFailoverSupportedCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
         //empty initial frame
-        iterator.next();
+        clientMessage.next();
         return request;
     }
 
@@ -92,9 +89,8 @@ public final class ClientIsFailoverSupportedCodec {
     }
 
     public static ClientIsFailoverSupportedCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         response.response = decodeBoolean(initialFrame.content, RESPONSE_RESPONSE_FIELD_OFFSET);
         return response;
     }

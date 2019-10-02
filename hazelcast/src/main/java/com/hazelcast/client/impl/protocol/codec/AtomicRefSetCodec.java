@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -36,7 +34,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Atomically sets the given value
  */
-@Generated("d6a925a02a7ba743d6dfecd161fb59b3")
+@Generated("e8a7d58d1589d16244a0d03696c7d7bf")
 public final class AtomicRefSetCodec {
     //hex: 0x0B0600
     public static final int REQUEST_MESSAGE_TYPE = 722432;
@@ -89,13 +87,12 @@ public final class AtomicRefSetCodec {
     }
 
     public static AtomicRefSetCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         request.returnOldValue = decodeBoolean(initialFrame.content, REQUEST_RETURN_OLD_VALUE_FIELD_OFFSET);
-        request.groupId = RaftGroupIdCodec.decode(iterator);
-        request.name = StringCodec.decode(iterator);
-        request.newValue = CodecUtil.decodeNullable(iterator, DataCodec::decode);
+        request.groupId = RaftGroupIdCodec.decode(clientMessage);
+        request.name = StringCodec.decode(clientMessage);
+        request.newValue = CodecUtil.decodeNullable(clientMessage, DataCodec::decode);
         return request;
     }
 
@@ -120,11 +117,10 @@ public final class AtomicRefSetCodec {
     }
 
     public static AtomicRefSetCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
         //empty initial frame
-        iterator.next();
-        response.response = CodecUtil.decodeNullable(iterator, DataCodec::decode);
+        clientMessage.next();
+        response.response = CodecUtil.decodeNullable(clientMessage, DataCodec::decode);
         return response;
     }
 

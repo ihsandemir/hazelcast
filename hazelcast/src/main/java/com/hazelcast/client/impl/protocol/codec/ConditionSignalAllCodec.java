@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -37,7 +35,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * If any threads are waiting on this condition then they are all woken up. Each thread must re-acquire the lock
  * before it can return from
  */
-@Generated("3b0eba8ec42b18459006bddbfe5b6749")
+@Generated("79394d1d3e6c5f0e487316fbaab22ceb")
 public final class ConditionSignalAllCodec {
     //hex: 0x080400
     public static final int REQUEST_MESSAGE_TYPE = 525312;
@@ -84,12 +82,11 @@ public final class ConditionSignalAllCodec {
     }
 
     public static ConditionSignalAllCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         request.threadId = decodeLong(initialFrame.content, REQUEST_THREAD_ID_FIELD_OFFSET);
-        request.name = StringCodec.decode(iterator);
-        request.lockName = StringCodec.decode(iterator);
+        request.name = StringCodec.decode(clientMessage);
+        request.lockName = StringCodec.decode(clientMessage);
         return request;
     }
 
@@ -107,10 +104,9 @@ public final class ConditionSignalAllCodec {
     }
 
     public static ConditionSignalAllCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
         //empty initial frame
-        iterator.next();
+        clientMessage.next();
         return response;
     }
 

@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -42,7 +40,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * true are returned. Using filters is a good way to prevent getting items that are of no value to the receiver.
  * This reduces the amount of IO and the number of operations being executed, and can result in a significant performance improvement.
  */
-@Generated("ee88863bd66436fb11a6b16b04050548")
+@Generated("29076be9bfdadf46e13f82bc24869502")
 public final class RingbufferReadManyCodec {
     //hex: 0x190A00
     public static final int REQUEST_MESSAGE_TYPE = 1640960;
@@ -105,14 +103,13 @@ public final class RingbufferReadManyCodec {
     }
 
     public static RingbufferReadManyCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         request.startSequence = decodeLong(initialFrame.content, REQUEST_START_SEQUENCE_FIELD_OFFSET);
         request.minCount = decodeInt(initialFrame.content, REQUEST_MIN_COUNT_FIELD_OFFSET);
         request.maxCount = decodeInt(initialFrame.content, REQUEST_MAX_COUNT_FIELD_OFFSET);
-        request.name = StringCodec.decode(iterator);
-        request.filter = CodecUtil.decodeNullable(iterator, DataCodec::decode);
+        request.name = StringCodec.decode(clientMessage);
+        request.filter = CodecUtil.decodeNullable(clientMessage, DataCodec::decode);
         return request;
     }
 
@@ -154,13 +151,12 @@ public final class RingbufferReadManyCodec {
     }
 
     public static RingbufferReadManyCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         response.readCount = decodeInt(initialFrame.content, RESPONSE_READ_COUNT_FIELD_OFFSET);
         response.nextSeq = decodeLong(initialFrame.content, RESPONSE_NEXT_SEQ_FIELD_OFFSET);
-        response.items = ListMultiFrameCodec.decode(iterator, DataCodec::decode);
-        response.itemSeqs = CodecUtil.decodeNullable(iterator, LongArrayCodec::decode);
+        response.items = ListMultiFrameCodec.decode(clientMessage, DataCodec::decode);
+        response.itemSeqs = CodecUtil.decodeNullable(clientMessage, LongArrayCodec::decode);
         return response;
     }
 

@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -36,7 +34,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Dispose the task from the scheduler
  */
-@Generated("ac4a4a862218905bd49e15459ba2e590")
+@Generated("aeb7f019167e767a4e351025e7f680bc")
 public final class ScheduledExecutorDisposeFromAddressCodec {
     //hex: 0x1D1200
     public static final int REQUEST_MESSAGE_TYPE = 1905152;
@@ -82,13 +80,12 @@ public final class ScheduledExecutorDisposeFromAddressCodec {
     }
 
     public static ScheduledExecutorDisposeFromAddressCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
         //empty initial frame
-        iterator.next();
-        request.schedulerName = StringCodec.decode(iterator);
-        request.taskName = StringCodec.decode(iterator);
-        request.address = AddressCodec.decode(iterator);
+        clientMessage.next();
+        request.schedulerName = StringCodec.decode(clientMessage);
+        request.taskName = StringCodec.decode(clientMessage);
+        request.address = AddressCodec.decode(clientMessage);
         return request;
     }
 
@@ -106,10 +103,9 @@ public final class ScheduledExecutorDisposeFromAddressCodec {
     }
 
     public static ScheduledExecutorDisposeFromAddressCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
         //empty initial frame
-        iterator.next();
+        clientMessage.next();
         return response;
     }
 

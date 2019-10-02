@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -37,7 +35,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * Fetches the specified number of entries from the specified partition starting from specified table index
  * that match the predicate and applies the projection logic on them.
  */
-@Generated("fb41106520b0bf75fd30f6a33a6d3bd7")
+@Generated("f82dc1c63405b65e004d5c7e975c7656")
 public final class MapFetchWithQueryCodec {
     //hex: 0x014600
     public static final int REQUEST_MESSAGE_TYPE = 83456;
@@ -98,14 +96,13 @@ public final class MapFetchWithQueryCodec {
     }
 
     public static MapFetchWithQueryCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         request.tableIndex = decodeInt(initialFrame.content, REQUEST_TABLE_INDEX_FIELD_OFFSET);
         request.batch = decodeInt(initialFrame.content, REQUEST_BATCH_FIELD_OFFSET);
-        request.name = StringCodec.decode(iterator);
-        request.projection = DataCodec.decode(iterator);
-        request.predicate = DataCodec.decode(iterator);
+        request.name = StringCodec.decode(clientMessage);
+        request.projection = DataCodec.decode(clientMessage);
+        request.predicate = DataCodec.decode(clientMessage);
         return request;
     }
 
@@ -135,11 +132,10 @@ public final class MapFetchWithQueryCodec {
     }
 
     public static MapFetchWithQueryCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         response.nextTableIndexToReadFrom = decodeInt(initialFrame.content, RESPONSE_NEXT_TABLE_INDEX_TO_READ_FROM_FIELD_OFFSET);
-        response.results = ListMultiFrameCodec.decodeContainsNullable(iterator, DataCodec::decode);
+        response.results = ListMultiFrameCodec.decodeContainsNullable(clientMessage, DataCodec::decode);
         return response;
     }
 

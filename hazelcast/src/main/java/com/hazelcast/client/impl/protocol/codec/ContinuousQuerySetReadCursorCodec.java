@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -41,7 +39,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * This method returns `false` if the event is not in the buffer of event publisher side. That means recovery is not
  * possible.
  */
-@Generated("efde6936f76abe228dd22324ff465cbd")
+@Generated("d8106a401b705ee89d3c97d2fdac175f")
 public final class ContinuousQuerySetReadCursorCodec {
     //hex: 0x180500
     public static final int REQUEST_MESSAGE_TYPE = 1574144;
@@ -89,12 +87,11 @@ public final class ContinuousQuerySetReadCursorCodec {
     }
 
     public static ContinuousQuerySetReadCursorCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         request.sequence = decodeLong(initialFrame.content, REQUEST_SEQUENCE_FIELD_OFFSET);
-        request.mapName = StringCodec.decode(iterator);
-        request.cacheName = StringCodec.decode(iterator);
+        request.mapName = StringCodec.decode(clientMessage);
+        request.cacheName = StringCodec.decode(clientMessage);
         return request;
     }
 
@@ -118,9 +115,8 @@ public final class ContinuousQuerySetReadCursorCodec {
     }
 
     public static ContinuousQuerySetReadCursorCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         response.response = decodeBoolean(initialFrame.content, RESPONSE_RESPONSE_FIELD_OFFSET);
         return response;
     }

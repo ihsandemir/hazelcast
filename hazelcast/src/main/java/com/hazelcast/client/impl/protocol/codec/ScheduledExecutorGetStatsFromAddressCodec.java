@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -36,7 +34,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Returns statistics of the task
  */
-@Generated("723315b01301495968f9295f061a5f50")
+@Generated("b3067768110fb1fca2ce0a032467c4ac")
 public final class ScheduledExecutorGetStatsFromAddressCodec {
     //hex: 0x1D0600
     public static final int REQUEST_MESSAGE_TYPE = 1902080;
@@ -87,13 +85,12 @@ public final class ScheduledExecutorGetStatsFromAddressCodec {
     }
 
     public static ScheduledExecutorGetStatsFromAddressCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
         //empty initial frame
-        iterator.next();
-        request.schedulerName = StringCodec.decode(iterator);
-        request.taskName = StringCodec.decode(iterator);
-        request.address = AddressCodec.decode(iterator);
+        clientMessage.next();
+        request.schedulerName = StringCodec.decode(clientMessage);
+        request.taskName = StringCodec.decode(clientMessage);
+        request.address = AddressCodec.decode(clientMessage);
         return request;
     }
 
@@ -141,9 +138,8 @@ public final class ScheduledExecutorGetStatsFromAddressCodec {
     }
 
     public static ScheduledExecutorGetStatsFromAddressCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         response.lastIdleTimeNanos = decodeLong(initialFrame.content, RESPONSE_LAST_IDLE_TIME_NANOS_FIELD_OFFSET);
         response.totalIdleTimeNanos = decodeLong(initialFrame.content, RESPONSE_TOTAL_IDLE_TIME_NANOS_FIELD_OFFSET);
         response.totalRuns = decodeLong(initialFrame.content, RESPONSE_TOTAL_RUNS_FIELD_OFFSET);

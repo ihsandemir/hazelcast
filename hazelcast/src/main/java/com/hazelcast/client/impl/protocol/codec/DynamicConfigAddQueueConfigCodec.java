@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -38,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * If a queue configuration with the given {@code name} already exists, then
  * the new configuration is ignored and the existing one is preserved.
  */
-@Generated("3b69a2aa675e2e814dd8668e96ff89ef")
+@Generated("b49fc1d94527823deef3f229b783ae7b")
 public final class DynamicConfigAddQueueConfigCodec {
     //hex: 0x1E0D00
     public static final int REQUEST_MESSAGE_TYPE = 1969408;
@@ -140,20 +138,19 @@ public final class DynamicConfigAddQueueConfigCodec {
     }
 
     public static DynamicConfigAddQueueConfigCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         request.backupCount = decodeInt(initialFrame.content, REQUEST_BACKUP_COUNT_FIELD_OFFSET);
         request.asyncBackupCount = decodeInt(initialFrame.content, REQUEST_ASYNC_BACKUP_COUNT_FIELD_OFFSET);
         request.maxSize = decodeInt(initialFrame.content, REQUEST_MAX_SIZE_FIELD_OFFSET);
         request.emptyQueueTtl = decodeInt(initialFrame.content, REQUEST_EMPTY_QUEUE_TTL_FIELD_OFFSET);
         request.statisticsEnabled = decodeBoolean(initialFrame.content, REQUEST_STATISTICS_ENABLED_FIELD_OFFSET);
         request.mergeBatchSize = decodeInt(initialFrame.content, REQUEST_MERGE_BATCH_SIZE_FIELD_OFFSET);
-        request.name = StringCodec.decode(iterator);
-        request.listenerConfigs = ListMultiFrameCodec.decodeNullable(iterator, ListenerConfigHolderCodec::decode);
-        request.splitBrainProtectionName = CodecUtil.decodeNullable(iterator, StringCodec::decode);
-        request.queueStoreConfig = CodecUtil.decodeNullable(iterator, QueueStoreConfigHolderCodec::decode);
-        request.mergePolicy = StringCodec.decode(iterator);
+        request.name = StringCodec.decode(clientMessage);
+        request.listenerConfigs = ListMultiFrameCodec.decodeNullable(clientMessage, ListenerConfigHolderCodec::decode);
+        request.splitBrainProtectionName = CodecUtil.decodeNullable(clientMessage, StringCodec::decode);
+        request.queueStoreConfig = CodecUtil.decodeNullable(clientMessage, QueueStoreConfigHolderCodec::decode);
+        request.mergePolicy = StringCodec.decode(clientMessage);
         return request;
     }
 
@@ -171,10 +168,9 @@ public final class DynamicConfigAddQueueConfigCodec {
     }
 
     public static DynamicConfigAddQueueConfigCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
         //empty initial frame
-        iterator.next();
+        clientMessage.next();
         return response;
     }
 

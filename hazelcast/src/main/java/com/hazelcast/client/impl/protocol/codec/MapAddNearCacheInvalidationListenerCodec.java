@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 import com.hazelcast.logging.Logger;
@@ -39,7 +37,7 @@ import com.hazelcast.logging.Logger;
  * Eventually consistent client near caches should use this method to add invalidation listeners
  * instead of {@link #addNearCacheEntryListener(String, int, boolean)}
  */
-@Generated("a0336decc1d1879476f151a3c53ab47f")
+@Generated("ec2a9ddf8c15ebcbeb87684c1554e175")
 public final class MapAddNearCacheInvalidationListenerCodec {
     //hex: 0x014500
     public static final int REQUEST_MESSAGE_TYPE = 83200;
@@ -97,12 +95,11 @@ public final class MapAddNearCacheInvalidationListenerCodec {
     }
 
     public static MapAddNearCacheInvalidationListenerCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         request.listenerFlags = decodeInt(initialFrame.content, REQUEST_LISTENER_FLAGS_FIELD_OFFSET);
         request.localOnly = decodeBoolean(initialFrame.content, REQUEST_LOCAL_ONLY_FIELD_OFFSET);
-        request.name = StringCodec.decode(iterator);
+        request.name = StringCodec.decode(clientMessage);
         return request;
     }
 
@@ -126,9 +123,8 @@ public final class MapAddNearCacheInvalidationListenerCodec {
     }
 
     public static MapAddNearCacheInvalidationListenerCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         response.response = decodeUUID(initialFrame.content, RESPONSE_RESPONSE_FIELD_OFFSET);
         return response;
     }
@@ -164,23 +160,22 @@ public final class MapAddNearCacheInvalidationListenerCodec {
 
         public void handle(ClientMessage clientMessage) {
             int messageType = clientMessage.getMessageType();
-            ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
             if (messageType == EVENT_I_MAP_INVALIDATION_MESSAGE_TYPE) {
-                ClientMessage.Frame initialFrame = iterator.next();
+                ClientMessage.Frame initialFrame = clientMessage.next();
                 java.util.UUID sourceUuid = decodeUUID(initialFrame.content, EVENT_I_MAP_INVALIDATION_SOURCE_UUID_FIELD_OFFSET);
                 java.util.UUID partitionUuid = decodeUUID(initialFrame.content, EVENT_I_MAP_INVALIDATION_PARTITION_UUID_FIELD_OFFSET);
                 long sequence = decodeLong(initialFrame.content, EVENT_I_MAP_INVALIDATION_SEQUENCE_FIELD_OFFSET);
-                com.hazelcast.nio.serialization.Data key = CodecUtil.decodeNullable(iterator, DataCodec::decode);
+                com.hazelcast.nio.serialization.Data key = CodecUtil.decodeNullable(clientMessage, DataCodec::decode);
                 handleIMapInvalidationEvent(key, sourceUuid, partitionUuid, sequence);
                 return;
             }
             if (messageType == EVENT_I_MAP_BATCH_INVALIDATION_MESSAGE_TYPE) {
                 //empty initial frame
-                iterator.next();
-                java.util.Collection<com.hazelcast.nio.serialization.Data> keys = ListMultiFrameCodec.decode(iterator, DataCodec::decode);
-                java.util.Collection<java.util.UUID> sourceUuids = ListUUIDCodec.decode(iterator);
-                java.util.Collection<java.util.UUID> partitionUuids = ListUUIDCodec.decode(iterator);
-                java.util.Collection<java.lang.Long> sequences = ListLongCodec.decode(iterator);
+                clientMessage.next();
+                java.util.Collection<com.hazelcast.nio.serialization.Data> keys = ListMultiFrameCodec.decode(clientMessage, DataCodec::decode);
+                java.util.Collection<java.util.UUID> sourceUuids = ListUUIDCodec.decode(clientMessage);
+                java.util.Collection<java.util.UUID> partitionUuids = ListUUIDCodec.decode(clientMessage);
+                java.util.Collection<java.lang.Long> sequences = ListLongCodec.decode(clientMessage);
                 handleIMapBatchInvalidationEvent(keys, sourceUuids, partitionUuids, sequences);
                 return;
             }

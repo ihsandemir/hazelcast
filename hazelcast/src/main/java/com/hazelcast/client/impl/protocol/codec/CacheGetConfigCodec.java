@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -36,7 +34,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * TODO DOC
  */
-@Generated("1e9c47e4854a6ba6178bf3aff31c6107")
+@Generated("4dace55add6eb2e990102b0dcf2e8efe")
 public final class CacheGetConfigCodec {
     //hex: 0x150D00
     public static final int REQUEST_MESSAGE_TYPE = 1379584;
@@ -76,12 +74,11 @@ public final class CacheGetConfigCodec {
     }
 
     public static CacheGetConfigCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
         //empty initial frame
-        iterator.next();
-        request.name = StringCodec.decode(iterator);
-        request.simpleName = StringCodec.decode(iterator);
+        clientMessage.next();
+        request.name = StringCodec.decode(clientMessage);
+        request.simpleName = StringCodec.decode(clientMessage);
         return request;
     }
 
@@ -105,11 +102,10 @@ public final class CacheGetConfigCodec {
     }
 
     public static CacheGetConfigCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
         //empty initial frame
-        iterator.next();
-        response.response = CodecUtil.decodeNullable(iterator, CacheConfigHolderCodec::decode);
+        clientMessage.next();
+        response.response = CodecUtil.decodeNullable(clientMessage, CacheConfigHolderCodec::decode);
         return response;
     }
 

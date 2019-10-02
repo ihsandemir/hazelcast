@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -36,7 +34,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Fetches specified number of entries from the specified partition starting from specified table index.
  */
-@Generated("f417650de5129f5e54f59d15805dde6e")
+@Generated("43a5f02814dd25c7e0b7723ce1964772")
 public final class CacheIterateEntriesCodec {
     //hex: 0x151D00
     public static final int REQUEST_MESSAGE_TYPE = 1383680;
@@ -85,12 +83,11 @@ public final class CacheIterateEntriesCodec {
     }
 
     public static CacheIterateEntriesCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         request.tableIndex = decodeInt(initialFrame.content, REQUEST_TABLE_INDEX_FIELD_OFFSET);
         request.batch = decodeInt(initialFrame.content, REQUEST_BATCH_FIELD_OFFSET);
-        request.name = StringCodec.decode(iterator);
+        request.name = StringCodec.decode(clientMessage);
         return request;
     }
 
@@ -120,11 +117,10 @@ public final class CacheIterateEntriesCodec {
     }
 
     public static CacheIterateEntriesCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         response.tableIndex = decodeInt(initialFrame.content, RESPONSE_TABLE_INDEX_FIELD_OFFSET);
-        response.entries = EntryListCodec.decode(iterator, DataCodec::decode, DataCodec::decode);
+        response.entries = EntryListCodec.decode(clientMessage, DataCodec::decode, DataCodec::decode);
         return response;
     }
 

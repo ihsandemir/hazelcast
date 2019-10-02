@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -39,7 +37,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * a write-through cache, the CacheWriter.If the cache is empty, the CacheWriter is not called.
  * This is potentially an expensive operation as listeners are invoked. Use  #clear() to avoid this.
  */
-@Generated("0d7af3ee32ced8336f24bb565ff6f93e")
+@Generated("2aee7bd7f1ced068cd31637440c0c69b")
 public final class CacheRemoveAllCodec {
     //hex: 0x150500
     public static final int REQUEST_MESSAGE_TYPE = 1377536;
@@ -81,11 +79,10 @@ public final class CacheRemoveAllCodec {
     }
 
     public static CacheRemoveAllCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         request.completionId = decodeInt(initialFrame.content, REQUEST_COMPLETION_ID_FIELD_OFFSET);
-        request.name = StringCodec.decode(iterator);
+        request.name = StringCodec.decode(clientMessage);
         return request;
     }
 
@@ -103,10 +100,9 @@ public final class CacheRemoveAllCodec {
     }
 
     public static CacheRemoveAllCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
         //empty initial frame
-        iterator.next();
+        clientMessage.next();
         return response;
     }
 

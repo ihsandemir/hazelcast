@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -38,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * If a PN counter configuration with the given {@code name} already exists, then
  * the new configuration is ignored and the existing one is preserved.
  */
-@Generated("836cb0f3ef08ea57ad8be4ea3e99ef46")
+@Generated("841b75d60a9e1c017d1b6274cb39f3a5")
 public final class DynamicConfigAddPNCounterConfigCodec {
     //hex: 0x1E1600
     public static final int REQUEST_MESSAGE_TYPE = 1971712;
@@ -94,13 +92,12 @@ public final class DynamicConfigAddPNCounterConfigCodec {
     }
 
     public static DynamicConfigAddPNCounterConfigCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         request.replicaCount = decodeInt(initialFrame.content, REQUEST_REPLICA_COUNT_FIELD_OFFSET);
         request.statisticsEnabled = decodeBoolean(initialFrame.content, REQUEST_STATISTICS_ENABLED_FIELD_OFFSET);
-        request.name = StringCodec.decode(iterator);
-        request.splitBrainProtectionName = CodecUtil.decodeNullable(iterator, StringCodec::decode);
+        request.name = StringCodec.decode(clientMessage);
+        request.splitBrainProtectionName = CodecUtil.decodeNullable(clientMessage, StringCodec::decode);
         return request;
     }
 
@@ -118,10 +115,9 @@ public final class DynamicConfigAddPNCounterConfigCodec {
     }
 
     public static DynamicConfigAddPNCounterConfigCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
         //empty initial frame
-        iterator.next();
+        clientMessage.next();
         return response;
     }
 

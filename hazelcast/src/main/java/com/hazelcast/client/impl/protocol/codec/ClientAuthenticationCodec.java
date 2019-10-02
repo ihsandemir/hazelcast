@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -36,7 +34,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * TODO DOC
  */
-@Generated("604098862a4a39cc7261bc0b9e3c51c3")
+@Generated("536dc1c633fd2d59f804034cfbf5faec")
 public final class ClientAuthenticationCodec {
     //hex: 0x000200
     public static final int REQUEST_MESSAGE_TYPE = 512;
@@ -151,21 +149,20 @@ public final class ClientAuthenticationCodec {
     }
 
     public static ClientAuthenticationCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         request.uuid = decodeUUID(initialFrame.content, REQUEST_UUID_FIELD_OFFSET);
         request.ownerUuid = decodeUUID(initialFrame.content, REQUEST_OWNER_UUID_FIELD_OFFSET);
         request.isOwnerConnection = decodeBoolean(initialFrame.content, REQUEST_IS_OWNER_CONNECTION_FIELD_OFFSET);
         request.serializationVersion = decodeByte(initialFrame.content, REQUEST_SERIALIZATION_VERSION_FIELD_OFFSET);
         request.partitionCount = decodeInt(initialFrame.content, REQUEST_PARTITION_COUNT_FIELD_OFFSET);
         request.clusterId = decodeUUID(initialFrame.content, REQUEST_CLUSTER_ID_FIELD_OFFSET);
-        request.username = StringCodec.decode(iterator);
-        request.password = StringCodec.decode(iterator);
-        request.clientType = StringCodec.decode(iterator);
-        request.clientHazelcastVersion = StringCodec.decode(iterator);
-        request.clientName = StringCodec.decode(iterator);
-        request.labels = ListMultiFrameCodec.decode(iterator, StringCodec::decode);
+        request.username = StringCodec.decode(clientMessage);
+        request.password = StringCodec.decode(clientMessage);
+        request.clientType = StringCodec.decode(clientMessage);
+        request.clientHazelcastVersion = StringCodec.decode(clientMessage);
+        request.clientName = StringCodec.decode(clientMessage);
+        request.labels = ListMultiFrameCodec.decode(clientMessage, StringCodec::decode);
         return request;
     }
 
@@ -240,18 +237,17 @@ public final class ClientAuthenticationCodec {
     }
 
     public static ClientAuthenticationCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         response.status = decodeByte(initialFrame.content, RESPONSE_STATUS_FIELD_OFFSET);
         response.uuid = decodeUUID(initialFrame.content, RESPONSE_UUID_FIELD_OFFSET);
         response.ownerUuid = decodeUUID(initialFrame.content, RESPONSE_OWNER_UUID_FIELD_OFFSET);
         response.serializationVersion = decodeByte(initialFrame.content, RESPONSE_SERIALIZATION_VERSION_FIELD_OFFSET);
         response.partitionCount = decodeInt(initialFrame.content, RESPONSE_PARTITION_COUNT_FIELD_OFFSET);
         response.clusterId = decodeUUID(initialFrame.content, RESPONSE_CLUSTER_ID_FIELD_OFFSET);
-        response.address = CodecUtil.decodeNullable(iterator, AddressCodec::decode);
-        response.serverHazelcastVersion = StringCodec.decode(iterator);
-        response.clientUnregisteredMembers = ListMultiFrameCodec.decodeNullable(iterator, MemberCodec::decode);
+        response.address = CodecUtil.decodeNullable(clientMessage, AddressCodec::decode);
+        response.serverHazelcastVersion = StringCodec.decode(clientMessage);
+        response.clientUnregisteredMembers = ListMultiFrameCodec.decodeNullable(clientMessage, MemberCodec::decode);
         return response;
     }
 

@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -38,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * If a map configuration with the given {@code name} already exists, then
  * the new configuration is ignored and the existing one is preserved.
  */
-@Generated("abe37d80d662752d67c142eb7ff5a296")
+@Generated("2e54376ba03116efc8be610393a3c88b")
 public final class DynamicConfigAddMapConfigCodec {
     //hex: 0x1E0E00
     public static final int REQUEST_MESSAGE_TYPE = 1969664;
@@ -272,9 +270,8 @@ public final class DynamicConfigAddMapConfigCodec {
     }
 
     public static DynamicConfigAddMapConfigCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         request.backupCount = decodeInt(initialFrame.content, REQUEST_BACKUP_COUNT_FIELD_OFFSET);
         request.asyncBackupCount = decodeInt(initialFrame.content, REQUEST_ASYNC_BACKUP_COUNT_FIELD_OFFSET);
         request.timeToLiveSeconds = decodeInt(initialFrame.content, REQUEST_TIME_TO_LIVE_SECONDS_FIELD_OFFSET);
@@ -284,27 +281,27 @@ public final class DynamicConfigAddMapConfigCodec {
         request.maxSizeConfigSize = decodeInt(initialFrame.content, REQUEST_MAX_SIZE_CONFIG_SIZE_FIELD_OFFSET);
         request.mergeBatchSize = decodeInt(initialFrame.content, REQUEST_MERGE_BATCH_SIZE_FIELD_OFFSET);
         request.metadataPolicy = decodeInt(initialFrame.content, REQUEST_METADATA_POLICY_FIELD_OFFSET);
-        request.name = StringCodec.decode(iterator);
-        request.evictionPolicy = StringCodec.decode(iterator);
-        request.cacheDeserializedValues = StringCodec.decode(iterator);
-        request.mergePolicy = StringCodec.decode(iterator);
-        request.inMemoryFormat = StringCodec.decode(iterator);
-        request.listenerConfigs = ListMultiFrameCodec.decodeNullable(iterator, ListenerConfigHolderCodec::decode);
-        request.partitionLostListenerConfigs = ListMultiFrameCodec.decodeNullable(iterator, ListenerConfigHolderCodec::decode);
-        request.splitBrainProtectionName = CodecUtil.decodeNullable(iterator, StringCodec::decode);
-        request.mapEvictionPolicy = CodecUtil.decodeNullable(iterator, DataCodec::decode);
-        request.maxSizeConfigMaxSizePolicy = StringCodec.decode(iterator);
-        request.mapStoreConfig = CodecUtil.decodeNullable(iterator, MapStoreConfigHolderCodec::decode);
-        request.nearCacheConfig = CodecUtil.decodeNullable(iterator, NearCacheConfigHolderCodec::decode);
-        request.wanReplicationRef = CodecUtil.decodeNullable(iterator, WanReplicationRefCodec::decode);
-        request.mapIndexConfigs = ListMultiFrameCodec.decodeNullable(iterator, MapIndexConfigCodec::decode);
-        request.attributeConfigs = ListMultiFrameCodec.decodeNullable(iterator, AttributeConfigCodec::decode);
-        request.queryCacheConfigs = ListMultiFrameCodec.decodeNullable(iterator, QueryCacheConfigHolderCodec::decode);
-        request.partitioningStrategyClassName = CodecUtil.decodeNullable(iterator, StringCodec::decode);
-        request.partitioningStrategyImplementation = CodecUtil.decodeNullable(iterator, DataCodec::decode);
-        request.hotRestartConfig = CodecUtil.decodeNullable(iterator, HotRestartConfigCodec::decode);
-        request.eventJournalConfig = CodecUtil.decodeNullable(iterator, EventJournalConfigCodec::decode);
-        request.merkleTreeConfig = CodecUtil.decodeNullable(iterator, MerkleTreeConfigCodec::decode);
+        request.name = StringCodec.decode(clientMessage);
+        request.evictionPolicy = StringCodec.decode(clientMessage);
+        request.cacheDeserializedValues = StringCodec.decode(clientMessage);
+        request.mergePolicy = StringCodec.decode(clientMessage);
+        request.inMemoryFormat = StringCodec.decode(clientMessage);
+        request.listenerConfigs = ListMultiFrameCodec.decodeNullable(clientMessage, ListenerConfigHolderCodec::decode);
+        request.partitionLostListenerConfigs = ListMultiFrameCodec.decodeNullable(clientMessage, ListenerConfigHolderCodec::decode);
+        request.splitBrainProtectionName = CodecUtil.decodeNullable(clientMessage, StringCodec::decode);
+        request.mapEvictionPolicy = CodecUtil.decodeNullable(clientMessage, DataCodec::decode);
+        request.maxSizeConfigMaxSizePolicy = StringCodec.decode(clientMessage);
+        request.mapStoreConfig = CodecUtil.decodeNullable(clientMessage, MapStoreConfigHolderCodec::decode);
+        request.nearCacheConfig = CodecUtil.decodeNullable(clientMessage, NearCacheConfigHolderCodec::decode);
+        request.wanReplicationRef = CodecUtil.decodeNullable(clientMessage, WanReplicationRefCodec::decode);
+        request.mapIndexConfigs = ListMultiFrameCodec.decodeNullable(clientMessage, MapIndexConfigCodec::decode);
+        request.attributeConfigs = ListMultiFrameCodec.decodeNullable(clientMessage, AttributeConfigCodec::decode);
+        request.queryCacheConfigs = ListMultiFrameCodec.decodeNullable(clientMessage, QueryCacheConfigHolderCodec::decode);
+        request.partitioningStrategyClassName = CodecUtil.decodeNullable(clientMessage, StringCodec::decode);
+        request.partitioningStrategyImplementation = CodecUtil.decodeNullable(clientMessage, DataCodec::decode);
+        request.hotRestartConfig = CodecUtil.decodeNullable(clientMessage, HotRestartConfigCodec::decode);
+        request.eventJournalConfig = CodecUtil.decodeNullable(clientMessage, EventJournalConfigCodec::decode);
+        request.merkleTreeConfig = CodecUtil.decodeNullable(clientMessage, MerkleTreeConfigCodec::decode);
         return request;
     }
 
@@ -322,10 +319,9 @@ public final class DynamicConfigAddMapConfigCodec {
     }
 
     public static DynamicConfigAddMapConfigCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
         //empty initial frame
-        iterator.next();
+        clientMessage.next();
         return response;
     }
 

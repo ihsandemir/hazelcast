@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 import com.hazelcast.logging.Logger;
@@ -37,7 +35,7 @@ import com.hazelcast.logging.Logger;
 /**
  * TODO DOC
  */
-@Generated("1b405f85a75324c3488e487ce09f679a")
+@Generated("a246667b9f722522b78086899bf05bf9")
 public final class ClientAddMembershipListenerCodec {
     //hex: 0x000400
     public static final int REQUEST_MESSAGE_TYPE = 1024;
@@ -85,9 +83,8 @@ public final class ClientAddMembershipListenerCodec {
     }
 
     public static ClientAddMembershipListenerCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         request.localOnly = decodeBoolean(initialFrame.content, REQUEST_LOCAL_ONLY_FIELD_OFFSET);
         return request;
     }
@@ -112,9 +109,8 @@ public final class ClientAddMembershipListenerCodec {
     }
 
     public static ClientAddMembershipListenerCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         response.response = decodeUUID(initialFrame.content, RESPONSE_RESPONSE_FIELD_OFFSET);
         return response;
     }
@@ -159,28 +155,27 @@ public final class ClientAddMembershipListenerCodec {
 
         public void handle(ClientMessage clientMessage) {
             int messageType = clientMessage.getMessageType();
-            ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
             if (messageType == EVENT_MEMBER_MESSAGE_TYPE) {
-                ClientMessage.Frame initialFrame = iterator.next();
+                ClientMessage.Frame initialFrame = clientMessage.next();
                 int eventType = decodeInt(initialFrame.content, EVENT_MEMBER_EVENT_TYPE_FIELD_OFFSET);
-                com.hazelcast.cluster.Member member = MemberCodec.decode(iterator);
+                com.hazelcast.cluster.Member member = MemberCodec.decode(clientMessage);
                 handleMemberEvent(member, eventType);
                 return;
             }
             if (messageType == EVENT_MEMBER_LIST_MESSAGE_TYPE) {
                 //empty initial frame
-                iterator.next();
-                java.util.Collection<com.hazelcast.cluster.Member> members = ListMultiFrameCodec.decode(iterator, MemberCodec::decode);
+                clientMessage.next();
+                java.util.Collection<com.hazelcast.cluster.Member> members = ListMultiFrameCodec.decode(clientMessage, MemberCodec::decode);
                 handleMemberListEvent(members);
                 return;
             }
             if (messageType == EVENT_MEMBER_ATTRIBUTE_CHANGE_MESSAGE_TYPE) {
-                ClientMessage.Frame initialFrame = iterator.next();
+                ClientMessage.Frame initialFrame = clientMessage.next();
                 int operationType = decodeInt(initialFrame.content, EVENT_MEMBER_ATTRIBUTE_CHANGE_OPERATION_TYPE_FIELD_OFFSET);
-                com.hazelcast.cluster.Member member = MemberCodec.decode(iterator);
-                java.util.Collection<com.hazelcast.cluster.Member> members = ListMultiFrameCodec.decode(iterator, MemberCodec::decode);
-                java.lang.String key = StringCodec.decode(iterator);
-                java.lang.String value = CodecUtil.decodeNullable(iterator, StringCodec::decode);
+                com.hazelcast.cluster.Member member = MemberCodec.decode(clientMessage);
+                java.util.Collection<com.hazelcast.cluster.Member> members = ListMultiFrameCodec.decode(clientMessage, MemberCodec::decode);
+                java.lang.String key = StringCodec.decode(clientMessage);
+                java.lang.String value = CodecUtil.decodeNullable(clientMessage, StringCodec::decode);
                 handleMemberAttributeChangeEvent(member, members, key, operationType, value);
                 return;
             }

@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -51,7 +49,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * An implementation can favor responding to an interrupt over normal method return in response to a signal. In that
  * case the implementation must ensure that the signal is redirected to another waiting thread, if there is one.
  */
-@Generated("384d724e29e535393e8b6b63817411ea")
+@Generated("32075220ea1715f63e8bf1f51f850e8c")
 public final class ConditionBeforeAwaitCodec {
     //hex: 0x080200
     public static final int REQUEST_MESSAGE_TYPE = 524800;
@@ -105,13 +103,12 @@ public final class ConditionBeforeAwaitCodec {
     }
 
     public static ConditionBeforeAwaitCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         request.threadId = decodeLong(initialFrame.content, REQUEST_THREAD_ID_FIELD_OFFSET);
         request.referenceId = decodeLong(initialFrame.content, REQUEST_REFERENCE_ID_FIELD_OFFSET);
-        request.name = StringCodec.decode(iterator);
-        request.lockName = StringCodec.decode(iterator);
+        request.name = StringCodec.decode(clientMessage);
+        request.lockName = StringCodec.decode(clientMessage);
         return request;
     }
 
@@ -129,10 +126,9 @@ public final class ConditionBeforeAwaitCodec {
     }
 
     public static ConditionBeforeAwaitCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
         //empty initial frame
-        iterator.next();
+        clientMessage.next();
         return response;
     }
 

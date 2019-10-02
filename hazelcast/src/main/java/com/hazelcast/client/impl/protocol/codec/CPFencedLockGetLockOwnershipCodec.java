@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -36,7 +34,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * Returns current lock ownership status of the given FencedLock instance.
  */
-@Generated("bdd9d5859bf32b204c4fd11ce45496fd")
+@Generated("08503c6b1696fb97cc54fe74302a02f1")
 public final class CPFencedLockGetLockOwnershipCodec {
     //hex: 0x260400
     public static final int REQUEST_MESSAGE_TYPE = 2491392;
@@ -80,12 +78,11 @@ public final class CPFencedLockGetLockOwnershipCodec {
     }
 
     public static CPFencedLockGetLockOwnershipCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
         //empty initial frame
-        iterator.next();
-        request.groupId = RaftGroupIdCodec.decode(iterator);
-        request.name = StringCodec.decode(iterator);
+        clientMessage.next();
+        request.groupId = RaftGroupIdCodec.decode(clientMessage);
+        request.name = StringCodec.decode(clientMessage);
         return request;
     }
 
@@ -127,9 +124,8 @@ public final class CPFencedLockGetLockOwnershipCodec {
     }
 
     public static CPFencedLockGetLockOwnershipCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         response.fence = decodeLong(initialFrame.content, RESPONSE_FENCE_FIELD_OFFSET);
         response.lockCount = decodeInt(initialFrame.content, RESPONSE_LOCK_COUNT_FIELD_OFFSET);
         response.sessionId = decodeLong(initialFrame.content, RESPONSE_SESSION_ID_FIELD_OFFSET);

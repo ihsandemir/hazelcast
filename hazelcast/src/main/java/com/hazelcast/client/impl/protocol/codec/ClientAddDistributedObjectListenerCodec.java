@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 import com.hazelcast.logging.Logger;
@@ -37,7 +35,7 @@ import com.hazelcast.logging.Logger;
 /**
  * TODO DOC
  */
-@Generated("772072461664c16c9e01c01a900df256")
+@Generated("a9d06092474e37f06a3b62cab07ee55e")
 public final class ClientAddDistributedObjectListenerCodec {
     //hex: 0x000D00
     public static final int REQUEST_MESSAGE_TYPE = 3328;
@@ -77,9 +75,8 @@ public final class ClientAddDistributedObjectListenerCodec {
     }
 
     public static ClientAddDistributedObjectListenerCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         request.localOnly = decodeBoolean(initialFrame.content, REQUEST_LOCAL_ONLY_FIELD_OFFSET);
         return request;
     }
@@ -104,9 +101,8 @@ public final class ClientAddDistributedObjectListenerCodec {
     }
 
     public static ClientAddDistributedObjectListenerCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         response.response = decodeUUID(initialFrame.content, RESPONSE_RESPONSE_FIELD_OFFSET);
         return response;
     }
@@ -128,13 +124,12 @@ public final class ClientAddDistributedObjectListenerCodec {
 
         public void handle(ClientMessage clientMessage) {
             int messageType = clientMessage.getMessageType();
-            ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
             if (messageType == EVENT_DISTRIBUTED_OBJECT_MESSAGE_TYPE) {
                 //empty initial frame
-                iterator.next();
-                java.lang.String name = StringCodec.decode(iterator);
-                java.lang.String serviceName = StringCodec.decode(iterator);
-                java.lang.String eventType = StringCodec.decode(iterator);
+                clientMessage.next();
+                java.lang.String name = StringCodec.decode(clientMessage);
+                java.lang.String serviceName = StringCodec.decode(clientMessage);
+                java.lang.String eventType = StringCodec.decode(clientMessage);
                 handleDistributedObjectEvent(name, serviceName, eventType);
                 return;
             }

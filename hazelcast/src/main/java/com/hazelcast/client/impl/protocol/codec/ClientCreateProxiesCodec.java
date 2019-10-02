@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -40,7 +38,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * Exceptions related to a proxy creation failure is not send to the client.
  * A proxy creation failure does not cancel this operation, all proxies will be attempted to be created.
  */
-@Generated("be5bd758fd59bbd3548040a568104aac")
+@Generated("7e6018fa0281b7c56beba1572bbfe094")
 public final class ClientCreateProxiesCodec {
     //hex: 0x001300
     public static final int REQUEST_MESSAGE_TYPE = 4864;
@@ -77,11 +75,10 @@ public final class ClientCreateProxiesCodec {
     }
 
     public static ClientCreateProxiesCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
         //empty initial frame
-        iterator.next();
-        request.proxies = EntryListCodec.decode(iterator, StringCodec::decode, StringCodec::decode);
+        clientMessage.next();
+        request.proxies = EntryListCodec.decode(clientMessage, StringCodec::decode, StringCodec::decode);
         return request;
     }
 
@@ -99,10 +96,9 @@ public final class ClientCreateProxiesCodec {
     }
 
     public static ClientCreateProxiesCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
         //empty initial frame
-        iterator.next();
+        clientMessage.next();
         return response;
     }
 

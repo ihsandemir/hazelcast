@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -43,7 +41,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * If smart routing is disabled, the actual member processing the client
  * message may act as a proxy.
  */
-@Generated("85793bd17163703f263335573a4d5ae2")
+@Generated("d914d17a8cc2619883a4bd35bbe4cdfe")
 public final class PNCounterGetCodec {
     //hex: 0x200100
     public static final int REQUEST_MESSAGE_TYPE = 2097408;
@@ -91,13 +89,12 @@ public final class PNCounterGetCodec {
     }
 
     public static PNCounterGetCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
         //empty initial frame
-        iterator.next();
-        request.name = StringCodec.decode(iterator);
-        request.replicaTimestamps = EntryListUUIDLongCodec.decode(iterator);
-        request.targetReplica = AddressCodec.decode(iterator);
+        clientMessage.next();
+        request.name = StringCodec.decode(clientMessage);
+        request.replicaTimestamps = EntryListUUIDLongCodec.decode(clientMessage);
+        request.targetReplica = AddressCodec.decode(clientMessage);
         return request;
     }
 
@@ -133,12 +130,11 @@ public final class PNCounterGetCodec {
     }
 
     public static PNCounterGetCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         response.value = decodeLong(initialFrame.content, RESPONSE_VALUE_FIELD_OFFSET);
         response.replicaCount = decodeInt(initialFrame.content, RESPONSE_REPLICA_COUNT_FIELD_OFFSET);
-        response.replicaTimestamps = EntryListUUIDLongCodec.decode(iterator);
+        response.replicaTimestamps = EntryListUUIDLongCodec.decode(clientMessage);
         return response;
     }
 

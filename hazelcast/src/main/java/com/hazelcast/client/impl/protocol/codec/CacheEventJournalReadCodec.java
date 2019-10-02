@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -43,7 +41,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * The predicate, filter and projection may be {@code null} in which case all elements are returned
  * and no projection is applied.
  */
-@Generated("bc8be0c7c9a85c82dc586dfceb27947c")
+@Generated("66a2d83f1922d5ea11813601f71535be")
 public final class CacheEventJournalReadCodec {
     //hex: 0x152200
     public static final int REQUEST_MESSAGE_TYPE = 1384960;
@@ -112,15 +110,14 @@ public final class CacheEventJournalReadCodec {
     }
 
     public static CacheEventJournalReadCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         request.startSequence = decodeLong(initialFrame.content, REQUEST_START_SEQUENCE_FIELD_OFFSET);
         request.minSize = decodeInt(initialFrame.content, REQUEST_MIN_SIZE_FIELD_OFFSET);
         request.maxSize = decodeInt(initialFrame.content, REQUEST_MAX_SIZE_FIELD_OFFSET);
-        request.name = StringCodec.decode(iterator);
-        request.predicate = CodecUtil.decodeNullable(iterator, DataCodec::decode);
-        request.projection = CodecUtil.decodeNullable(iterator, DataCodec::decode);
+        request.name = StringCodec.decode(clientMessage);
+        request.predicate = CodecUtil.decodeNullable(clientMessage, DataCodec::decode);
+        request.projection = CodecUtil.decodeNullable(clientMessage, DataCodec::decode);
         return request;
     }
 
@@ -162,13 +159,12 @@ public final class CacheEventJournalReadCodec {
     }
 
     public static CacheEventJournalReadCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         response.readCount = decodeInt(initialFrame.content, RESPONSE_READ_COUNT_FIELD_OFFSET);
         response.nextSeq = decodeLong(initialFrame.content, RESPONSE_NEXT_SEQ_FIELD_OFFSET);
-        response.items = ListMultiFrameCodec.decode(iterator, DataCodec::decode);
-        response.itemSeqs = CodecUtil.decodeNullable(iterator, LongArrayCodec::decode);
+        response.items = ListMultiFrameCodec.decode(clientMessage, DataCodec::decode);
+        response.itemSeqs = CodecUtil.decodeNullable(clientMessage, LongArrayCodec::decode);
         return response;
     }
 

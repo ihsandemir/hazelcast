@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -38,7 +36,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
  * {@code expiryPolicy} takes precedence for these particular {@code keys} against any cache wide expiry policy.
  * If some keys in {@code keys} do not exist or are already expired, this call has no effect for those.
  */
-@Generated("22aa643328989bbfabbd2b93db0e802e")
+@Generated("fb790695e755205ba4d83c06931730b9")
 public final class CacheSetExpiryPolicyCodec {
     //hex: 0x152300
     public static final int REQUEST_MESSAGE_TYPE = 1385216;
@@ -85,13 +83,12 @@ public final class CacheSetExpiryPolicyCodec {
     }
 
     public static CacheSetExpiryPolicyCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
         //empty initial frame
-        iterator.next();
-        request.name = StringCodec.decode(iterator);
-        request.keys = ListMultiFrameCodec.decode(iterator, DataCodec::decode);
-        request.expiryPolicy = DataCodec.decode(iterator);
+        clientMessage.next();
+        request.name = StringCodec.decode(clientMessage);
+        request.keys = ListMultiFrameCodec.decode(clientMessage, DataCodec::decode);
+        request.expiryPolicy = DataCodec.decode(clientMessage);
         return request;
     }
 
@@ -115,9 +112,8 @@ public final class CacheSetExpiryPolicyCodec {
     }
 
     public static CacheSetExpiryPolicyCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         response.response = decodeBoolean(initialFrame.content, RESPONSE_RESPONSE_FIELD_OFFSET);
         return response;
     }

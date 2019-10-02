@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -36,7 +34,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * TODO DOC
  */
-@Generated("8868ccaf6806d50ea0b3991577325bd4")
+@Generated("65322fe2d7a5cf6008f03621b27760d6")
 public final class FlakeIdGeneratorNewIdBatchCodec {
     //hex: 0x1F0100
     public static final int REQUEST_MESSAGE_TYPE = 2031872;
@@ -80,11 +78,10 @@ public final class FlakeIdGeneratorNewIdBatchCodec {
     }
 
     public static FlakeIdGeneratorNewIdBatchCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         request.batchSize = decodeInt(initialFrame.content, REQUEST_BATCH_SIZE_FIELD_OFFSET);
-        request.name = StringCodec.decode(iterator);
+        request.name = StringCodec.decode(clientMessage);
         return request;
     }
 
@@ -120,9 +117,8 @@ public final class FlakeIdGeneratorNewIdBatchCodec {
     }
 
     public static FlakeIdGeneratorNewIdBatchCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         response.base = decodeLong(initialFrame.content, RESPONSE_BASE_FIELD_OFFSET);
         response.increment = decodeLong(initialFrame.content, RESPONSE_INCREMENT_FIELD_OFFSET);
         response.batchSize = decodeInt(initialFrame.content, RESPONSE_BATCH_SIZE_FIELD_OFFSET);

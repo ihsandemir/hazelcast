@@ -21,8 +21,6 @@ import com.hazelcast.client.impl.protocol.Generated;
 import com.hazelcast.client.impl.protocol.codec.builtin.*;
 import com.hazelcast.client.impl.protocol.codec.custom.*;
 
-import java.util.ListIterator;
-
 import static com.hazelcast.client.impl.protocol.ClientMessage.*;
 import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCodec.*;
 
@@ -36,7 +34,7 @@ import static com.hazelcast.client.impl.protocol.codec.builtin.FixedSizeTypesCod
 /**
  * TODO DOC
  */
-@Generated("4a997f98e8555de3c1ec2d10c1b55c4b")
+@Generated("2a97c1f4f28dc4d9949311c17ed57d67")
 public final class ContinuousQueryPublisherCreateWithValueCodec {
     //hex: 0x180100
     public static final int REQUEST_MESSAGE_TYPE = 1573120;
@@ -118,17 +116,16 @@ public final class ContinuousQueryPublisherCreateWithValueCodec {
     }
 
     public static ContinuousQueryPublisherCreateWithValueCodec.RequestParameters decodeRequest(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         RequestParameters request = new RequestParameters();
-        ClientMessage.Frame initialFrame = iterator.next();
+        ClientMessage.Frame initialFrame = clientMessage.next();
         request.batchSize = decodeInt(initialFrame.content, REQUEST_BATCH_SIZE_FIELD_OFFSET);
         request.bufferSize = decodeInt(initialFrame.content, REQUEST_BUFFER_SIZE_FIELD_OFFSET);
         request.delaySeconds = decodeLong(initialFrame.content, REQUEST_DELAY_SECONDS_FIELD_OFFSET);
         request.populate = decodeBoolean(initialFrame.content, REQUEST_POPULATE_FIELD_OFFSET);
         request.coalesce = decodeBoolean(initialFrame.content, REQUEST_COALESCE_FIELD_OFFSET);
-        request.mapName = StringCodec.decode(iterator);
-        request.cacheName = StringCodec.decode(iterator);
-        request.predicate = DataCodec.decode(iterator);
+        request.mapName = StringCodec.decode(clientMessage);
+        request.cacheName = StringCodec.decode(clientMessage);
+        request.predicate = DataCodec.decode(clientMessage);
         return request;
     }
 
@@ -152,11 +149,10 @@ public final class ContinuousQueryPublisherCreateWithValueCodec {
     }
 
     public static ContinuousQueryPublisherCreateWithValueCodec.ResponseParameters decodeResponse(ClientMessage clientMessage) {
-        ListIterator<ClientMessage.Frame> iterator = clientMessage.listIterator();
         ResponseParameters response = new ResponseParameters();
         //empty initial frame
-        iterator.next();
-        response.response = EntryListCodec.decode(iterator, DataCodec::decode, DataCodec::decode);
+        clientMessage.next();
+        response.response = EntryListCodec.decode(clientMessage, DataCodec::decode, DataCodec::decode);
         return response;
     }
 
