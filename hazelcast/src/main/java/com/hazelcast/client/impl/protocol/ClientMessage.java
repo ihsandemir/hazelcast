@@ -23,6 +23,7 @@ import com.hazelcast.internal.serialization.BinaryInterface;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 
 /**
@@ -364,10 +365,11 @@ public final class ClientMessage implements OutboundFrame, Iterator<ClientMessag
     }
 
     public Frame next() {
-        Frame result = nextFrame;
-        if (nextFrame != null) {
-            nextFrame = nextFrame.next;
+        if (nextFrame == null) {
+            throw new NoSuchElementException("End of frames is reached.");
         }
+        Frame result = nextFrame;
+        nextFrame = nextFrame.next;
         return result;
     }
 
