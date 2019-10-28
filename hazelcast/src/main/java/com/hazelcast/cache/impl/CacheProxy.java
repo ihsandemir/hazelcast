@@ -282,8 +282,11 @@ public class CacheProxy<K, V> extends CacheProxySupport<K, V>
         CacheEventListenerAdaptor<K, V> entryListener = new CacheEventListenerAdaptor<K, V>(this,
                 cacheEntryListenerConfiguration,
                 getNodeEngine().getSerializationService());
-        UUID regId = getService().registerListener(getDistributedObjectName(), entryListener, entryListener, false);
-        if (regId != null) {
+        CompletableFuture<EventRegistration> eventRegistration = getService()
+                .registerListener(getDistributedObjectName(), entryListener, entryListener, false);
+
+        if (eventRegistration != null && eventRegistration.get()) {
+            UUID regId = eventRegistration.getId();
             if (addToConfig) {
                 cacheConfig.addCacheEntryListenerConfiguration(cacheEntryListenerConfiguration);
             }
@@ -300,7 +303,9 @@ public class CacheProxy<K, V> extends CacheProxySupport<K, V>
 
         UUID regId = getListenerIdLocal(cacheEntryListenerConfiguration);
         if (regId != null) {
-            if (getService().deregisterListener(getDistributedObjectName(), regId)) {
+            CompletableFuture<EventRegistration> eventRegistration = getService().deregisterListener(getDistributedObjectName(), regId);
+
+            if (eventRegistration.get()) {
                 removeListenerLocally(cacheEntryListenerConfiguration);
                 cacheConfig.removeCacheEntryListenerConfiguration(cacheEntryListenerConfiguration);
                 updateCacheListenerConfigOnOtherNodes(cacheEntryListenerConfiguration, false);
@@ -333,17 +338,20 @@ public class CacheProxy<K, V> extends CacheProxySupport<K, V>
         EventFilter filter = new CachePartitionLostEventFilter();
         InternalCachePartitionLostListenerAdapter listenerAdapter = new InternalCachePartitionLostListenerAdapter(listener);
         injectDependencies(listener);
-        EventRegistration registration = getService().getNodeEngine().getEventService()
-                .registerListener(AbstractCacheService.SERVICE_NAME, name, filter, listenerAdapter);
-
+        CompletableFuture<EventRegistration> registration = getService().getNodeEngine().getEventService()
+                                                           .registerListener(AbstractCacheService.SERVICE_NAME, name, filter,
+                                                                   listenerAdapter);
+        registration.get();
         return registration.getId();
     }
 
     @Override
     public boolean removePartitionLostListener(UUID id) {
         checkNotNull(id, "Listener ID should not be null!");
-        return getService().getNodeEngine().getEventService()
-                .deregisterListener(AbstractCacheService.SERVICE_NAME, name, id);
+        CompletableFuture<EventRegistration> registrationFuture = getService().getNodeEngine().getEventService()
+                                                                      .deregisterListener(AbstractCacheService.SERVICE_NAME, name,
+                                                                              id);
+        return registrationFuture.get();
     }
 
     @Override

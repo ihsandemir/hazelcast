@@ -26,6 +26,7 @@ import com.hazelcast.spi.partition.IPartitionService;
 
 import java.util.Collection;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 import static com.hazelcast.internal.util.ToHeapDataConverter.toHeapData;

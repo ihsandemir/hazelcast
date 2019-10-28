@@ -34,6 +34,7 @@ import com.hazelcast.spi.exception.RetryableHazelcastException;
 import com.hazelcast.spi.impl.operationservice.AbstractNamedOperation;
 
 import java.util.Collection;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * This class contains methods for Queue operations

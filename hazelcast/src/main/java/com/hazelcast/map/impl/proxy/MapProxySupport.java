@@ -81,6 +81,7 @@ import com.hazelcast.spi.impl.InitializingObject;
 import com.hazelcast.spi.impl.InternalCompletableFuture;
 import com.hazelcast.spi.impl.NodeEngine;
 import com.hazelcast.spi.impl.eventservice.EventFilter;
+import com.hazelcast.spi.impl.eventservice.EventRegistration;
 import com.hazelcast.spi.impl.operationservice.BinaryOperationFactory;
 import com.hazelcast.spi.impl.operationservice.Operation;
 import com.hazelcast.spi.impl.operationservice.OperationFactory;
@@ -1140,37 +1141,38 @@ abstract class MapProxySupport<K, V>
         }
     }
 
-    public UUID addLocalEntryListenerInternal(Object listener) {
+    public CompletableFuture<EventRegistration> addLocalEntryListenerInternal(Object listener) {
         return mapServiceContext.addLocalEventListener(listener, name);
     }
 
-    public UUID addLocalEntryListenerInternal(Object listener, Predicate predicate, Data key, boolean includeValue) {
+    public CompletableFuture<EventRegistration> addLocalEntryListenerInternal(Object listener, Predicate predicate, Data key,
+                                                                 boolean includeValue) {
         EventFilter eventFilter = new QueryEventFilter(includeValue, key, predicate);
         return mapServiceContext.addLocalEventListener(listener, eventFilter, name);
     }
 
-    protected UUID addEntryListenerInternal(Object listener, Data key, boolean includeValue) {
+    protected CompletableFuture<EventRegistration> addEntryListenerInternal(Object listener, Data key, boolean includeValue) {
         EventFilter eventFilter = new EntryEventFilter(includeValue, key);
         return mapServiceContext.addEventListener(listener, eventFilter, name);
     }
 
-    protected UUID addEntryListenerInternal(Object listener,
-                                              Predicate predicate,
-                                              @Nullable Data key,
-                                              boolean includeValue) {
+    protected CompletableFuture<EventRegistration> addEntryListenerInternal(Object listener,
+                                                               Predicate predicate,
+                                                               @Nullable Data key,
+                                                               boolean includeValue) {
         EventFilter eventFilter = new QueryEventFilter(includeValue, key, predicate);
         return mapServiceContext.addEventListener(listener, eventFilter, name);
     }
 
-    protected boolean removeEntryListenerInternal(UUID id) {
+    protected CompletableFuture<EventRegistration> removeEntryListenerInternal(UUID id) {
         return mapServiceContext.removeEventListener(name, id);
     }
 
-    protected UUID addPartitionLostListenerInternal(MapPartitionLostListener listener) {
+    protected CompletableFuture<EventRegistration> addPartitionLostListenerInternal(MapPartitionLostListener listener) {
         return mapServiceContext.addPartitionLostListener(listener, name);
     }
 
-    protected boolean removePartitionLostListenerInternal(UUID id) {
+    protected CompletableFuture<EventRegistration> removePartitionLostListenerInternal(UUID id) {
         return mapServiceContext.removePartitionLostListener(name, id);
     }
 

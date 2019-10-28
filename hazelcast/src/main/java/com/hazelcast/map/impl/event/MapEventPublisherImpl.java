@@ -146,7 +146,7 @@ public class MapEventPublisherImpl implements MapEventPublisher {
         }
 
         Collection<EventRegistration> registrations = null;
-        for (EventRegistration registration : mapsListenerRegistrations) {
+        for (CompletableFuture<EventRegistration> registration : mapsListenerRegistrations) {
             EventFilter filter = registration.getFilter();
 
             if (filter instanceof EventListenerFilter) {
@@ -217,7 +217,7 @@ public class MapEventPublisherImpl implements MapEventPublisher {
 
         int orderKey = pickOrderKey(dataKey);
 
-        for (EventRegistration registration : registrations) {
+        for (CompletableFuture<EventRegistration> registration : registrations) {
             EventFilter filter = registration.getFilter();
             // a filtering strategy determines whether the event must be published on the specific
             // event registration and may alter the type of event to be published
@@ -286,7 +286,7 @@ public class MapEventPublisherImpl implements MapEventPublisher {
     @Override
     public void publishMapPartitionLostEvent(Address caller, String mapName, int partitionId) {
         Collection<EventRegistration> registrations = new LinkedList<>();
-        for (EventRegistration registration : getRegistrations(mapName)) {
+        for (CompletableFuture<EventRegistration> registration : getRegistrations(mapName)) {
             if (registration.getFilter() instanceof MapPartitionLostEventFilter) {
                 registrations.add(registration);
             }

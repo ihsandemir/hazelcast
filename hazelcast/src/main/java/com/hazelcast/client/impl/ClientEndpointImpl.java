@@ -211,12 +211,8 @@ public final class ClientEndpointImpl implements ClientEndpoint {
     @Override
     public void addListenerDestroyAction(final String service, final String topic, final UUID id) {
         final EventService eventService = clientEngine.getEventService();
-        addDestroyAction(id, new Callable<Boolean>() {
-            @Override
-            public Boolean call() {
-                return eventService.deregisterListener(service, topic, id);
-            }
-        });
+        // the destroy action is blocking. It is called when the connection is being closed.
+        addDestroyAction(id, () -> eventService.deregisterListener(service, topic, id).get());
     }
 
     @Override

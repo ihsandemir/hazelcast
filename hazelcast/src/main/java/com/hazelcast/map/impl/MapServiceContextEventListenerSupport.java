@@ -18,26 +18,28 @@ package com.hazelcast.map.impl;
 
 import com.hazelcast.map.listener.MapPartitionLostListener;
 import com.hazelcast.spi.impl.eventservice.EventFilter;
+import com.hazelcast.spi.impl.eventservice.EventRegistration;
 
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Helper event listener methods for {@link MapServiceContext}.
  */
 public interface MapServiceContextEventListenerSupport {
 
-    UUID addLocalEventListener(Object mapListener, String mapName);
+    CompletableFuture<EventRegistration> addLocalEventListener(Object mapListener, String mapName);
 
-    UUID addLocalEventListener(Object mapListener, EventFilter eventFilter, String mapName);
+    CompletableFuture<EventRegistration> addLocalEventListener(Object mapListener, EventFilter eventFilter, String mapName);
 
-    UUID addLocalPartitionLostListener(MapPartitionLostListener listener, String mapName);
+    CompletableFuture<EventRegistration> addLocalPartitionLostListener(MapPartitionLostListener listener, String mapName);
 
-    UUID addEventListener(Object mapListener, EventFilter eventFilter, String mapName);
+    CompletableFuture<EventRegistration> addEventListener(Object mapListener, EventFilter eventFilter, String mapName);
 
-    UUID addPartitionLostListener(MapPartitionLostListener listener, String mapName);
+    CompletableFuture<EventRegistration> addPartitionLostListener(MapPartitionLostListener listener, String mapName);
 
-    boolean removeEventListener(String mapName, UUID registrationId);
+    CompletableFuture<EventRegistration> removeEventListener(String mapName, UUID registrationId);
 
-    boolean removePartitionLostListener(String mapName, UUID registrationId);
+    CompletableFuture<EventRegistration> removePartitionLostListener(String mapName, UUID registrationId);
 
 }

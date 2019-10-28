@@ -16,21 +16,22 @@
 
 package com.hazelcast.internal.partition;
 
+import com.hazelcast.cluster.Address;
 import com.hazelcast.cluster.Member;
 import com.hazelcast.instance.impl.NodeState;
 import com.hazelcast.internal.partition.impl.InternalPartitionServiceImpl;
 import com.hazelcast.internal.partition.operation.SafeStateCheckOperation;
+import com.hazelcast.internal.util.FutureUtil;
 import com.hazelcast.logging.ILogger;
-import com.hazelcast.cluster.Address;
 import com.hazelcast.partition.MigrationListener;
 import com.hazelcast.partition.Partition;
 import com.hazelcast.partition.PartitionLostListener;
 import com.hazelcast.partition.PartitionService;
 import com.hazelcast.spi.impl.NodeEngineImpl;
+import com.hazelcast.spi.impl.eventservice.EventRegistration;
 import com.hazelcast.spi.impl.operationservice.Operation;
 import com.hazelcast.spi.impl.operationservice.impl.InvocationFuture;
 import com.hazelcast.spi.properties.GroupProperty;
-import com.hazelcast.internal.util.FutureUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,9 +40,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import static com.hazelcast.internal.util.ExceptionUtil.rethrow;
 import static com.hazelcast.internal.util.MapUtil.createHashMap;
 
 public class PartitionServiceProxy implements PartitionService {
@@ -90,22 +93,49 @@ public class PartitionServiceProxy implements PartitionService {
 
     @Override
     public UUID addMigrationListener(final MigrationListener migrationListener) {
-        return partitionService.addMigrationListener(migrationListener);
+        CompletableFuture<EventRegistration> registrationFuture = partitionService.addMigrationListener(migrationListener);
+        return getRegistrationId(registrationFuture);
+    }
+
+    private UUID getRegistrationId(CompletableFuture<EventRegistration> registrationFuture) {
+        EventRegistration eventRegistration = null;
+        try {
+            eventRegistration = registrationFuture.get();
+        } catch (Exception e) {
+            rethrow(e);
+        }
+        if (eventRegistration == null) {
+            return null;
+        }
+        return eventRegistration.getId();
     }
 
     @Override
     public boolean removeMigrationListener(final UUID registrationId) {
-        return partitionService.removeMigrationListener(registrationId);
+        CompletableFuture<EventRegistration> registrationFuture = partitionService.removeMigrationListener(registrationId);
+        return getListenerRemovalResult(registrationFuture);
+    }
+
+    private boolean getListenerRemovalResult(CompletableFuture<EventRegistration> registrationFuture) {
+        EventRegistration eventRegistration = null;
+        try {
+            eventRegistration = registrationFuture.get();
+        } catch (Exception e) {
+            rethrow(e);
+        }
+        return eventRegistration != null;
     }
 
     @Override
     public UUID addPartitionLostListener(PartitionLostListener partitionLostListener) {
-        return partitionService.addPartitionLostListener(partitionLostListener);
+        CompletableFuture<EventRegistration> registrationFuture = partitionService.addPartitionLostListener(partitionLostListener);
+        return getRegistrationId(registrationFuture);
     }
 
     @Override
     public boolean removePartitionLostListener(UUID registrationId) {
-        return partitionService.removePartitionLostListener(registrationId);
+        CompletableFuture<EventRegistration> registrationFuture = partitionService.removePartitionLostListener(registrationId);
+        return getListenerRemovalResult(registrationFuture);
     }
 
     @Override

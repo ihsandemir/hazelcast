@@ -179,7 +179,7 @@ public class ClientMapPartitionLostListenerTest extends HazelcastTestSupport {
             @Override
             public void run() throws Exception {
                 boolean registered = false;
-                for (EventRegistration registration : eventService.getRegistrations(SERVICE_NAME, mapName)) {
+                for (CompletableFuture<EventRegistration> registration : eventService.getRegistrations(SERVICE_NAME, mapName)) {
                     if (registration.getFilter() instanceof MapPartitionLostEventFilter) {
                         registered = true;
                         break;

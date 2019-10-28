@@ -26,6 +26,7 @@ import com.hazelcast.spi.impl.eventservice.EventService;
 import com.hazelcast.spi.impl.NodeEngine;
 
 import java.util.Collection;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Publishes multimap entry and map events through eventService

@@ -37,9 +37,11 @@ import com.hazelcast.cluster.Address;
 import com.hazelcast.internal.nio.IOService;
 import com.hazelcast.nio.MemberSocketInterceptor;
 import com.hazelcast.internal.nio.Packet;
+import com.hazelcast.spi.impl.InternalCompletableFuture;
 import com.hazelcast.spi.impl.eventservice.EventFilter;
 import com.hazelcast.spi.impl.eventservice.EventRegistration;
 import com.hazelcast.spi.impl.eventservice.EventService;
+import com.hazelcast.spi.impl.eventservice.impl.Registration;
 import com.hazelcast.spi.impl.operationservice.Operation;
 import com.hazelcast.spi.properties.HazelcastProperties;
 
@@ -53,6 +55,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
@@ -241,35 +244,37 @@ public class MockIOService implements IOService {
             }
 
             @Override
-            public EventRegistration registerLocalListener(@Nonnull String serviceName,
-                                                           @Nonnull String topic,
-                                                           @Nonnull Object listener) {
+            public CompletableFuture<EventRegistration> registerLocalListener(@Nonnull String serviceName,
+                                                                 @Nonnull String topic,
+                                                                 @Nonnull Object listener) {
                 return null;
             }
 
             @Override
-            public EventRegistration registerLocalListener(@Nonnull String serviceName,
-                                                           @Nonnull String topic,
-                                                           @Nonnull EventFilter filter,
-                                                           @Nonnull Object listener) {
+            public CompletableFuture<EventRegistration> registerLocalListener(@Nonnull String serviceName,
+                                                                 @Nonnull String topic,
+                                                                 @Nonnull EventFilter filter,
+                                                                 @Nonnull Object listener) {
                 return null;
             }
 
             @Override
-            public EventRegistration registerListener(@Nonnull String serviceName,
-                                                      @Nonnull String topic,
-                                                      @Nonnull Object listener) {
+            public CompletableFuture<EventRegistration> registerListener(@Nonnull String serviceName,
+                                                            @Nonnull String topic,
+                                                            @Nonnull Object listener) {
                 return null;
             }
 
             @Override
-            public EventRegistration registerListener(@Nonnull String serviceName, @Nonnull String topic, @Nonnull EventFilter filter, @Nonnull Object listener) {
+            public CompletableFuture<EventRegistration> registerListener(@Nonnull String serviceName, @Nonnull String topic, @Nonnull EventFilter filter, @Nonnull Object listener) {
                 return null;
             }
 
             @Override
-            public boolean deregisterListener(@Nonnull String serviceName, @Nonnull String topic, @Nonnull Object id) {
-                return false;
+            public CompletableFuture<EventRegistration> deregisterListener(@Nonnull String serviceName, @Nonnull String topic, @Nonnull Object id) {
+                Registration registration = new Registration((UUID) id, serviceName, topic, null, null, null, true);
+                registration.setFuture(InternalCompletableFuture.newCompletedFuture(false));
+                return registration;
             }
 
             @Override
@@ -296,7 +301,7 @@ public class MockIOService implements IOService {
             }
 
             @Override
-            public void publishEvent(String serviceName, EventRegistration registration, Object event, int orderKey) {
+            public void publishEvent(String serviceName, CompletableFuture<EventRegistration> registration, Object event, int orderKey) {
             }
 
             @Override
@@ -313,7 +318,7 @@ public class MockIOService implements IOService {
             }
 
             @Override
-            public void close(EventRegistration eventRegistration) {
+            public void close(CompletableFuture<EventRegistration> eventRegistration) {
             }
 
             @Override

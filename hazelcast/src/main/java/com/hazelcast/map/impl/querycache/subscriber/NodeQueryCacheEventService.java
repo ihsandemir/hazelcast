@@ -44,6 +44,7 @@ import com.hazelcast.internal.util.ContextMutexFactory;
 
 import java.util.Collection;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 import static com.hazelcast.map.impl.MapService.SERVICE_NAME;
 import static com.hazelcast.map.impl.querycache.subscriber.QueryCacheEventListenerAdapters.createQueryCacheListenerAdaptor;
@@ -87,12 +88,14 @@ public class NodeQueryCacheEventService implements QueryCacheEventService<EventD
 
     @Override
     public UUID addPublisherListener(String mapName, String cacheId, ListenerAdapter listenerAdapter) {
-        return mapServiceContext.addListenerAdapter(listenerAdapter, TrueEventFilter.INSTANCE, cacheId);
+        CompletableFuture<EventRegistration> registrationFuture = mapServiceContext
+                .addListenerAdapter(listenerAdapter, TrueEventFilter.INSTANCE, cacheId);
+        return registrationFuture.get() ? registrationFuture.getId() : null;
     }
 
     @Override
     public boolean removePublisherListener(String mapName, String cacheId, UUID listenerId) {
-        return mapServiceContext.removeEventListener(cacheId, listenerId);
+        return mapServiceContext.removeEventListener(cacheId, listenerId).get();
     }
 
     @Override
@@ -107,7 +110,7 @@ public class NodeQueryCacheEventService implements QueryCacheEventService<EventD
         ContextMutexFactory.Mutex mutex = lifecycleMutexFactory.mutexFor(mapName);
         try {
             synchronized (mutex) {
-                EventRegistration registration = eventService.registerLocalListener(SERVICE_NAME, cacheId,
+                CompletableFuture<EventRegistration> registration = eventService.registerLocalListener(SERVICE_NAME, cacheId,
                         filter == null ? TrueEventFilter.INSTANCE : filter, listenerAdaptor);
                 return registration.getId();
             }
@@ -118,7 +121,7 @@ public class NodeQueryCacheEventService implements QueryCacheEventService<EventD
 
     @Override
     public boolean removeListener(String mapName, String cacheId, UUID listenerId) {
-        return eventService.deregisterListener(SERVICE_NAME, cacheId, listenerId);
+        return eventService.deregisterListener(SERVICE_NAME, cacheId, listenerId).get();
     }
 
     @Override
@@ -141,7 +144,7 @@ public class NodeQueryCacheEventService implements QueryCacheEventService<EventD
             return false;
         }
 
-        for (EventRegistration eventRegistration : eventRegistrations) {
+        for (CompletableFuture<EventRegistration> eventRegistration : eventRegistrations) {
             Registration registration = (Registration) eventRegistration;
             Object listener = registration.getListener();
             if (listener instanceof QueryCacheListenerAdapter) {
@@ -159,7 +162,7 @@ public class NodeQueryCacheEventService implements QueryCacheEventService<EventD
             return;
         }
 
-        for (EventRegistration eventRegistration : eventRegistrations) {
+        for (CompletableFuture<EventRegistration> eventRegistration : eventRegistrations) {
             Registration registration = (Registration) eventRegistration;
             Object listener = registration.getListener();
             if (!(listener instanceof QueryCacheListenerAdapter)) {
@@ -222,7 +225,7 @@ public class NodeQueryCacheEventService implements QueryCacheEventService<EventD
         return eventService.getRegistrations(SERVICE_NAME, mapName);
     }
 
-    private void publishEventInternal(EventRegistration registration, Object eventData, int orderKey) {
+    private void publishEventInternal(CompletableFuture<EventRegistration> registration, Object eventData, int orderKey) {
         eventService.publishEvent(SERVICE_NAME, registration, eventData, orderKey);
     }
 
@@ -232,7 +235,7 @@ public class NodeQueryCacheEventService implements QueryCacheEventService<EventD
         if (eventRegistrations.isEmpty()) {
             return;
         }
-        for (EventRegistration eventRegistration : eventRegistrations) {
+        for (CompletableFuture<EventRegistration> eventRegistration : eventRegistrations) {
             Registration registration = (Registration) eventRegistration;
             Object listener = registration.getListener();
             if (listener instanceof QueryCacheListenerAdapter) {

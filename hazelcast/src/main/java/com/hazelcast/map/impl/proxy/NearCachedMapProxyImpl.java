@@ -36,6 +36,7 @@ import com.hazelcast.query.Predicate;
 import com.hazelcast.spi.impl.InternalCompletableFuture;
 import com.hazelcast.spi.impl.NodeEngine;
 import com.hazelcast.spi.impl.eventservice.EventFilter;
+import com.hazelcast.spi.impl.eventservice.EventRegistration;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -609,7 +610,9 @@ public class NearCachedMapProxyImpl<K, V> extends MapProxyImpl<K, V> {
         // local member UUID may change after a split-brain merge
         UUID localMemberUuid = getNodeEngine().getClusterService().getLocalMember().getUuid();
         EventFilter eventFilter = new UuidFilter(localMemberUuid);
-        return mapServiceContext.addEventListener(listener, eventFilter, name);
+        CompletableFuture<EventRegistration> registrationFuture = mapServiceContext.addEventListener(listener, eventFilter, name);
+        registrationFuture.get();
+        return registrationFuture.getId();
     }
 
     private void registerInvalidationListener() {

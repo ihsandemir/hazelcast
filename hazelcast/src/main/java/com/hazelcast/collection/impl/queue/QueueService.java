@@ -71,6 +71,7 @@ import java.util.Properties;
 import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -274,23 +275,21 @@ public class QueueService implements ManagedService, MigrationAwareService, Tran
         splitBrainProtectionConfigCache.remove(name);
     }
 
-    public UUID addItemListener(String name, ItemListener listener, boolean includeValue, boolean isLocal) {
+    public CompletableFuture<EventRegistration> addItemListener(String name, ItemListener listener, boolean includeValue, boolean isLocal) {
         EventService eventService = nodeEngine.getEventService();
         QueueEventFilter filter = new QueueEventFilter(includeValue);
-        EventRegistration registration;
         if (isLocal) {
-            registration = eventService.registerLocalListener(
+            return eventService.registerLocalListener(
                     QueueService.SERVICE_NAME, name, filter, listener);
 
         } else {
-            registration = eventService.registerListener(
+            return eventService.registerListener(
                     QueueService.SERVICE_NAME, name, filter, listener);
 
         }
-        return registration.getId();
     }
 
-    public boolean removeItemListener(String name, UUID registrationId) {
+    public CompletableFuture<EventRegistration> removeItemListener(String name, UUID registrationId) {
         EventService eventService = nodeEngine.getEventService();
         return eventService.deregisterListener(SERVICE_NAME, name, registrationId);
     }

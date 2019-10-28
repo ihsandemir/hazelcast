@@ -18,8 +18,8 @@ package com.hazelcast.client.impl.protocol.task.topic;
 
 import com.hazelcast.client.impl.protocol.ClientMessage;
 import com.hazelcast.client.impl.protocol.codec.TopicAddMessageListenerCodec;
-import com.hazelcast.client.impl.protocol.task.AbstractCallableMessageTask;
-import com.hazelcast.client.impl.protocol.task.ListenerMessageTask;
+import com.hazelcast.client.impl.protocol.task.AbstractAddListenerMessageTask;
+import com.hazelcast.spi.impl.eventservice.EventRegistration;
 import com.hazelcast.topic.Message;
 import com.hazelcast.topic.MessageListener;
 import com.hazelcast.instance.impl.Node;
@@ -33,12 +33,13 @@ import com.hazelcast.topic.impl.TopicService;
 import java.security.Permission;
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 import static com.hazelcast.internal.util.HashUtil.hashToIndex;
 
 public class TopicAddMessageListenerMessageTask
-        extends AbstractCallableMessageTask<TopicAddMessageListenerCodec.RequestParameters>
-        implements MessageListener, ListenerMessageTask {
+        extends AbstractAddListenerMessageTask<TopicAddMessageListenerCodec.RequestParameters>
+        implements MessageListener {
 
     private Data partitionKey;
     private Random rand = new Random();
@@ -48,12 +49,11 @@ public class TopicAddMessageListenerMessageTask
     }
 
     @Override
-    protected Object call() throws Exception {
+    protected CompletableFuture<EventRegistration> processInternal() {
         partitionKey = serializationService.toData(parameters.name);
         TopicService service = getService(TopicService.SERVICE_NAME);
-        UUID registrationId = service.addMessageListener(parameters.name, this, parameters.localOnly);
-        endpoint.addListenerDestroyAction(TopicService.SERVICE_NAME, parameters.name, registrationId);
-        return registrationId;
+        CompletableFuture<EventRegistration> eventRegistration = service.addMessageListener(parameters.name, this, parameters.localOnly);
+        return eventRegistration;
     }
 
     @Override

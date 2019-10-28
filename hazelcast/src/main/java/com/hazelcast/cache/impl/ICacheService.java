@@ -23,6 +23,7 @@ import com.hazelcast.config.CacheConfig;
 import com.hazelcast.config.InMemoryFormat;
 import com.hazelcast.internal.eviction.ExpirationManager;
 import com.hazelcast.nio.serialization.Data;
+import com.hazelcast.spi.impl.eventservice.EventRegistration;
 import com.hazelcast.spi.partition.FragmentedMigrationAwareService;
 import com.hazelcast.spi.impl.eventservice.EventFilter;
 import com.hazelcast.spi.impl.eventservice.EventPublishingService;
@@ -32,6 +33,7 @@ import com.hazelcast.internal.services.RemoteService;
 
 import java.util.Collection;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @SuppressWarnings({"checkstyle:methodcount"})
 public interface ICacheService
@@ -102,11 +104,12 @@ public interface ICacheService
 
     NodeEngine getNodeEngine();
 
-    UUID registerListener(String cacheNameWithPrefix, CacheEventListener listener, boolean isLocal);
+    CompletableFuture<EventRegistration> registerListener(String cacheNameWithPrefix, CacheEventListener listener, boolean isLocal);
 
-    UUID registerListener(String cacheNameWithPrefix, CacheEventListener listener, EventFilter eventFilter, boolean isLocal);
+    CompletableFuture<EventRegistration> registerListener(String cacheNameWithPrefix, CacheEventListener listener, EventFilter eventFilter,
+                                             boolean isLocal);
 
-    boolean deregisterListener(String cacheNameWithPrefix, UUID registrationId);
+    CompletableFuture<EventRegistration> deregisterListener(String cacheNameWithPrefix, UUID registrationId);
 
     void deregisterAllListener(String cacheNameWithPrefix);
 
@@ -119,7 +122,7 @@ public interface ICacheService
      */
     CacheOperationProvider getCacheOperationProvider(String cacheNameWithPrefix, InMemoryFormat storageType);
 
-    UUID addInvalidationListener(String cacheNameWithPrefix, CacheEventListener listener, boolean localOnly);
+    CompletableFuture<EventRegistration> addInvalidationListener(String cacheNameWithPrefix, CacheEventListener listener, boolean localOnly);
 
     void sendInvalidationEvent(String cacheNameWithPrefix, Data key, UUID sourceUuid);
 

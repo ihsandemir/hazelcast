@@ -22,10 +22,13 @@ import com.hazelcast.nio.serialization.Data;
 import com.hazelcast.partition.NoDataMemberInClusterException;
 import com.hazelcast.partition.PartitionLostListener;
 import com.hazelcast.internal.services.CoreService;
+import com.hazelcast.spi.impl.eventservice.EventRegistration;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 
 /**
  * An SPI service for accessing partition related information.
@@ -127,15 +130,15 @@ public interface IPartitionService extends CoreService {
      */
     Map<Address, List<Integer>> getMemberPartitionsMap();
 
-    UUID addMigrationListener(MigrationListener migrationListener);
+    CompletableFuture<EventRegistration> addMigrationListener(MigrationListener migrationListener);
 
-    boolean removeMigrationListener(UUID registrationId);
+    CompletableFuture<EventRegistration> removeMigrationListener(UUID registrationId);
 
-    UUID addPartitionLostListener(PartitionLostListener partitionLostListener);
+    CompletableFuture<EventRegistration> addPartitionLostListener(PartitionLostListener partitionLostListener);
 
-    UUID addLocalPartitionLostListener(PartitionLostListener partitionLostListener);
+    CompletableFuture<EventRegistration> addLocalPartitionLostListener(PartitionLostListener partitionLostListener);
 
-    boolean removePartitionLostListener(UUID registrationId);
+    CompletableFuture<EventRegistration> removePartitionLostListener(UUID registrationId);
 
     long getMigrationQueueSize();
 

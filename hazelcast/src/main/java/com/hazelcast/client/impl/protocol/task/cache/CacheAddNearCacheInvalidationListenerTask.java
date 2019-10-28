@@ -21,37 +21,36 @@ import com.hazelcast.cache.impl.CacheService;
 import com.hazelcast.client.impl.ClientEndpoint;
 import com.hazelcast.client.impl.protocol.ClientMessage;
 import com.hazelcast.client.impl.protocol.codec.CacheAddNearCacheInvalidationListenerCodec;
-import com.hazelcast.client.impl.protocol.task.AbstractCallableMessageTask;
-import com.hazelcast.client.impl.protocol.task.ListenerMessageTask;
+import com.hazelcast.client.impl.protocol.task.AbstractAddListenerMessageTask;
 import com.hazelcast.instance.impl.Node;
 import com.hazelcast.internal.nearcache.impl.invalidation.Invalidation;
 import com.hazelcast.internal.nio.Connection;
 import com.hazelcast.nio.serialization.Data;
+import com.hazelcast.spi.impl.eventservice.EventRegistration;
 
 import java.security.Permission;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class CacheAddNearCacheInvalidationListenerTask
-        extends AbstractCallableMessageTask<CacheAddNearCacheInvalidationListenerCodec.RequestParameters>
-        implements ListenerMessageTask {
+        extends AbstractAddListenerMessageTask<CacheAddNearCacheInvalidationListenerCodec.RequestParameters> {
 
     public CacheAddNearCacheInvalidationListenerTask(ClientMessage clientMessage, Node node, Connection connection) {
         super(clientMessage, node, connection);
     }
 
     @Override
-    protected Object call() {
+    protected CompletableFuture<EventRegistration> processInternal() {
         CacheService cacheService = getService(CacheService.SERVICE_NAME);
         CacheContext cacheContext = cacheService.getOrCreateCacheContext(parameters.name);
         NearCacheInvalidationListener listener
                 = new NearCacheInvalidationListener(endpoint, cacheContext,
                 nodeEngine.getLocalMember().getUuid(), clientMessage.getCorrelationId());
 
-        UUID registrationId =
+        CompletableFuture<EventRegistration> eventRegistration =
                 cacheService.addInvalidationListener(parameters.name, listener, parameters.localOnly);
-        endpoint.addListenerDestroyAction(CacheService.SERVICE_NAME, parameters.name, registrationId);
-        return registrationId;
+        return eventRegistration;
     }
 
     private final class NearCacheInvalidationListener extends AbstractCacheClientNearCacheInvalidationListener {

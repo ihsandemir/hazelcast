@@ -24,9 +24,11 @@ import com.hazelcast.map.impl.MapService;
 import com.hazelcast.internal.nio.Connection;
 import com.hazelcast.security.permission.ActionConstants;
 import com.hazelcast.security.permission.MapPermission;
+import com.hazelcast.spi.impl.eventservice.EventRegistration;
 
 import java.security.Permission;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class MapRemoveEntryListenerMessageTask
         extends AbstractRemoveListenerMessageTask<MapRemoveEntryListenerCodec.RequestParameters> {
@@ -36,7 +38,7 @@ public class MapRemoveEntryListenerMessageTask
     }
 
     @Override
-    protected boolean deRegisterListener() {
+    protected CompletableFuture<EventRegistration> deRegisterListener() {
         MapService service = getService(MapService.SERVICE_NAME);
         return service.getMapServiceContext().removeEventListener(parameters.name, parameters.registrationId);
     }

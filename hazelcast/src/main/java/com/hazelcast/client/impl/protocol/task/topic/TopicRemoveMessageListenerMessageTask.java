@@ -23,10 +23,12 @@ import com.hazelcast.instance.impl.Node;
 import com.hazelcast.internal.nio.Connection;
 import com.hazelcast.security.permission.ActionConstants;
 import com.hazelcast.security.permission.TopicPermission;
+import com.hazelcast.spi.impl.eventservice.EventRegistration;
 import com.hazelcast.topic.impl.TopicService;
 
 import java.security.Permission;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class TopicRemoveMessageListenerMessageTask
         extends AbstractRemoveListenerMessageTask<TopicRemoveMessageListenerCodec.RequestParameters> {
@@ -36,7 +38,7 @@ public class TopicRemoveMessageListenerMessageTask
     }
 
     @Override
-    protected boolean deRegisterListener() {
+    protected CompletableFuture<EventRegistration> deRegisterListener() {
         TopicService service = getService(TopicService.SERVICE_NAME);
         return service.removeMessageListener(parameters.name, parameters.registrationId);
     }

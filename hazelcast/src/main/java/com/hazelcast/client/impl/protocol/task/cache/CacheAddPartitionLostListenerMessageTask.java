@@ -18,14 +18,12 @@ package com.hazelcast.client.impl.protocol.task.cache;
 
 import com.hazelcast.cache.impl.CacheService;
 import com.hazelcast.cache.impl.ICacheService;
-import com.hazelcast.cache.impl.event.CachePartitionLostEvent;
 import com.hazelcast.cache.impl.event.CachePartitionLostEventFilter;
 import com.hazelcast.cache.impl.event.CachePartitionLostListener;
 import com.hazelcast.cache.impl.event.InternalCachePartitionLostListenerAdapter;
 import com.hazelcast.client.impl.protocol.ClientMessage;
 import com.hazelcast.client.impl.protocol.codec.CacheAddPartitionLostListenerCodec;
-import com.hazelcast.client.impl.protocol.task.AbstractCallableMessageTask;
-import com.hazelcast.client.impl.protocol.task.ListenerMessageTask;
+import com.hazelcast.client.impl.protocol.task.AbstractAddListenerMessageTask;
 import com.hazelcast.instance.impl.Node;
 import com.hazelcast.internal.nio.Connection;
 import com.hazelcast.spi.impl.eventservice.EventFilter;
@@ -34,27 +32,23 @@ import com.hazelcast.spi.impl.eventservice.EventService;
 
 import java.security.Permission;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class CacheAddPartitionLostListenerMessageTask
-        extends AbstractCallableMessageTask<CacheAddPartitionLostListenerCodec.RequestParameters>
-        implements ListenerMessageTask {
-
+        extends AbstractAddListenerMessageTask<CacheAddPartitionLostListenerCodec.RequestParameters> {
 
     public CacheAddPartitionLostListenerMessageTask(ClientMessage clientMessage, Node node, Connection connection) {
         super(clientMessage, node, connection);
     }
 
     @Override
-    protected Object call() {
-        CachePartitionLostListener listener = new CachePartitionLostListener() {
-            @Override
-            public void partitionLost(CachePartitionLostEvent event) {
-                if (endpoint.isAlive()) {
-                    ClientMessage eventMessage =
-                            CacheAddPartitionLostListenerCodec.encodeCachePartitionLostEvent(event.getPartitionId(),
-                                    event.getMember().getUuid());
-                    sendClientMessage(null, eventMessage);
-                }
+    protected CompletableFuture<EventRegistration> processInternal() {
+        CachePartitionLostListener listener = event -> {
+            if (endpoint.isAlive()) {
+                ClientMessage eventMessage =
+                        CacheAddPartitionLostListenerCodec.encodeCachePartitionLostEvent(event.getPartitionId(),
+                                event.getMember().getUuid());
+                sendClientMessage(null, eventMessage);
             }
         };
 
@@ -63,18 +57,16 @@ public class CacheAddPartitionLostListenerMessageTask
         EventFilter filter = new CachePartitionLostEventFilter();
         CacheService service = getService(CacheService.SERVICE_NAME);
         EventService eventService = service.getNodeEngine().getEventService();
-        EventRegistration registration;
+        CompletableFuture<EventRegistration> eventRegistration;
         if (parameters.localOnly) {
-            registration = eventService
+            eventRegistration = eventService
                     .registerLocalListener(ICacheService.SERVICE_NAME, parameters.name, filter, listenerAdapter);
         } else {
-            registration = eventService
+            eventRegistration = eventService
                     .registerListener(ICacheService.SERVICE_NAME, parameters.name, filter, listenerAdapter);
         }
-        UUID registrationId = registration.getId();
-        endpoint.addListenerDestroyAction(CacheService.SERVICE_NAME, parameters.name, registrationId);
-        return registrationId;
 
+        return eventRegistration;
     }
 
     @Override

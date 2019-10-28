@@ -27,7 +27,6 @@ import com.hazelcast.client.impl.protocol.MessageTaskFactory;
 import com.hazelcast.client.impl.protocol.task.AbstractPartitionMessageTask;
 import com.hazelcast.client.impl.protocol.task.AuthenticationBaseMessageTask;
 import com.hazelcast.client.impl.protocol.task.BlockingMessageTask;
-import com.hazelcast.client.impl.protocol.task.ListenerMessageTask;
 import com.hazelcast.client.impl.protocol.task.MessageTask;
 import com.hazelcast.client.impl.protocol.task.TransactionalMessageTask;
 import com.hazelcast.client.impl.protocol.task.UrgentMessageTask;
@@ -223,8 +222,6 @@ public class ClientEngineImpl implements ClientEngine, CoreService,
         } else if (messageTask instanceof TransactionalMessageTask) {
             blockingExecutor.execute(messageTask);
         } else if (messageTask instanceof BlockingMessageTask) {
-            blockingExecutor.execute(messageTask);
-        } else if (messageTask instanceof ListenerMessageTask) {
             blockingExecutor.execute(messageTask);
         } else {
             executor.execute(messageTask);

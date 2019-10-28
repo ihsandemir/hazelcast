@@ -108,27 +108,24 @@ public abstract class AbstractClientListenerService implements ClientListenerSer
         //This method should not be called from registrationExecutor
         assert (!Thread.currentThread().getName().contains("eventRegistration"));
 
-        Future<UUID> future = registrationExecutor.submit(new Callable<UUID>() {
-            @Override
-            public UUID call() {
-                UUID userRegistrationId = UuidUtil.newUnsecureUUID();
+        Future<UUID> future = registrationExecutor.submit(() -> {
+            UUID userRegistrationId = UuidUtil.newUnsecureUUID();
 
-                ClientRegistrationKey registrationKey = new ClientRegistrationKey(userRegistrationId, handler, codec);
-                registrations.put(registrationKey, new ConcurrentHashMap<Connection, ClientEventRegistration>());
-                Collection<ClientConnection> connections = clientConnectionManager.getActiveConnections();
-                for (ClientConnection connection : connections) {
-                    try {
-                        invoke(registrationKey, connection);
-                    } catch (Exception e) {
-                        if (connection.isAlive()) {
-                            deregisterListenerInternal(userRegistrationId);
-                            throw new HazelcastException("Listener can not be added ", e);
-                        }
-
+            ClientRegistrationKey registrationKey = new ClientRegistrationKey(userRegistrationId, handler, codec);
+            registrations.put(registrationKey, new ConcurrentHashMap<>());
+            Collection<ClientConnection> connections = clientConnectionManager.getActiveConnections();
+            for (ClientConnection connection : connections) {
+                try {
+                    invoke(registrationKey, connection);
+                } catch (Exception e) {
+                    if (connection.isAlive()) {
+                        deregisterListenerInternal(userRegistrationId);
+                        throw new HazelcastException("Listener can not be added ", e);
                     }
+
                 }
-                return userRegistrationId;
             }
+            return userRegistrationId;
         });
         try {
             return future.get();

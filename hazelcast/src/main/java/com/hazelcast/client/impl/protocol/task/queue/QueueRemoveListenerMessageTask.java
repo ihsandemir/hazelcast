@@ -24,13 +24,15 @@ import com.hazelcast.instance.impl.Node;
 import com.hazelcast.internal.nio.Connection;
 import com.hazelcast.security.permission.ActionConstants;
 import com.hazelcast.security.permission.QueuePermission;
+import com.hazelcast.spi.impl.eventservice.EventRegistration;
 
 import java.security.Permission;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Client Protocol Task for handling messages with type ID:
- * {@link com.hazelcast.client.impl.protocol.codec.QueueMessageType#QUEUE_REMOVELISTENER}
+ * {@link com.hazelcast.client.impl.protocol.codec.QueueAddListenerCodec#REQUEST_MESSAGE_TYPE}
  */
 public class QueueRemoveListenerMessageTask
         extends AbstractRemoveListenerMessageTask<QueueRemoveListenerCodec.RequestParameters> {
@@ -40,7 +42,7 @@ public class QueueRemoveListenerMessageTask
     }
 
     @Override
-    protected boolean deRegisterListener() {
+    protected CompletableFuture<EventRegistration> deRegisterListener() {
         final QueueService service = getService(getServiceName());
         return service.removeItemListener(parameters.name, parameters.registrationId);
     }

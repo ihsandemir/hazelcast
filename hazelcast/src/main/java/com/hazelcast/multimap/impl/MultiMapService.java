@@ -74,6 +74,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -239,23 +240,23 @@ public class MultiMapService implements ManagedService, RemoteService, Fragmente
         publisher.publishEntryEvent(multiMapName, eventType, key, newValue, oldValue);
     }
 
-    public UUID addListener(String name,
+    public CompletableFuture<EventRegistration> addListener(String name,
                               @Nonnull EventListener listener,
                               Data key,
                               boolean includeValue,
                               boolean local) {
         EventService eventService = nodeEngine.getEventService();
-        EventRegistration registration;
+        CompletableFuture<EventRegistration> registration;
         MultiMapEventFilter filter = new MultiMapEventFilter(includeValue, key);
         if (local) {
             registration = eventService.registerLocalListener(SERVICE_NAME, name, filter, listener);
         } else {
             registration = eventService.registerListener(SERVICE_NAME, name, filter, listener);
         }
-        return registration.getId();
+        return registration.;
     }
 
-    public boolean removeListener(String name, UUID registrationId) {
+    public CompletableFuture<EventRegistration> removeListener(String name, UUID registrationId) {
         EventService eventService = nodeEngine.getEventService();
         return eventService.deregisterListener(SERVICE_NAME, name, registrationId);
     }

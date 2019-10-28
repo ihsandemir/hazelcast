@@ -51,6 +51,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
 import static com.hazelcast.internal.config.ConfigValidator.checkCollectionConfig;
@@ -226,13 +227,14 @@ public abstract class AbstractCollectionProxyImpl<S extends RemoteService, E> ex
         checkNotNull(listener, "Null listener is not allowed!");
         final EventService eventService = getNodeEngine().getEventService();
         final CollectionEventFilter filter = new CollectionEventFilter(includeValue);
-        final EventRegistration registration = eventService.registerListener(getServiceName(), name, filter, listener);
-        return registration.getId();
+        final CompletableFuture<EventRegistration> registration = eventService.registerListener(getServiceName(), name, filter, listener);
+        return getRegistrationId(registration);
     }
 
     public boolean removeItemListener(@Nonnull UUID registrationId) {
         EventService eventService = getNodeEngine().getEventService();
-        return eventService.deregisterListener(getServiceName(), name, registrationId);
+        CompletableFuture<EventRegistration> registrationFuture = eventService.deregisterListener(getServiceName(), name, registrationId);
+        return getListenerRemovalResult(registrationFuture);
     }
 
     protected <T> T invoke(CollectionOperation operation) {

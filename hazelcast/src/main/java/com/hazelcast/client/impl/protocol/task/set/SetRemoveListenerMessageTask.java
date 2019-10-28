@@ -24,10 +24,12 @@ import com.hazelcast.instance.impl.Node;
 import com.hazelcast.internal.nio.Connection;
 import com.hazelcast.security.permission.ActionConstants;
 import com.hazelcast.security.permission.SetPermission;
+import com.hazelcast.spi.impl.eventservice.EventRegistration;
 import com.hazelcast.spi.impl.eventservice.EventService;
 
 import java.security.Permission;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * SetRemoveListenerMessageTask
@@ -40,7 +42,7 @@ public class SetRemoveListenerMessageTask
     }
 
     @Override
-    protected boolean deRegisterListener() {
+    protected CompletableFuture<EventRegistration> deRegisterListener() {
         final EventService eventService = clientEngine.getEventService();
         return eventService.deregisterListener(getServiceName(), parameters.name, parameters.registrationId);
     }

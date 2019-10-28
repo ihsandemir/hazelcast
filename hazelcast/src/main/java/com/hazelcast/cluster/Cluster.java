@@ -18,6 +18,7 @@ package com.hazelcast.cluster;
 
 import com.hazelcast.hotrestart.HotRestartService;
 import com.hazelcast.instance.impl.NodeExtension;
+import com.hazelcast.spi.impl.eventservice.EventRegistration;
 import com.hazelcast.spi.properties.GroupProperty;
 import com.hazelcast.transaction.TransactionException;
 import com.hazelcast.transaction.TransactionOptions;
@@ -27,6 +28,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Hazelcast cluster interface. It provides access to the members in the cluster and one can register for changes in the
@@ -48,11 +50,11 @@ public interface Cluster {
      * There is no check for duplicate registrations, so if you register the listener twice, it will get events twice.
      *
      * @param listener membership listener
-     * @return the registration ID
+     * @return the registration future
      * @throws java.lang.NullPointerException if listener is null
      * @see #removeMembershipListener(UUID)
      */
-    UUID addMembershipListener(@Nonnull MembershipListener listener);
+    CompletableFuture<EventRegistration> addMembershipListener(@Nonnull MembershipListener listener);
 
     /**
      * Removes the specified MembershipListener.

@@ -21,37 +21,37 @@ import com.hazelcast.cache.impl.CacheService;
 import com.hazelcast.client.impl.ClientEndpoint;
 import com.hazelcast.client.impl.protocol.ClientMessage;
 import com.hazelcast.client.impl.protocol.codec.CacheAddInvalidationListenerCodec;
-import com.hazelcast.client.impl.protocol.task.AbstractCallableMessageTask;
-import com.hazelcast.client.impl.protocol.task.ListenerMessageTask;
+import com.hazelcast.client.impl.protocol.task.AbstractAddListenerMessageTask;
 import com.hazelcast.instance.impl.Node;
 import com.hazelcast.internal.nearcache.impl.invalidation.Invalidation;
 import com.hazelcast.internal.nio.Connection;
 import com.hazelcast.nio.serialization.Data;
+import com.hazelcast.spi.impl.eventservice.EventRegistration;
 
 import java.security.Permission;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class Pre38CacheAddInvalidationListenerTask
-        extends AbstractCallableMessageTask<CacheAddInvalidationListenerCodec.RequestParameters>
-        implements ListenerMessageTask {
+        extends AbstractAddListenerMessageTask<CacheAddInvalidationListenerCodec.RequestParameters> {
 
     public Pre38CacheAddInvalidationListenerTask(ClientMessage clientMessage, Node node, Connection connection) {
         super(clientMessage, node, connection);
     }
 
     @Override
-    protected Object call() {
+    protected CompletableFuture<EventRegistration> processInternal() {
         CacheService cacheService = getService(CacheService.SERVICE_NAME);
         CacheContext cacheContext = cacheService.getOrCreateCacheContext(parameters.name);
         UUID uuid = nodeEngine.getLocalMember().getUuid();
         long correlationId = clientMessage.getCorrelationId();
         Pre38NearCacheInvalidationListener listener
                 = new Pre38NearCacheInvalidationListener(endpoint, cacheContext, uuid, correlationId);
-        UUID registrationId =
+        CompletableFuture<EventRegistration> eventRegistration =
                 cacheService.addInvalidationListener(parameters.name, listener, parameters.localOnly);
-        endpoint.addListenerDestroyAction(CacheService.SERVICE_NAME, parameters.name, registrationId);
-        return registrationId;
+
+        return eventRegistration;
     }
 
     /**

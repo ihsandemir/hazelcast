@@ -22,38 +22,32 @@ import com.hazelcast.internal.nio.Connection;
 import com.hazelcast.spi.impl.eventservice.EventRegistration;
 
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 /**
- * Base class for remove listener message tasks that removes a client listener registration
- * from a node
- *
- * @param <P> listener registration request parameters type
+ * Base message task for listener registration tasks
  */
-public abstract class AbstractRemoveListenerMessageTask<P> extends AbstractListenerMessageTask<P> {
+public abstract class AbstractAddListenerMessageTask<P> extends AbstractListenerMessageTask<P> {
 
-    protected AbstractRemoveListenerMessageTask(ClientMessage clientMessage, Node node, Connection connection) {
+    protected AbstractAddListenerMessageTask(ClientMessage clientMessage, Node node, Connection connection) {
         super(clientMessage, node, connection);
-    }
-
-    public final CompletableFuture<EventRegistration> processInternal() {
-        endpoint.removeDestroyAction(getRegistrationId());
-        return deRegisterListener();
-    }
-
-    protected abstract CompletableFuture<EventRegistration> deRegisterListener();
-
-    protected abstract UUID getRegistrationId();
-
-    @Override
-    public Object[] getParameters() {
-        return new Object[]{getRegistrationId()};
     }
 
     @Override
     public void accept(Object response, Throwable throwable) {
         if (throwable == null) {
-            sendResponse(response);
+            if ((boolean) response) {
+                EventRegistration eventRegistration = null;
+                try {
+                    eventRegistration = this.eventRegistrationFuture.get();
+                } catch (Exception e) {
+                    handleProcessingFailure(e);
+                }
+                UUID registrationId = eventRegistration.getId();
+                endpoint.addListenerDestroyAction(getServiceName(), getDistributedObjectName(), registrationId);
+                sendResponse(registrationId);
+            } else {
+                sendResponse(null);
+            }
         } else {
             handleProcessingFailure(throwable);
         }

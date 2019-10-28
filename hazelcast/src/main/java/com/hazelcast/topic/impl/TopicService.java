@@ -42,6 +42,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -57,16 +58,12 @@ public class TopicService implements ManagedService, RemoteService, EventPublish
 
     public static final int ORDERING_LOCKS_LENGTH = 1000;
 
-    private final ConcurrentMap<String, LocalTopicStatsImpl> statsMap = new ConcurrentHashMap<String, LocalTopicStatsImpl>();
+    private final ConcurrentMap<String, LocalTopicStatsImpl> statsMap = new ConcurrentHashMap<>();
     private final Lock[] orderingLocks = new Lock[ORDERING_LOCKS_LENGTH];
     private NodeEngine nodeEngine;
 
     private final ConstructorFunction<String, LocalTopicStatsImpl> localTopicStatsConstructorFunction =
-            new ConstructorFunction<String, LocalTopicStatsImpl>() {
-                public LocalTopicStatsImpl createNew(String mapName) {
-                    return new LocalTopicStatsImpl();
-                }
-            };
+            mapName -> new LocalTopicStatsImpl();
     private EventService eventService;
     private final AtomicInteger counter = new AtomicInteger(0);
     private Address localAddress;
@@ -175,20 +172,20 @@ public class TopicService implements ManagedService, RemoteService, EventPublish
     }
 
     public @Nonnull
-    UUID addMessageListener(@Nonnull String name,
-                              @Nonnull MessageListener listener,
-                              boolean localOnly) {
-        EventRegistration eventRegistration;
+    CompletableFuture<EventRegistration> addMessageListener(@Nonnull String name,
+                                                            @Nonnull MessageListener listener,
+                                                            boolean localOnly) {
+        CompletableFuture<EventRegistration> eventRegistration;
         if (localOnly) {
             eventRegistration = eventService.registerLocalListener(TopicService.SERVICE_NAME, name, listener);
         } else {
             eventRegistration = eventService.registerListener(TopicService.SERVICE_NAME, name, listener);
 
         }
-        return eventRegistration.getId();
+        return eventRegistration;
     }
 
-    public boolean removeMessageListener(@Nonnull String name, @Nonnull UUID registrationId) {
+    public CompletableFuture<EventRegistration> removeMessageListener(@Nonnull String name, @Nonnull UUID registrationId) {
         return eventService.deregisterListener(TopicService.SERVICE_NAME, name, registrationId);
     }
 

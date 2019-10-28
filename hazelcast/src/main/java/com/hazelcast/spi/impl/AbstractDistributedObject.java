@@ -22,11 +22,17 @@ import com.hazelcast.internal.services.RemoteService;
 import com.hazelcast.nio.serialization.Data;
 import com.hazelcast.partition.PartitioningStrategy;
 import com.hazelcast.partition.strategy.StringPartitioningStrategy;
+import com.hazelcast.spi.impl.eventservice.EventRegistration;
 import com.hazelcast.spi.impl.operationservice.Operation;
 import com.hazelcast.spi.impl.operationservice.OperationService;
 import com.hazelcast.spi.impl.operationservice.impl.InvocationFuture;
 import com.hazelcast.spi.impl.proxyservice.ProxyService;
 import com.hazelcast.version.Version;
+
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+
+import static com.hazelcast.internal.util.ExceptionUtil.rethrow;
 
 /**
  * Abstract DistributedObject implementation. Useful to provide basic functionality.
@@ -227,4 +233,28 @@ public abstract class AbstractDistributedObject<S extends RemoteService> impleme
         Version clusterVersion = getNodeEngine().getClusterService().getClusterVersion();
         return clusterVersion.isUnknown();
     }
+
+    protected UUID getRegistrationId(CompletableFuture<EventRegistration> registrationFuture) {
+        EventRegistration eventRegistration = null;
+        try {
+            eventRegistration = registrationFuture.get();
+        } catch (Exception e) {
+            rethrow(e);
+        }
+        if (eventRegistration == null) {
+            return null;
+        }
+        return eventRegistration.getId();
+    }
+
+    protected boolean getListenerRemovalResult(CompletableFuture<EventRegistration> registrationFuture) {
+        EventRegistration eventRegistration = null;
+        try {
+            eventRegistration = registrationFuture.get();
+        } catch (Exception e) {
+            rethrow(e);
+        }
+        return eventRegistration != null;
+    }
+
 }

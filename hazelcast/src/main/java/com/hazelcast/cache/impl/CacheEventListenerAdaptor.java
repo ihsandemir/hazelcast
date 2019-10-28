@@ -41,6 +41,7 @@ import javax.cache.event.EventType;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * This implementation of {@link CacheEventListener} uses the adapter pattern for wrapping all cache event listener

@@ -39,6 +39,7 @@ import com.hazelcast.spi.impl.operationservice.OperationService;
 import com.hazelcast.spi.properties.HazelcastProperties;
 
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 import static com.hazelcast.core.EntryEventType.INVALIDATION;

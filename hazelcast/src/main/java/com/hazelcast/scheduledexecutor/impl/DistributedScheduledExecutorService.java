@@ -27,11 +27,12 @@ import com.hazelcast.internal.services.MembershipAwareService;
 import com.hazelcast.internal.services.MembershipServiceEvent;
 import com.hazelcast.internal.services.RemoteService;
 import com.hazelcast.internal.services.SplitBrainHandlerService;
-import com.hazelcast.partition.PartitionLostEvent;
-import com.hazelcast.partition.PartitionLostListener;
-import com.hazelcast.scheduledexecutor.impl.operations.MergeOperation;
 import com.hazelcast.internal.services.SplitBrainProtectionAwareService;
+import com.hazelcast.internal.util.ConstructorFunction;
+import com.hazelcast.internal.util.ContextMutexFactory;
+import com.hazelcast.scheduledexecutor.impl.operations.MergeOperation;
 import com.hazelcast.spi.impl.NodeEngine;
+import com.hazelcast.spi.impl.eventservice.EventRegistration;
 import com.hazelcast.spi.impl.merge.AbstractContainerMerger;
 import com.hazelcast.spi.impl.operationservice.Operation;
 import com.hazelcast.spi.merge.SplitBrainMergePolicy;
@@ -40,8 +41,6 @@ import com.hazelcast.spi.partition.MigrationAwareService;
 import com.hazelcast.spi.partition.MigrationEndpoint;
 import com.hazelcast.spi.partition.PartitionMigrationEvent;
 import com.hazelcast.spi.partition.PartitionReplicationEvent;
-import com.hazelcast.internal.util.ConstructorFunction;
-import com.hazelcast.internal.util.ContextMutexFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -51,15 +50,16 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 import java.util.WeakHashMap;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.hazelcast.internal.config.ConfigValidator.checkScheduledExecutorConfig;
-import static com.hazelcast.spi.impl.merge.MergingValueFactory.createMergingEntry;
 import static com.hazelcast.internal.util.ConcurrencyUtil.getOrPutSynchronized;
 import static com.hazelcast.internal.util.ExceptionUtil.peel;
 import static com.hazelcast.internal.util.ExceptionUtil.rethrow;
+import static com.hazelcast.spi.impl.merge.MergingValueFactory.createMergingEntry;
 import static java.util.Collections.newSetFromMap;
 import static java.util.Collections.synchronizedSet;
 
@@ -253,17 +253,18 @@ public class DistributedScheduledExecutorService
     }
 
     private void registerPartitionListener() {
-        this.partitionLostRegistration =
-                getNodeEngine().getPartitionService().addPartitionLostListener(new PartitionLostListener() {
-                    @Override
-                    public void partitionLost(final PartitionLostEvent event) {
-                        // use toArray before iteration since it is done under mutex
-                        ScheduledFutureProxy[] futures = lossListeners.toArray(new ScheduledFutureProxy[0]);
-                        for (ScheduledFutureProxy future : futures) {
-                            future.notifyPartitionLost(event);
-                        }
-                    }
-                });
+        CompletableFuture<EventRegistration> eventRegistrationFuture = getNodeEngine().getPartitionService()
+                                                                                      .addPartitionLostListener(event -> {
+                                                                             // use toArray before iteration since it is done
+                                                                             // under mutex
+                                                                             ScheduledFutureProxy[] futures = lossListeners
+                                                                                     .toArray(new ScheduledFutureProxy[0]);
+                                                                             for (ScheduledFutureProxy future : futures) {
+                                                                                 future.notifyPartitionLost(event);
+                                                                             }
+                                                                         });
+        eventRegistrationFuture.get();
+        this.partitionLostRegistration = eventRegistrationFuture.getId();
     }
 
     private void unRegisterPartitionListenerIfExists() {

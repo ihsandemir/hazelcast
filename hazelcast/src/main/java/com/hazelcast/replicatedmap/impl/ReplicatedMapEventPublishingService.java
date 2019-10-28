@@ -48,6 +48,7 @@ import java.util.Collection;
 import java.util.EventListener;
 import java.util.HashMap;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 import static com.hazelcast.core.EntryEventType.ADDED;
 import static com.hazelcast.core.EntryEventType.REMOVED;
@@ -130,16 +131,14 @@ public class ReplicatedMapEventPublishingService
     }
 
     public @Nonnull
-    UUID addEventListener(EventListener entryListener, EventFilter eventFilter, String mapName) {
+    CompletableFuture<EventRegistration> addEventListener(EventListener entryListener, EventFilter eventFilter, String mapName) {
         if (nodeEngine.getLocalMember().isLiteMember()) {
             throw new ReplicatedMapCantBeCreatedOnLiteMemberException(nodeEngine.getThisAddress());
         }
-        EventRegistration registration = eventService.registerLocalListener(SERVICE_NAME, mapName, eventFilter,
-                entryListener);
-        return registration.getId();
+        return eventService.registerLocalListener(SERVICE_NAME, mapName, eventFilter, entryListener);
     }
 
-    public boolean removeEventListener(@Nonnull String mapName, @Nonnull UUID registrationId) {
+    public CompletableFuture<EventRegistration> removeEventListener(@Nonnull String mapName, @Nonnull UUID registrationId) {
         if (nodeEngine.getLocalMember().isLiteMember()) {
             throw new ReplicatedMapCantBeCreatedOnLiteMemberException(nodeEngine.getThisAddress());
         }

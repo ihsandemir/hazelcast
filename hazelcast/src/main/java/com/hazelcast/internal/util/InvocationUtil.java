@@ -67,7 +67,8 @@ public final class InvocationUtil {
 
         ClusterService clusterService = nodeEngine.getClusterService();
         if (!clusterService.isJoined()) {
-            return newCompletedFuture(null);
+            // If this node did not join the cluster yet, invocation to the cluster is not possible.
+            return newCompletedFuture(true);
         }
 
         RestartingMemberIterator memberIterator = new RestartingMemberIterator(clusterService, maxRetries);

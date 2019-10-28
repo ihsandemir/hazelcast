@@ -16,12 +16,13 @@
 
 package com.hazelcast.spi.impl.eventservice;
 
+import com.hazelcast.internal.nio.Packet;
 import com.hazelcast.internal.services.PostJoinAwareService;
 import com.hazelcast.internal.services.PreJoinAwareService;
-import com.hazelcast.internal.nio.Packet;
 
 import javax.annotation.Nonnull;
 import java.util.Collection;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 /**
@@ -61,9 +62,9 @@ public interface EventService extends Consumer<Packet>, PreJoinAwareService, Pos
      * @return event registration
      * @throws IllegalArgumentException if the listener is {@code null}
      */
-    EventRegistration registerLocalListener(@Nonnull String serviceName,
-                                            @Nonnull String topic,
-                                            @Nonnull Object listener);
+    CompletableFuture<EventRegistration> registerLocalListener(@Nonnull String serviceName,
+                                                               @Nonnull String topic,
+                                                               @Nonnull Object listener);
 
     /**
      * Registers a local only listener with an event filter.
@@ -75,10 +76,10 @@ public interface EventService extends Consumer<Packet>, PreJoinAwareService, Pos
      * @return event registration
      * @throws IllegalArgumentException if the listener or filter is {@code null}
      */
-    EventRegistration registerLocalListener(@Nonnull String serviceName,
-                                            @Nonnull String topic,
-                                            @Nonnull EventFilter filter,
-                                            @Nonnull Object listener);
+    CompletableFuture<EventRegistration> registerLocalListener(@Nonnull String serviceName,
+                                                  @Nonnull String topic,
+                                                  @Nonnull EventFilter filter,
+                                                  @Nonnull Object listener);
 
     /**
      * Registers a listener on all cluster nodes.
@@ -89,9 +90,9 @@ public interface EventService extends Consumer<Packet>, PreJoinAwareService, Pos
      * @return event registration
      * @throws IllegalArgumentException if the listener is {@code null}
      */
-    EventRegistration registerListener(@Nonnull String serviceName,
-                                       @Nonnull String topic,
-                                       @Nonnull Object listener);
+    CompletableFuture<EventRegistration> registerListener(@Nonnull String serviceName,
+                                             @Nonnull String topic,
+                                             @Nonnull Object listener);
 
     /**
      * Registers a listener on all cluster nodes with an event filter.
@@ -103,10 +104,10 @@ public interface EventService extends Consumer<Packet>, PreJoinAwareService, Pos
      * @return event registration
      * @throws IllegalArgumentException if the listener or filter is {@code null}
      */
-    EventRegistration registerListener(@Nonnull String serviceName,
-                                       @Nonnull String topic,
-                                       @Nonnull EventFilter filter,
-                                       @Nonnull Object listener);
+    CompletableFuture<EventRegistration> registerListener(@Nonnull String serviceName,
+                                             @Nonnull String topic,
+                                             @Nonnull EventFilter filter,
+                                             @Nonnull Object listener);
 
     /**
      * Deregisters a listener with the given registration ID.
@@ -114,14 +115,14 @@ public interface EventService extends Consumer<Packet>, PreJoinAwareService, Pos
      * @param serviceName service name
      * @param topic       topic name
      * @param id          registration ID
-     * @return true if listener is deregistered successfully, false otherwise
+     * @return The event deregistration information. null if deregistration fails.
      * @see EventRegistration#getId()
      * @see #registerListener(String, String, Object)
      * @see #registerLocalListener(String, String, Object)
      */
-    boolean deregisterListener(@Nonnull String serviceName,
-                               @Nonnull String topic,
-                               @Nonnull Object id);
+    CompletableFuture<EventRegistration> deregisterListener(@Nonnull String serviceName,
+                                               @Nonnull String topic,
+                                               @Nonnull Object id);
 
     /**
      * Deregisters all listeners belonging to the given service and topic.

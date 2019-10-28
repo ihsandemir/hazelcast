@@ -16,14 +16,15 @@
 
 package com.hazelcast.spi.impl.eventservice.impl;
 
-import com.hazelcast.internal.util.UUIDSerializationUtil;
 import com.hazelcast.cluster.Address;
+import com.hazelcast.internal.util.Preconditions;
+import com.hazelcast.internal.util.UUIDSerializationUtil;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
+import com.hazelcast.spi.impl.InternalCompletableFuture;
+import com.hazelcast.spi.impl.SpiDataSerializerHook;
 import com.hazelcast.spi.impl.eventservice.EventFilter;
 import com.hazelcast.spi.impl.eventservice.EventRegistration;
-import com.hazelcast.spi.impl.SpiDataSerializerHook;
-import com.hazelcast.internal.util.Preconditions;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -142,4 +143,5 @@ public class Registration implements EventRegistration {
     public int getClassId() {
         return SpiDataSerializerHook.REGISTRATION;
     }
+
 }

@@ -53,6 +53,7 @@ import com.hazelcast.query.Predicates;
 import com.hazelcast.ringbuffer.ReadResultSet;
 import com.hazelcast.spi.impl.InternalCompletableFuture;
 import com.hazelcast.spi.impl.NodeEngine;
+import com.hazelcast.spi.impl.eventservice.EventRegistration;
 import com.hazelcast.spi.impl.operationservice.Operation;
 
 import javax.annotation.Nonnull;
@@ -520,7 +521,8 @@ public class MapProxyImpl<K, V> extends MapProxySupport<K, V> implements EventJo
         checkNotNull(listener, NULL_LISTENER_IS_NOT_ALLOWED);
         handleHazelcastInstanceAwareParams(listener);
 
-        return addLocalEntryListenerInternal(listener);
+        CompletableFuture<EventRegistration> registrationFuture = addLocalEntryListenerInternal(listener);
+        return registrationFuture.get() ? registrationFuture.getId() : null;
     }
 
     @Override
@@ -531,7 +533,8 @@ public class MapProxyImpl<K, V> extends MapProxySupport<K, V> implements EventJo
         checkNotNull(predicate, NULL_PREDICATE_IS_NOT_ALLOWED);
         handleHazelcastInstanceAwareParams(listener, predicate);
 
-        return addLocalEntryListenerInternal(listener, predicate, null, includeValue);
+        CompletableFuture<EventRegistration> registrationFuture = addLocalEntryListenerInternal(listener, predicate, null, includeValue);
+        return registrationFuture.get() ? registrationFuture.getId() : null;
     }
 
     @Override
@@ -543,7 +546,9 @@ public class MapProxyImpl<K, V> extends MapProxySupport<K, V> implements EventJo
         checkNotNull(predicate, NULL_PREDICATE_IS_NOT_ALLOWED);
         handleHazelcastInstanceAwareParams(listener, predicate);
 
-        return addLocalEntryListenerInternal(listener, predicate, toDataWithStrategy(key), includeValue);
+        CompletableFuture<EventRegistration> registrationFuture = addLocalEntryListenerInternal(listener, predicate,
+                toDataWithStrategy(key), includeValue);
+        return registrationFuture.get() ? registrationFuture.getId() : null;
     }
 
     @Override
@@ -551,7 +556,8 @@ public class MapProxyImpl<K, V> extends MapProxySupport<K, V> implements EventJo
         checkNotNull(listener, NULL_LISTENER_IS_NOT_ALLOWED);
         handleHazelcastInstanceAwareParams(listener);
 
-        return addEntryListenerInternal(listener, null, includeValue);
+        CompletableFuture<EventRegistration> registrationFuture = addEntryListenerInternal(listener, null, includeValue);
+        return registrationFuture.get() ? registrationFuture.getId() : null;
     }
 
     @Override
@@ -560,7 +566,9 @@ public class MapProxyImpl<K, V> extends MapProxySupport<K, V> implements EventJo
         checkNotNull(key, NULL_KEY_IS_NOT_ALLOWED);
         handleHazelcastInstanceAwareParams(listener);
 
-        return addEntryListenerInternal(listener, toDataWithStrategy(key), includeValue);
+        CompletableFuture<EventRegistration> registrationFuture = addEntryListenerInternal(listener, toDataWithStrategy(key),
+                includeValue);
+        return registrationFuture.get() ? registrationFuture.getId() : null;
     }
 
     @Override
@@ -572,7 +580,9 @@ public class MapProxyImpl<K, V> extends MapProxySupport<K, V> implements EventJo
         checkNotNull(predicate, NULL_PREDICATE_IS_NOT_ALLOWED);
         handleHazelcastInstanceAwareParams(listener, predicate);
 
-        return addEntryListenerInternal(listener, predicate, toDataWithStrategy(key), includeValue);
+        CompletableFuture<EventRegistration> registrationFuture = addEntryListenerInternal(listener, predicate, toDataWithStrategy(key),
+                includeValue);
+        return registrationFuture.get() ? registrationFuture.getId() : null;
     }
 
     @Override
@@ -583,14 +593,16 @@ public class MapProxyImpl<K, V> extends MapProxySupport<K, V> implements EventJo
         checkNotNull(predicate, NULL_PREDICATE_IS_NOT_ALLOWED);
         handleHazelcastInstanceAwareParams(listener, predicate);
 
-        return addEntryListenerInternal(listener, predicate, null, includeValue);
+        CompletableFuture<EventRegistration> registrationFuture = addEntryListenerInternal(listener, predicate, null, includeValue);
+        return registrationFuture.get() ? registrationFuture.getId() : null;
     }
 
     @Override
     public boolean removeEntryListener(@Nonnull UUID id) {
         checkNotNull(id, "Listener ID should not be null!");
 
-        return removeEntryListenerInternal(id);
+        CompletableFuture<EventRegistration> registrationFuture = removeEntryListenerInternal(id);
+        return registrationFuture.get();
     }
 
     @Override
@@ -598,14 +610,16 @@ public class MapProxyImpl<K, V> extends MapProxySupport<K, V> implements EventJo
         checkNotNull(listener, NULL_LISTENER_IS_NOT_ALLOWED);
         handleHazelcastInstanceAwareParams(listener);
 
-        return addPartitionLostListenerInternal(listener);
+        CompletableFuture<EventRegistration> registrationFuture = addPartitionLostListenerInternal(listener);
+        return registrationFuture.get() ? registrationFuture.getId() : null;
     }
 
     @Override
     public boolean removePartitionLostListener(@Nonnull UUID id) {
         checkNotNull(id, "Listener ID should not be null!");
 
-        return removePartitionLostListenerInternal(id);
+        CompletableFuture<EventRegistration> registrationFuture = removePartitionLostListenerInternal(id);
+        return registrationFuture.get();
     }
 
     @Override

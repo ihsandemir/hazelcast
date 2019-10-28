@@ -61,8 +61,12 @@ public class EventServiceTest extends HazelcastTestSupport {
         Set<UUID> registrationIds = new HashSet<UUID>();
         Object listener = new Object();
         while (getClusterService(hz2).getSize() < 3) {
-            EventRegistration registration = eventService.registerListener(serviceName, topic, listener);
-            registrationIds.add(registration.getId());
+            CompletableFuture<EventRegistration> registration = eventService.registerListener(serviceName, topic, listener);
+            if (registration.get()) {
+                registrationIds.add(registration.getId());
+            } else {
+                System.out.println("failed");
+            }
         }
 
         HazelcastInstance hz3 = future.get();
@@ -70,7 +74,7 @@ public class EventServiceTest extends HazelcastTestSupport {
         Collection<EventRegistration> registrations = eventService3.getRegistrations(serviceName, topic);
 
         assertEquals(registrationIds.size(), registrations.size());
-        for (EventRegistration registration : registrations) {
+        for (CompletableFuture<EventRegistration> registration : registrations) {
             assertThat(registrationIds, hasItem(registration.getId()));
         }
     }
@@ -86,21 +90,22 @@ public class EventServiceTest extends HazelcastTestSupport {
         Set<UUID> registrationIds = new HashSet<UUID>();
         Object listener = new Object();
         for (int i = 0; i < 500; i++) {
-            EventRegistration registration = eventService.registerListener(serviceName, topic, listener);
+            CompletableFuture<EventRegistration> registration = eventService.registerListener(serviceName, topic, listener);
+            registration.get();
             registrationIds.add(registration.getId());
         }
 
         Future<HazelcastInstance> future = spawn(() -> factory.newHazelcastInstance(newConfigWithDummyService()));
 
         for (UUID registrationId : registrationIds) {
-            eventService.deregisterListener(serviceName, topic, registrationId);
+            eventService.deregisterListener(serviceName, topic, registrationId).get();
         }
 
-        assertThat(eventService.getRegistrations(serviceName, topic), Matchers.<EventRegistration>empty());
+        assertThat(eventService.getRegistrations(serviceName, topic), Matchers.empty());
 
         HazelcastInstance hz3 = future.get();
         EventService eventService3 = getEventService(hz3);
-        assertThat(eventService3.getRegistrations(serviceName, topic), Matchers.<EventRegistration>empty());
+        assertThat(eventService3.getRegistrations(serviceName, topic), Matchers.empty());
     }
 
     private Config newConfigWithDummyService() {

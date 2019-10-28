@@ -18,8 +18,7 @@ package com.hazelcast.client.impl.protocol.task.queue;
 
 import com.hazelcast.client.impl.protocol.ClientMessage;
 import com.hazelcast.client.impl.protocol.codec.QueueAddListenerCodec;
-import com.hazelcast.client.impl.protocol.task.AbstractCallableMessageTask;
-import com.hazelcast.client.impl.protocol.task.ListenerMessageTask;
+import com.hazelcast.client.impl.protocol.task.AbstractAddListenerMessageTask;
 import com.hazelcast.collection.impl.common.DataAwareItemEvent;
 import com.hazelcast.collection.impl.queue.QueueService;
 import com.hazelcast.collection.ItemEvent;
@@ -29,23 +28,25 @@ import com.hazelcast.internal.nio.Connection;
 import com.hazelcast.nio.serialization.Data;
 import com.hazelcast.security.permission.ActionConstants;
 import com.hazelcast.security.permission.QueuePermission;
+import com.hazelcast.spi.impl.eventservice.EventRegistration;
 
 import java.security.Permission;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Client Protocol Task for handling messages with type ID:
- * {@link com.hazelcast.client.impl.protocol.codec.QueueMessageType#QUEUE_ADDLISTENER}
+ * {@link com.hazelcast.client.impl.protocol.codec.QueueAddListenerCodec#REQUEST_MESSAGE_TYPE}
  */
 public class QueueAddListenerMessageTask
-        extends AbstractCallableMessageTask<QueueAddListenerCodec.RequestParameters> implements ListenerMessageTask {
+        extends AbstractAddListenerMessageTask<QueueAddListenerCodec.RequestParameters> {
 
     public QueueAddListenerMessageTask(ClientMessage clientMessage, Node node, Connection connection) {
         super(clientMessage, node, connection);
     }
 
     @Override
-    protected Object call() {
+    protected CompletableFuture<EventRegistration> processInternal() {
         final QueueService service = getService(QueueService.SERVICE_NAME);
         final Data partitionKey = serializationService.toData(parameters.name);
         ItemListener listener = new ItemListener() {
@@ -75,11 +76,10 @@ public class QueueAddListenerMessageTask
                 }
             }
         };
-        UUID registrationId =
+        CompletableFuture<EventRegistration> eventRegistration =
                 service.addItemListener(parameters.name, listener, parameters.includeValue, parameters.localOnly);
-        endpoint.addListenerDestroyAction(QueueService.SERVICE_NAME, parameters.name, registrationId);
-        return registrationId;
 
+        return eventRegistration;
     }
 
     @Override

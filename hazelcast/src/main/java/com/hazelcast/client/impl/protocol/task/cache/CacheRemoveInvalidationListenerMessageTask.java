@@ -22,9 +22,11 @@ import com.hazelcast.client.impl.protocol.codec.CacheRemoveInvalidationListenerC
 import com.hazelcast.client.impl.protocol.task.AbstractRemoveListenerMessageTask;
 import com.hazelcast.instance.impl.Node;
 import com.hazelcast.internal.nio.Connection;
+import com.hazelcast.spi.impl.eventservice.EventRegistration;
 
 import java.security.Permission;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Client request which unregisters the invalidation listener on behalf of the client.
@@ -39,7 +41,7 @@ public class CacheRemoveInvalidationListenerMessageTask
     }
 
     @Override
-    protected boolean deRegisterListener() {
+    protected CompletableFuture<EventRegistration> deRegisterListener() {
         CacheService service = getService(CacheService.SERVICE_NAME);
         return service.deregisterListener(parameters.name, parameters.registrationId);
     }

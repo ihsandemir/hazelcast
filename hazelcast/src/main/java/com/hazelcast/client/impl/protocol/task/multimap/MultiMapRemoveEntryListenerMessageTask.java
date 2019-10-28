@@ -24,9 +24,11 @@ import com.hazelcast.multimap.impl.MultiMapService;
 import com.hazelcast.internal.nio.Connection;
 import com.hazelcast.security.permission.ActionConstants;
 import com.hazelcast.security.permission.MultiMapPermission;
+import com.hazelcast.spi.impl.eventservice.EventRegistration;
 
 import java.security.Permission;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Client Protocol Task for handling messages with type ID:
@@ -40,7 +42,7 @@ public class MultiMapRemoveEntryListenerMessageTask
     }
 
     @Override
-    protected boolean deRegisterListener() {
+    protected CompletableFuture<EventRegistration> deRegisterListener() {
         final MultiMapService service = getService(MultiMapService.SERVICE_NAME);
         return service.removeListener(parameters.name, parameters.registrationId);
     }

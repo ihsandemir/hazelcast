@@ -57,6 +57,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 import static com.hazelcast.core.EntryEventType.INVALIDATION;
 

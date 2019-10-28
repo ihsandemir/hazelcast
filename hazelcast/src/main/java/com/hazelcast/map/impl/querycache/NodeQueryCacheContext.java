@@ -18,6 +18,7 @@ package com.hazelcast.map.impl.querycache;
 
 import com.hazelcast.cluster.Member;
 import com.hazelcast.cluster.impl.MemberImpl;
+import com.hazelcast.spi.impl.eventservice.EventRegistration;
 import com.hazelcast.spi.impl.eventservice.EventService;
 import com.hazelcast.map.IMapEvent;
 import com.hazelcast.instance.impl.LifecycleServiceImpl;
@@ -177,17 +178,19 @@ public class NodeQueryCacheContext implements QueryCacheContext {
     }
 
     private UUID registerLocalIMapListener(final String name) {
-        return mapServiceContext.addLocalListenerAdapter(new ListenerAdapter<IMapEvent>() {
-            @Override
-            public void onEvent(IMapEvent event) {
-                // NOP
-            }
+        CompletableFuture<EventRegistration> registrationFuture = mapServiceContext
+                .addLocalListenerAdapter(new ListenerAdapter<IMapEvent>() {
+                    @Override
+                    public void onEvent(IMapEvent event) {
+                        // NOP
+                    }
 
-            @Override
-            public String toString() {
-                return "Local IMap listener for the map '" + name + "'";
-            }
-        }, name);
+                    @Override
+                    public String toString() {
+                        return "Local IMap listener for the map '" + name + "'";
+                    }
+                }, name);
+        return registrationFuture.get() ? registrationFuture.getId() : null;
     }
 
     private class RegisterMapListenerFunction implements Function<String, UUID> {

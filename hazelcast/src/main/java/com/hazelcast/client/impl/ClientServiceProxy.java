@@ -52,8 +52,10 @@ public final class ClientServiceProxy implements ClientService {
         checkNotNull(clientListener, "clientListener should not be null");
 
         EventService eventService = nodeEngine.getEventService();
-        EventRegistration registration = eventService.registerLocalListener(
+        CompletableFuture<EventRegistration> registration = eventService.registerLocalListener(
                 ClientEngineImpl.SERVICE_NAME, ClientEngineImpl.SERVICE_NAME, clientListener);
+
+        registration.get();
         return registration.getId();
     }
 
@@ -62,7 +64,8 @@ public final class ClientServiceProxy implements ClientService {
         checkNotNull(registrationId, "registrationId should not be null");
 
         EventService eventService = nodeEngine.getEventService();
-        return eventService.deregisterListener(
-                ClientEngineImpl.SERVICE_NAME, ClientEngineImpl.SERVICE_NAME, registrationId);
+        CompletableFuture<EventRegistration> registrationFuture = eventService
+                .deregisterListener(ClientEngineImpl.SERVICE_NAME, ClientEngineImpl.SERVICE_NAME, registrationId);
+        return registrationFuture.get();
     }
 }

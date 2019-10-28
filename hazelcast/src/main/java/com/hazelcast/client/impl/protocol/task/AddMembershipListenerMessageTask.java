@@ -19,6 +19,7 @@ package com.hazelcast.client.impl.protocol.task;
 import com.hazelcast.client.impl.ClientEndpoint;
 import com.hazelcast.client.impl.protocol.ClientMessage;
 import com.hazelcast.client.impl.protocol.codec.ClientAddMembershipListenerCodec;
+import com.hazelcast.cluster.Address;
 import com.hazelcast.cluster.InitialMembershipEvent;
 import com.hazelcast.cluster.InitialMembershipListener;
 import com.hazelcast.cluster.Member;
@@ -30,30 +31,29 @@ import com.hazelcast.instance.EndpointQualifier;
 import com.hazelcast.instance.impl.Node;
 import com.hazelcast.internal.cluster.ClusterService;
 import com.hazelcast.internal.cluster.impl.ClusterServiceImpl;
-import com.hazelcast.cluster.Address;
 import com.hazelcast.internal.nio.Connection;
+import com.hazelcast.spi.impl.eventservice.EventRegistration;
 
 import java.security.Permission;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class AddMembershipListenerMessageTask
-        extends AbstractCallableMessageTask<ClientAddMembershipListenerCodec.RequestParameters> {
+        extends AbstractAddListenerMessageTask<ClientAddMembershipListenerCodec.RequestParameters> {
 
     public AddMembershipListenerMessageTask(ClientMessage clientMessage, Node node, Connection connection) {
         super(clientMessage, node, connection);
     }
 
     @Override
-    protected Object call() {
+    protected CompletableFuture<EventRegistration> processInternal() {
         String serviceName = ClusterServiceImpl.SERVICE_NAME;
         ClusterServiceImpl service = getService(serviceName);
         boolean advancedNetworkConfigEnabled = isAdvancedNetworkEnabled();
-        UUID registrationId = service.addMembershipListener(
+        return service.addMembershipListener(
                 new MembershipListenerImpl(endpoint, advancedNetworkConfigEnabled));
-        endpoint.addListenerDestroyAction(serviceName, serviceName, registrationId);
-        return registrationId;
     }
 
     @Override
@@ -73,7 +73,7 @@ public class AddMembershipListenerMessageTask
 
     @Override
     public String getDistributedObjectName() {
-        return null;
+        return ClusterServiceImpl.SERVICE_NAME;
     }
 
     @Override

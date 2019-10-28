@@ -142,7 +142,7 @@ public class BatchInvalidator extends Invalidator {
         Invalidation invalidation = new BatchNearCacheInvalidation(dataStructureName, invalidations);
 
         Collection<EventRegistration> registrations = eventService.getRegistrations(serviceName, dataStructureName);
-        for (EventRegistration registration : registrations) {
+        for (CompletableFuture<EventRegistration> registration : registrations) {
             if (eventFilter.apply(registration)) {
                 // find worker queue of striped executor by using subscribers' address.
                 // we want to send all batch invalidations belonging to same subscriber go into
