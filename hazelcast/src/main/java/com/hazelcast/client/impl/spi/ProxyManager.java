@@ -319,8 +319,10 @@ public final class ProxyManager implements DistributedObjectListener {
         ObjectNamespace objectNamespace = new DistributedObjectNamespace(service, id);
         ClientProxyFuture clientProxyFuture = proxies.remove(objectNamespace);
         if (clientProxyFuture != null) {
-            ClientProxy clientProxy = clientProxyFuture.get();
-            clientProxy.destroyLocally();
+            ClientProxy clientProxy = (ClientProxy) clientProxyFuture.proxy;
+            if (clientProxy != null) {
+                clientProxy.destroyLocally();
+            }
         }
     }
 
@@ -414,9 +416,8 @@ public final class ProxyManager implements DistributedObjectListener {
         public void handleDistributedObjectEvent(String name, String serviceName, String eventTypeName, UUID source) {
             final ObjectNamespace ns = new DistributedObjectNamespace(serviceName, name);
             ClientProxyFuture future = proxies.get(ns);
-            ClientProxy proxy = future == null ? null : future.get();
             DistributedObjectEvent.EventType eventType = DistributedObjectEvent.EventType.valueOf(eventTypeName);
-            LazyDistributedObjectEvent event = new LazyDistributedObjectEvent(eventType, serviceName, name, proxy, source,
+            LazyDistributedObjectEvent event = new LazyDistributedObjectEvent(eventType, serviceName, name, future, source,
                     proxyManager);
             if (DistributedObjectEvent.EventType.CREATED.equals(eventType)) {
                 listener.distributedObjectCreated(event);
@@ -463,11 +464,11 @@ public final class ProxyManager implements DistributedObjectListener {
         }
     }
 
-    private static class ClientProxyFuture {
+    public static class ClientProxyFuture {
 
         volatile Object proxy;
 
-        ClientProxy get() {
+        public ClientProxy get() {
             if (proxy == null) {
                 boolean interrupted = false;
                 synchronized (this) {
